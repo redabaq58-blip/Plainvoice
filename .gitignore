@@ -46,3 +46,7 @@ venv/
 
 # opensrc - source code for packages
 opensrc/
+
+# Local machine files — never commit
+gcm-diagnose.log
+.claude/settings.local.json

@@ -1,140 +1,140 @@
 -- ============================================================
 -- PlainVoice — Row Level Security Policies
--- Session 2: RLS on all tables
+-- Session 2 (corrected): multi-org pattern via organization_members
 -- ============================================================
 
--- ── Helper functions (security definer = bypasses RLS) ──────
-
-create or replace function get_my_org_id()
-returns uuid
+-- ── Helper: returns all org_ids the current user belongs to ──
+-- Returns uuid[] (array) so it works inside RLS policy expressions
+-- with = ANY(...). setof uuid is not allowed in policy contexts.
+create or replace function get_user_org_ids()
+returns uuid[]
 language sql
 security definer
 stable
 as $$
-  select org_id from profiles where id = auth.uid();
+  select coalesce(array_agg(org_id), '{}')
+  from organization_members
+  where user_id = auth.uid();
 $$;
 
-create or replace function get_my_role()
-returns text
-language sql
-security definer
-stable
-as $$
-  select role from profiles where id = auth.uid();
-$$;
-
--- ── Enable RLS on all tables ─────────────────────────────────
-alter table organizations  enable row level security;
-alter table profiles        enable row level security;
-alter table voice_agents    enable row level security;
-alter table phone_numbers   enable row level security;
-alter table calls           enable row level security;
-alter table subscriptions   enable row level security;
+-- ── Enable RLS on all 6 tables ───────────────────────────────
+alter table organizations        enable row level security;
+alter table organization_members enable row level security;
+alter table voice_agents         enable row level security;
+alter table phone_numbers        enable row level security;
+alter table calls                enable row level security;
+alter table contacts             enable row level security;
 
 -- ── ORGANIZATIONS ────────────────────────────────────────────
 
--- Members can read their org
 create policy "organizations_select" on organizations
   for select to authenticated
-  using (id = get_my_org_id());
+  using (id = any(get_user_org_ids()));
 
--- Owners can update their org
+create policy "organizations_insert" on organizations
+  for insert to authenticated
+  with check (true);
+
 create policy "organizations_update" on organizations
   for update to authenticated
-  using  (id = get_my_org_id() and get_my_role() = 'owner')
-  with check (id = get_my_org_id());
+  using  (id = any(get_user_org_ids()))
+  with check (id = any(get_user_org_ids()));
 
--- Only service role can insert orgs (signup flow via API)
-create policy "organizations_insert_service" on organizations
-  for insert to service_role
-  with check (true);
+create policy "organizations_delete" on organizations
+  for delete to authenticated
+  using (id = any(get_user_org_ids()));
 
--- ── PROFILES ─────────────────────────────────────────────────
+-- ── ORGANIZATION MEMBERS ─────────────────────────────────────
 
--- Users can see all profiles in their org (e.g. team listing)
-create policy "profiles_select" on profiles
+create policy "organization_members_select" on organization_members
   for select to authenticated
-  using (org_id = get_my_org_id());
+  using (org_id = any(get_user_org_ids()));
 
--- Users can update only their own profile
-create policy "profiles_update_own" on profiles
+create policy "organization_members_insert" on organization_members
+  for insert to authenticated
+  with check (org_id = any(get_user_org_ids()));
+
+create policy "organization_members_update" on organization_members
   for update to authenticated
-  using  (id = auth.uid())
-  with check (id = auth.uid());
+  using  (org_id = any(get_user_org_ids()))
+  with check (org_id = any(get_user_org_ids()));
 
--- Only service role can insert profiles (signup trigger)
-create policy "profiles_insert_service" on profiles
-  for insert to service_role
-  with check (true);
+create policy "organization_members_delete" on organization_members
+  for delete to authenticated
+  using (org_id = any(get_user_org_ids()));
 
 -- ── VOICE AGENTS ─────────────────────────────────────────────
 
 create policy "voice_agents_select" on voice_agents
   for select to authenticated
-  using (org_id = get_my_org_id());
+  using (org_id = any(get_user_org_ids()));
 
 create policy "voice_agents_insert" on voice_agents
   for insert to authenticated
-  with check (org_id = get_my_org_id() and get_my_role() in ('owner', 'admin'));
+  with check (org_id = any(get_user_org_ids()));
 
 create policy "voice_agents_update" on voice_agents
   for update to authenticated
-  using  (org_id = get_my_org_id() and get_my_role() in ('owner', 'admin'))
-  with check (org_id = get_my_org_id());
+  using  (org_id = any(get_user_org_ids()))
+  with check (org_id = any(get_user_org_ids()));
 
 create policy "voice_agents_delete" on voice_agents
   for delete to authenticated
-  using (org_id = get_my_org_id() and get_my_role() in ('owner', 'admin'));
+  using (org_id = any(get_user_org_ids()));
 
 -- ── PHONE NUMBERS ────────────────────────────────────────────
 
 create policy "phone_numbers_select" on phone_numbers
   for select to authenticated
-  using (org_id = get_my_org_id());
+  using (org_id = any(get_user_org_ids()));
 
 create policy "phone_numbers_insert" on phone_numbers
   for insert to authenticated
-  with check (org_id = get_my_org_id() and get_my_role() in ('owner', 'admin'));
+  with check (org_id = any(get_user_org_ids()));
 
 create policy "phone_numbers_update" on phone_numbers
   for update to authenticated
-  using  (org_id = get_my_org_id() and get_my_role() in ('owner', 'admin'))
-  with check (org_id = get_my_org_id());
+  using  (org_id = any(get_user_org_ids()))
+  with check (org_id = any(get_user_org_ids()));
 
 create policy "phone_numbers_delete" on phone_numbers
   for delete to authenticated
-  using (org_id = get_my_org_id() and get_my_role() in ('owner', 'admin'));
+  using (org_id = any(get_user_org_ids()));
 
 -- ── CALLS ────────────────────────────────────────────────────
 
--- All org members can read calls
 create policy "calls_select" on calls
   for select to authenticated
-  using (org_id = get_my_org_id());
+  using (org_id = any(get_user_org_ids()));
 
--- Only service role inserts/updates calls (via Vapi webhooks in API)
-create policy "calls_insert_service" on calls
-  for insert to service_role
-  with check (true);
+create policy "calls_insert" on calls
+  for insert to authenticated
+  with check (org_id = any(get_user_org_ids()));
 
-create policy "calls_update_service" on calls
-  for update to service_role
-  using  (true)
-  with check (true);
+create policy "calls_update" on calls
+  for update to authenticated
+  using  (org_id = any(get_user_org_ids()))
+  with check (org_id = any(get_user_org_ids()));
 
--- ── SUBSCRIPTIONS ────────────────────────────────────────────
+create policy "calls_delete" on calls
+  for delete to authenticated
+  using (org_id = any(get_user_org_ids()));
 
--- Org members can read their subscription
-create policy "subscriptions_select" on subscriptions
+-- ── CONTACTS ─────────────────────────────────────────────────
+
+create policy "contacts_select" on contacts
   for select to authenticated
-  using (org_id = get_my_org_id());
+  using (org_id = any(get_user_org_ids()));
 
--- Only service role manages subscriptions (Stripe webhook handler)
-create policy "subscriptions_insert_service" on subscriptions
-  for insert to service_role
-  with check (true);
+create policy "contacts_insert" on contacts
+  for insert to authenticated
+  with check (org_id = any(get_user_org_ids()));
 
-create policy "subscriptions_update_service" on subscriptions
-  for update to service_role
-  using  (true)
-  with check (true);
+create policy "contacts_update" on contacts
+  for update to authenticated
+  using  (org_id = any(get_user_org_ids()))
+  with check (org_id = any(get_user_org_ids()));
+
+create policy "contacts_delete" on contacts
+  for delete to authenticated
+  using (org_id = any(get_user_org_ids()));

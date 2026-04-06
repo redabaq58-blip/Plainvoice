@@ -114,6 +114,106 @@ export type Database = {
           },
         ]
       }
+      contacts: {
+        Row: {
+          company: string | null
+          consent_given_at: string | null
+          created_at: string
+          do_not_call: boolean
+          email: string | null
+          first_name: string | null
+          id: string
+          language_preference: string
+          last_call_at: string | null
+          last_name: string | null
+          lead_score: number
+          notes: string | null
+          org_id: string
+          phone: string | null
+          tags: string[]
+          total_calls: number
+          updated_at: string
+        }
+        Insert: {
+          company?: string | null
+          consent_given_at?: string | null
+          created_at?: string
+          do_not_call?: boolean
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          language_preference?: string
+          last_call_at?: string | null
+          last_name?: string | null
+          lead_score?: number
+          notes?: string | null
+          org_id: string
+          phone?: string | null
+          tags?: string[]
+          total_calls?: number
+          updated_at?: string
+        }
+        Update: {
+          company?: string | null
+          consent_given_at?: string | null
+          created_at?: string
+          do_not_call?: boolean
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          language_preference?: string
+          last_call_at?: string | null
+          last_name?: string | null
+          lead_score?: number
+          notes?: string | null
+          org_id?: string
+          phone?: string | null
+          tags?: string[]
+          total_calls?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contacts_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organization_members: {
+        Row: {
+          created_at: string
+          id: string
+          org_id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          org_id: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          org_id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_members_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organizations: {
         Row: {
           created_at: string
@@ -189,103 +289,15 @@ export type Database = {
           },
         ]
       }
-      profiles: {
-        Row: {
-          avatar_url: string | null
-          created_at: string
-          full_name: string | null
-          id: string
-          org_id: string
-          role: string
-          updated_at: string
-        }
-        Insert: {
-          avatar_url?: string | null
-          created_at?: string
-          full_name?: string | null
-          id: string
-          org_id: string
-          role?: string
-          updated_at?: string
-        }
-        Update: {
-          avatar_url?: string | null
-          created_at?: string
-          full_name?: string | null
-          id?: string
-          org_id?: string
-          role?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "profiles_org_id_fkey"
-            columns: ["org_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      subscriptions: {
-        Row: {
-          cancel_at_period_end: boolean
-          created_at: string
-          current_period_end: string | null
-          current_period_start: string | null
-          id: string
-          org_id: string
-          plan: string
-          status: string
-          stripe_customer_id: string | null
-          stripe_subscription_id: string | null
-          updated_at: string
-        }
-        Insert: {
-          cancel_at_period_end?: boolean
-          created_at?: string
-          current_period_end?: string | null
-          current_period_start?: string | null
-          id?: string
-          org_id: string
-          plan?: string
-          status?: string
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
-          updated_at?: string
-        }
-        Update: {
-          cancel_at_period_end?: boolean
-          created_at?: string
-          current_period_end?: string | null
-          current_period_start?: string | null
-          id?: string
-          org_id?: string
-          plan?: string
-          status?: string
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "subscriptions_org_id_fkey"
-            columns: ["org_id"]
-            isOneToOne: true
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       voice_agents: {
         Row: {
           created_at: string
           first_message: string | null
           id: string
-          is_active: boolean
           language: string
           name: string
           org_id: string
+          status: string
           system_prompt: string | null
           updated_at: string
           vapi_agent_id: string | null
@@ -295,10 +307,10 @@ export type Database = {
           created_at?: string
           first_message?: string | null
           id?: string
-          is_active?: boolean
           language?: string
           name: string
           org_id: string
+          status?: string
           system_prompt?: string | null
           updated_at?: string
           vapi_agent_id?: string | null
@@ -308,10 +320,10 @@ export type Database = {
           created_at?: string
           first_message?: string | null
           id?: string
-          is_active?: boolean
           language?: string
           name?: string
           org_id?: string
+          status?: string
           system_prompt?: string | null
           updated_at?: string
           vapi_agent_id?: string | null
@@ -332,8 +344,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_my_org_id: { Args: never; Returns: string }
-      get_my_role: { Args: never; Returns: string }
+      get_user_org_ids: { Args: never; Returns: string[] }
     }
     Enums: {
       [_ in never]: never

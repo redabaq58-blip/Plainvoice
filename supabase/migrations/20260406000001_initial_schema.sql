@@ -1,9 +1,10 @@
 -- ============================================================
 -- PlainVoice — Initial Schema
--- Session 2: core tables + indexes
+-- Session 2 (corrected): organizations, organization_members,
+--   voice_agents, phone_numbers, calls, contacts
 -- ============================================================
 
--- ── Trigger helper ──────────────────────────────────────────
+-- ── updated_at trigger function ──────────────────────────────
 create or replace function trigger_set_updated_at()
 returns trigger as $$
 begin
@@ -12,7 +13,7 @@ begin
 end;
 $$ language plpgsql;
 
--- ── Organizations (tenants) ──────────────────────────────────
+-- ── Organizations ────────────────────────────────────────────
 create table organizations (
   id         uuid        primary key default gen_random_uuid(),
   name       text        not null,
@@ -25,35 +26,31 @@ create trigger organizations_updated_at
   before update on organizations
   for each row execute procedure trigger_set_updated_at();
 
--- ── Profiles (extends auth.users) ───────────────────────────
-create table profiles (
-  id         uuid        primary key references auth.users(id) on delete cascade,
+-- ── Organization Members ─────────────────────────────────────
+create table organization_members (
+  id         uuid        primary key default gen_random_uuid(),
   org_id     uuid        not null references organizations(id) on delete cascade,
+  user_id    uuid        not null references auth.users(id) on delete cascade,
   role       text        not null default 'member'
-                         check (role in ('owner', 'admin', 'member')),
-  full_name  text,
-  avatar_url text,
+                         check (role in ('owner', 'admin', 'member', 'viewer')),
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  unique(org_id, user_id)
 );
 
-create trigger profiles_updated_at
-  before update on profiles
-  for each row execute procedure trigger_set_updated_at();
+create index organization_members_user_id_idx on organization_members(user_id);
 
-create index profiles_org_id_idx on profiles(org_id);
-
--- ── Voice Agents (Vapi agent configurations) ────────────────
+-- ── Voice Agents ─────────────────────────────────────────────
 create table voice_agents (
   id            uuid        primary key default gen_random_uuid(),
   org_id        uuid        not null references organizations(id) on delete cascade,
   vapi_agent_id text,
   name          text        not null,
+  status        text        not null default 'active'
+                            check (status in ('active', 'inactive', 'draft')),
   language      text        not null default 'fr-CA',
   system_prompt text,
   first_message text,
   voice_id      text,
-  is_active     boolean     not null default true,
   created_at    timestamptz not null default now(),
   updated_at    timestamptz not null default now()
 );
@@ -62,9 +59,9 @@ create trigger voice_agents_updated_at
   before update on voice_agents
   for each row execute procedure trigger_set_updated_at();
 
-create index voice_agents_org_id_idx on voice_agents(org_id);
+create index voice_agents_org_id_status_idx on voice_agents(org_id, status);
 
--- ── Phone Numbers (Twilio) ───────────────────────────────────
+-- ── Phone Numbers ────────────────────────────────────────────
 create table phone_numbers (
   id             uuid        primary key default gen_random_uuid(),
   org_id         uuid        not null references organizations(id) on delete cascade,
@@ -77,13 +74,39 @@ create table phone_numbers (
   updated_at     timestamptz not null default now()
 );
 
-create trigger phone_numbers_updated_at
-  before update on phone_numbers
-  for each row execute procedure trigger_set_updated_at();
-
 create index phone_numbers_org_id_idx on phone_numbers(org_id);
 
--- ── Calls (Vapi call logs) ───────────────────────────────────
+-- ── Contacts (before calls — no FK dependency issue) ─────────
+create table contacts (
+  id                  uuid        primary key default gen_random_uuid(),
+  org_id              uuid        not null references organizations(id) on delete cascade,
+  first_name          text,
+  last_name           text,
+  phone               text,
+  email               text,
+  company             text,
+  language_preference text        not null default 'fr'
+                                  check (language_preference in ('fr', 'en')),
+  tags                text[]      not null default '{}',
+  lead_score          integer     not null default 0
+                                  check (lead_score between 0 and 100),
+  do_not_call         boolean     not null default false,
+  consent_given_at    timestamptz,
+  total_calls         integer     not null default 0,
+  last_call_at        timestamptz,
+  notes               text,
+  created_at          timestamptz not null default now(),
+  updated_at          timestamptz not null default now(),
+  unique(org_id, phone)
+);
+
+create trigger contacts_updated_at
+  before update on contacts
+  for each row execute procedure trigger_set_updated_at();
+
+create index contacts_org_id_phone_idx on contacts(org_id, phone);
+
+-- ── Calls ────────────────────────────────────────────────────
 create table calls (
   id               uuid        primary key default gen_random_uuid(),
   org_id           uuid        not null references organizations(id) on delete cascade,
@@ -103,32 +126,5 @@ create table calls (
   updated_at       timestamptz not null default now()
 );
 
-create trigger calls_updated_at
-  before update on calls
-  for each row execute procedure trigger_set_updated_at();
-
-create index calls_org_id_idx      on calls(org_id);
-create index calls_vapi_call_id_idx on calls(vapi_call_id);
-create index calls_started_at_idx  on calls(started_at desc);
-
--- ── Subscriptions (Stripe) ───────────────────────────────────
-create table subscriptions (
-  id                     uuid        primary key default gen_random_uuid(),
-  org_id                 uuid        not null unique references organizations(id) on delete cascade,
-  stripe_customer_id     text        unique,
-  stripe_subscription_id text        unique,
-  status                 text        not null default 'inactive',
-  plan                   text        not null default 'starter',
-  current_period_start   timestamptz,
-  current_period_end     timestamptz,
-  cancel_at_period_end   boolean     not null default false,
-  created_at             timestamptz not null default now(),
-  updated_at             timestamptz not null default now()
-);
-
-create trigger subscriptions_updated_at
-  before update on subscriptions
-  for each row execute procedure trigger_set_updated_at();
-
-create index subscriptions_org_id_idx            on subscriptions(org_id);
-create index subscriptions_stripe_customer_id_idx on subscriptions(stripe_customer_id);
+create index calls_org_id_created_at_idx on calls(org_id, created_at desc);
+create index calls_vapi_call_id_idx      on calls(vapi_call_id);

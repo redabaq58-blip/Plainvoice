@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx create-turbo@latest . --package-manager pnpm)",
+      "Bash(npx opensrc:*)"
+    ]
+  }
+}

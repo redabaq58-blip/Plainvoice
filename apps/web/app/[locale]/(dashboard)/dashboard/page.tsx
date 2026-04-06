@@ -13,7 +13,7 @@ type Props = {
 };
 
 export default async function DashboardPage({ params }: Props) {
-  await params; // locale available from layout
+  await params;
   const t = await getTranslations("dashboard");
 
   const supabase = await createSupabaseServerClient();

@@ -1,0 +1,14 @@
+{
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "agents": "Agents",
+    "calls": "Appels",
+    "billing": "Facturation",
+    "settings": "Paramètres"
+  },
+  "common": {
+    "loading": "Chargement...",
+    "error": "Une erreur s'est produite",
+    "save": "Enregistrer"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "agents": "Agents",
+    "calls": "Calls",
+    "billing": "Billing",
+    "settings": "Settings"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "save": "Save"
+  }
+}

@@ -10,5 +10,42 @@
     "loading": "Chargement...",
     "error": "Une erreur s'est produite",
     "save": "Enregistrer"
+  },
+  "auth": {
+    "login": {
+      "title": "Connexion à PlainVoice",
+      "subtitle": "Entrez vos identifiants pour accéder à votre compte",
+      "emailLabel": "Courriel",
+      "emailPlaceholder": "vous@entreprise.com",
+      "passwordLabel": "Mot de passe",
+      "passwordPlaceholder": "••••••••",
+      "submitButton": "Se connecter",
+      "googleButton": "Continuer avec Google",
+      "signupLink": "Pas encore de compte ? S'inscrire",
+      "errorInvalid": "Courriel ou mot de passe invalide"
+    },
+    "signup": {
+      "title": "Créer votre compte",
+      "subtitle": "Commencez votre essai gratuit — sans carte de crédit",
+      "emailLabel": "Courriel",
+      "emailPlaceholder": "vous@entreprise.com",
+      "passwordLabel": "Mot de passe",
+      "passwordPlaceholder": "••••••••",
+      "confirmPasswordLabel": "Confirmer le mot de passe",
+      "confirmPasswordPlaceholder": "••••••••",
+      "orgNameLabel": "Nom de l'organisation",
+      "orgNamePlaceholder": "Acme inc.",
+      "submitButton": "Créer le compte",
+      "loginLink": "Déjà un compte ? Se connecter",
+      "errorMismatch": "Les mots de passe ne correspondent pas"
+    },
+    "signOut": "Se déconnecter"
+  },
+  "dashboard": {
+    "welcome": "Bon retour, {org}",
+    "totalCalls": "Total des appels",
+    "activeAgents": "Agents actifs",
+    "creditsRemaining": "Crédits restants",
+    "thisMonthMinutes": "Minutes ce mois-ci"
   }
 }

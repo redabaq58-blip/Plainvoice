@@ -10,5 +10,42 @@
     "loading": "Loading...",
     "error": "An error occurred",
     "save": "Save"
+  },
+  "auth": {
+    "login": {
+      "title": "Sign in to PlainVoice",
+      "subtitle": "Enter your credentials to access your account",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@company.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "••••••••",
+      "submitButton": "Sign In",
+      "googleButton": "Continue with Google",
+      "signupLink": "Don't have an account? Sign up",
+      "errorInvalid": "Invalid email or password"
+    },
+    "signup": {
+      "title": "Create your account",
+      "subtitle": "Start your free trial — no credit card required",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@company.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "••••••••",
+      "confirmPasswordLabel": "Confirm Password",
+      "confirmPasswordPlaceholder": "••••••••",
+      "orgNameLabel": "Organization Name",
+      "orgNamePlaceholder": "Acme Inc.",
+      "submitButton": "Create Account",
+      "loginLink": "Already have an account? Sign in",
+      "errorMismatch": "Passwords do not match"
+    },
+    "signOut": "Sign Out"
+  },
+  "dashboard": {
+    "welcome": "Welcome back, {org}",
+    "totalCalls": "Total Calls",
+    "activeAgents": "Active Agents",
+    "creditsRemaining": "Credits Remaining",
+    "thisMonthMinutes": "This Month's Minutes"
   }
 }

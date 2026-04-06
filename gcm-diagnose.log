@@ -1,0 +1,204 @@
+﻿Diagnose log at 2026-04-06T18:08:04Z
+
+AppPath: C:\Program Files\Git\mingw64\bin\git-credential-manager.exe
+InstallDir: C:\Program Files\Git\mingw64\bin\
+Version: 2.7.3+5fa7116896c82164996a609accd1c5ad90fe730a
+
+------------
+Diagnostic: Environment
+Skipped: False
+Success: True
+Exception: None
+Log:
+OSType: Windows
+OSVersion: 10.0 (build 26200)
+Reading environment variables... OK
+ Variables:
+OneDriveConsumer=C:\Users\redab\OneDrive
+OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE=delta
+MSYSTEM=MINGW64
+ProgramW6432=C:\Program Files
+EXEPATH=C:\Program Files\Git\bin
+EFC_4840_1592913036=1
+PROCESSOR_IDENTIFIER=AMD64 Family 23 Model 113 Stepping 0, AuthenticAMD
+TMP=C:\Users\redab\AppData\Local\Temp
+PROCESSOR_ARCHITECTURE=AMD64
+SYSTEMROOT=C:\WINDOWS
+PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.PY;.PYW;.CPL
+CLAUDE_CODE_SSE_PORT=17310
+VSCODE_GIT_ASKPASS_MAIN=c:\Users\redab\AppData\Roaming\Code\User\globalStorage\vscode.git\askpass\493597c785d4c5cb\askpass-main.js
+PWD=C:/Users/redab/OneDrive/Bureau/voice agent test
+VSCODE_GIT_IPC_HANDLE=\\.\pipe\vscode-git-43980a890c-sock
+LOCALAPPDATA=C:\Users\redab\AppData\Local
+PROCESSOR_REVISION=7100
+CLAUDE_CODE_EXECPATH=C:\Users\redab\.local\bin\claude.exe
+ChocolateyLastPathUpdate=134067716639286060
+USERPROFILE=C:\Users\redab
+GIT_ASKPASS=c:\Users\redab\AppData\Roaming\Code\User\globalStorage\vscode.git\askpass\493597c785d4c5cb\askpass.sh
+TEMP=C:\Users\redab\AppData\Local\Temp
+USERNAME=redab
+SHELL=C:\Program Files\Git\bin\bash.exe
+CLAUDE_CODE_ENTRYPOINT=cli
+GIT_EXEC_PATH=C:/Program Files/Git/mingw64/libexec/git-core
+PLINK_PROTOCOL=ssh
+COMMONPROGRAMFILES=C:\Program Files\Common Files
+_=C:/Program Files/Git/mingw64/bin/git
+NoDefaultCurrentDirectoryInExePath=1
+OneDrive=C:\Users\redab\OneDrive
+PATH=C:/Program Files/Git/mingw64/libexec/git-core;C:\Users\redab\bin;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\local\bin;C:\Program Files\Git\usr\bin;C:\Program Files\Git\usr\bin;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\bin;C:\Users\redab\bin;C:\Users\redab\AppData\Roaming\Code\User\globalStorage\github.copilot-chat\debugCommand;C:\Users\redab\AppData\Roaming\Code\User\globalStorage\github.copilot-chat\copilotCli;C:\Users\redab\AppData\Local\Programs\Microsoft VS Code;C:\Python314\Scripts;C:\Python314;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\OpenSSH;C:\Program Files\cursor\resources\app\bin;C:\Program Files\nodejs;C:\ProgramData\chocolatey\bin;C:\Program Files\Git\cmd;C:\Users\redab\.local\bin;C:\Users\redab\AppData\Local\Microsoft\WindowsApps;C:\Users\redab\AppData\Roaming\npm;C:\Users\redab\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\redab\AppData\Local\Programs\Antigravity\bin;C:\Users\redab\AppData\Local\GitHubDesktop\bin;C:\Program Files\Git\usr\bin\vendor_perl;C:\Program Files\Git\usr\bin\core_perl;C:\Users\redab\.claude\plugins\cache\claude-plugins-official\agent-sdk-dev\unknown\bin;C:\Users\redab\.claude\plugins\cache\claude-plugins-official\atomic-agents\dae9a28e6226\bin;C:\Users\redab\.claude\plugins\cache\claude-plugins-official\claude-code-setup\1.0.0\bin;C:\Users\redab\.claude\plugins\cache\claude-plugins-official\chrome-devtools-mcp\latest\bin;C:\Users\redab\.claude\plugins\cache\claude-plugins-official\github\unknown\bin;C:\Users\redab\.claude\plugins\cache\claude-plugins-official\gitlab\unknown\bin
+CommonProgramFiles(x86)=C:\Program Files (x86)\Common Files
+VSCODE_INJECTION=1
+VSCODE_PYTHON_AUTOACTIVATE_GUARD=1
+PROCESSOR_LEVEL=23
+ProgramData=C:\ProgramData
+HOMEPATH=\Users\redab
+WINDIR=C:\WINDOWS
+ALLUSERSPROFILE=C:\ProgramData
+CommonProgramW6432=C:\Program Files\Common Files
+GK_GL_PATH=C:\Users\redab\AppData\Local\Temp\gitkraken\gitlens\gitlens-ipc-server-13592-64697.json
+CHROME_CRASHPAD_PIPE_NAME=\\.\pipe\crashpad_13592_DXSIZZAQRKGCUJMW
+ChocolateyInstall=C:\ProgramData\chocolatey
+TERM=xterm-256color
+COREPACK_ENABLE_AUTO_PIN=0
+PROGRAMFILES=C:\Program Files
+SHLVL=1
+SESSIONNAME=Console
+DriverData=C:\Windows\System32\Drivers\DriverData
+HOMEDRIVE=C:
+GIT_TRACE2_PARENT_SID=c107e738-15d3-4217-8ce4-3e7abed76262
+VSCODE_GIT_ASKPASS_NODE=C:\Users\redab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+NUMBER_OF_PROCESSORS=12
+OS=Windows_NT
+LANG=en_US.UTF-8
+GIT_EDITOR=true
+HOME=C:\Users\redab
+LOGONSERVER=\\DESKTOP-KABTC2O
+ProgramFiles(x86)=C:\Program Files (x86)
+SYSTEMDRIVE=C:
+PSModulePath=C:\Users\redab\OneDrive\Documents\WindowsPowerShell\Modules;C:\Program Files\WindowsPowerShell\Modules;C:\WINDOWS\system32\WindowsPowerShell\v1.0\Modules
+TMPDIR=C:\Users\redab\AppData\Local\Temp
+APPDATA=C:\Users\redab\AppData\Roaming
+USERDOMAIN=DESKTOP-KABTC2O
+COMPUTERNAME=DESKTOP-KABTC2O
+COMSPEC=C:\WINDOWS\system32\cmd.exe
+CLAUDECODE=1
+TERM_PROGRAM_VERSION=1.114.0
+USERDOMAIN_ROAMINGPROFILE=DESKTOP-KABTC2O
+COLORTERM=truecolor
+PUBLIC=C:\Users\Public
+TERM_PROGRAM=vscode
+VSCODE_GIT_ASKPASS_EXTRA_ARGS=
+GK_GL_ADDR=http://127.0.0.1:64697
+
+
+------------
+Diagnostic: File system
+Skipped: False
+Success: True
+Exception: None
+Log:
+Temporary directory is 'C:\Users\redab\AppData\Local\Temp\'...
+Checking basic file I/O...
+Writing to temporary file 'C:\Users\redab\AppData\Local\Temp\e37041528daf1485b45e8ded'... OK
+Reading from temporary file 'C:\Users\redab\AppData\Local\Temp\e37041528daf1485b45e8ded'... OK
+Deleting temporary file 'C:\Users\redab\AppData\Local\Temp\e37041528daf1485b45e8ded'... OK
+Testing IFileSystem instance...
+UserHomePath: C:\Users\redab
+UserDataDirectoryPath: C:\Users\redab\.gcm
+GetCurrentDirectory(): C:\Users\redab\OneDrive\Bureau\voice agent test
+
+------------
+Diagnostic: Networking
+Skipped: False
+Success: True
+Exception: None
+Log:
+Checking networking and HTTP stack...
+Creating HTTP client... OK
+IsNetworkAvailable: True
+Sending HEAD request to http://example.com...Sending HEAD request to https://example.com... OK
+ OK
+Acquiring free TCP port... OK
+Testing local HTTP loopback connections...
+Creating new HTTP listener for http://localhost:53296/... OK
+Waiting for loopback connection... OK
+Writing response... OK
+Waiting for response data... OK
+Loopback connection data OK
+
+------------
+Diagnostic: Git
+Skipped: False
+Success: True
+Exception: None
+Log:
+Getting Git version... OK
+Git version is '2.53.0.windows.2'
+Locating current repository...Git repository at 'C:/Users/redab/OneDrive/Bureau/voice agent test/.git'
+ OK
+Listing all Git configuration... OK
+Git configuration:
+file:C:/Program Files/Git/etc/gitconfig	diff.astextplain.textconv=astextplain
+file:C:/Program Files/Git/etc/gitconfig	filter.lfs.clean=git-lfs clean -- %f
+file:C:/Program Files/Git/etc/gitconfig	filter.lfs.smudge=git-lfs smudge -- %f
+file:C:/Program Files/Git/etc/gitconfig	filter.lfs.process=git-lfs filter-process
+file:C:/Program Files/Git/etc/gitconfig	filter.lfs.required=true
+file:C:/Program Files/Git/etc/gitconfig	http.sslbackend=schannel
+file:C:/Program Files/Git/etc/gitconfig	core.autocrlf=true
+file:C:/Program Files/Git/etc/gitconfig	core.fscache=true
+file:C:/Program Files/Git/etc/gitconfig	core.symlinks=false
+file:C:/Program Files/Git/etc/gitconfig	pull.rebase=false
+file:C:/Program Files/Git/etc/gitconfig	credential.helper=manager
+file:C:/Program Files/Git/etc/gitconfig	credential.https://dev.azure.com.usehttppath=true
+file:C:/Program Files/Git/etc/gitconfig	init.defaultbranch=master
+file:C:/Users/redab/.gitconfig	filter.lfs.process=git-lfs filter-process
+file:C:/Users/redab/.gitconfig	filter.lfs.required=true
+file:C:/Users/redab/.gitconfig	filter.lfs.clean=git-lfs clean -- %f
+file:C:/Users/redab/.gitconfig	filter.lfs.smudge=git-lfs smudge -- %f
+file:C:/Users/redab/.gitconfig	user.name=redabaquechame
+file:C:/Users/redab/.gitconfig	user.email=redabaquechame58@gmail.com
+file:.git/config	core.repositoryformatversion=0
+file:.git/config	core.filemode=false
+file:.git/config	core.bare=false
+file:.git/config	core.logallrefupdates=true
+file:.git/config	core.symlinks=false
+file:.git/config	core.ignorecase=true
+file:.git/config	remote.origin.url=https://github.com/redabaq58-blip/voice-agent-test.git
+file:.git/config	remote.origin.fetch=+refs/heads/*:refs/remotes/origin/*
+
+
+------------
+Diagnostic: Credential storage
+Skipped: False
+Success: True
+Exception: None
+Log:
+ICredentialStore instance is of type: CredentialStore
+Writing test credential... OK
+Reading test credential... OK
+Deleting test credential... OK
+
+------------
+Diagnostic: Microsoft authentication (AAD/MSA)
+Skipped: False
+Success: True
+Exception: None
+Log:
+Broker is not enabled.
+Flow type is: Auto
+Gathering MSAL token cache data... OK
+CacheDirectory: C:\Users\redab\AppData\Local\.IdentityService
+CacheFileName: msal.cache
+CacheFilePath: C:\Users\redab\AppData\Local\.IdentityService\msal.cache
+Creating cache helper... OK
+Verifying MSAL token cache persistence... OK
+
+------------
+Diagnostic: GitHub API
+Skipped: False
+Success: True
+Exception: None
+Log:
+Using 'https://github.com/' as API target.
+Querying '/meta' endpoint... OK
+

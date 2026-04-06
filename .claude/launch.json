@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "web",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--dir", "C:\\Users\\redab\\plainvoice", "--filter", "web", "run", "dev"],
+      "port": 3000
+    },
+    {
+      "name": "api",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--dir", "C:\\Users\\redab\\plainvoice", "--filter", "api", "run", "dev"],
+      "port": 8000
+    }
+  ]
+}

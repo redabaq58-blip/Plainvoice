@@ -35,7 +35,8 @@
       "Bash(printf \"protocol=https\\\\nhost=github.com\\\\nusername=redabaq58-blip\\\\n\")",
       "Bash(git credential:*)",
       "Read(//c/Users/redab/plainvoice/**)",
-      "Read(//c/Users/redab/plainvoice/opensrc/**)"
+      "Read(//c/Users/redab/plainvoice/opensrc/**)",
+      "Bash(npx supabase:*)"
     ]
   }
 }

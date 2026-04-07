@@ -47,5 +47,92 @@
     "activeAgents": "Active Agents",
     "creditsRemaining": "Credits Remaining",
     "thisMonthMinutes": "This Month's Minutes"
+  },
+  "agents": {
+    "title": "Voice Agents",
+    "createAgent": "Create Agent",
+    "empty": {
+      "title": "No agents yet",
+      "description": "Create your first voice agent to get started."
+    },
+    "table": {
+      "name": "Name",
+      "status": "Status",
+      "language": "Language",
+      "vertical": "Vertical",
+      "phoneNumber": "Phone Number",
+      "totalCalls": "Total Calls",
+      "actions": "Actions"
+    },
+    "status": {
+      "draft": "Draft",
+      "active": "Active",
+      "paused": "Paused"
+    },
+    "vertical": {
+      "dental": "Dental",
+      "plumbing": "Plumbing",
+      "hvac": "HVAC",
+      "beauty": "Beauty",
+      "trades": "Trades",
+      "restaurant": "Restaurant",
+      "legal": "Legal",
+      "general": "General"
+    },
+    "voiceProvider": {
+      "elevenlabs": "ElevenLabs",
+      "azure": "Azure",
+      "deepgram": "Deepgram"
+    },
+    "language": {
+      "fr": "French",
+      "en": "English",
+      "bilingual": "Bilingual"
+    },
+    "form": {
+      "name": "Agent Name",
+      "namePlaceholder": "My Voice Agent",
+      "vertical": "Industry Vertical",
+      "language": "Language",
+      "voiceProvider": "Voice Provider",
+      "voiceId": "Voice ID",
+      "voiceIdPlaceholder": "Paste voice ID from Vapi dashboard",
+      "firstMessage": "First Message",
+      "firstMessagePlaceholder": "What the AI says when it picks up",
+      "systemPrompt": "System Prompt",
+      "systemPromptPlaceholder": "Instructions for the AI agent...",
+      "transferPhoneNumber": "Transfer Phone Number",
+      "transferPhoneNumberPlaceholder": "+1 514 555 0000",
+      "maxCallDuration": "Max Call Duration",
+      "maxCallDurationMinutes": "{minutes} minutes",
+      "status": "Status",
+      "submit": "Create Agent",
+      "save": "Save Changes"
+    },
+    "detail": {
+      "overview": "Overview",
+      "test": "Test",
+      "settings": "Settings",
+      "callHistory": "Call History",
+      "totalCalls": "Total Calls",
+      "avgDuration": "Avg. Duration",
+      "noCallsYet": "No calls yet."
+    },
+    "test": {
+      "start": "Start Call",
+      "end": "End Call",
+      "connecting": "Connecting...",
+      "active": "Call in progress",
+      "idle": "Ready to test",
+      "ended": "Call ended"
+    },
+    "delete": {
+      "title": "Delete Agent",
+      "message": "Are you sure you want to delete this agent? This action cannot be undone.",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    },
+    "edit": "Edit",
+    "deleteAction": "Delete"
   }
 }

@@ -293,40 +293,55 @@ export type Database = {
           created_at: string
           first_message: string | null
           id: string
+          knowledge_base: Json
           language: string
+          max_call_duration_minutes: number
           name: string
           org_id: string
           status: string
           system_prompt: string | null
+          transfer_phone_number: string | null
           updated_at: string
-          vapi_agent_id: string | null
+          vapi_assistant_id: string | null
+          vertical: string
           voice_id: string | null
+          voice_provider: string
         }
         Insert: {
           created_at?: string
           first_message?: string | null
           id?: string
+          knowledge_base?: Json
           language?: string
+          max_call_duration_minutes?: number
           name: string
           org_id: string
           status?: string
           system_prompt?: string | null
+          transfer_phone_number?: string | null
           updated_at?: string
-          vapi_agent_id?: string | null
+          vapi_assistant_id?: string | null
+          vertical?: string
           voice_id?: string | null
+          voice_provider?: string
         }
         Update: {
           created_at?: string
           first_message?: string | null
           id?: string
+          knowledge_base?: Json
           language?: string
+          max_call_duration_minutes?: number
           name?: string
           org_id?: string
           status?: string
           system_prompt?: string | null
+          transfer_phone_number?: string | null
           updated_at?: string
-          vapi_agent_id?: string | null
+          vapi_assistant_id?: string | null
+          vertical?: string
           voice_id?: string | null
+          voice_provider?: string
         }
         Relationships: [
           {

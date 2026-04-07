@@ -47,5 +47,92 @@
     "activeAgents": "Agents actifs",
     "creditsRemaining": "Crédits restants",
     "thisMonthMinutes": "Minutes ce mois-ci"
+  },
+  "agents": {
+    "title": "Agents vocaux",
+    "createAgent": "Créer un agent",
+    "empty": {
+      "title": "Aucun agent",
+      "description": "Créez votre premier agent vocal pour commencer."
+    },
+    "table": {
+      "name": "Nom",
+      "status": "Statut",
+      "language": "Langue",
+      "vertical": "Secteur",
+      "phoneNumber": "Numéro",
+      "totalCalls": "Appels",
+      "actions": "Actions"
+    },
+    "status": {
+      "draft": "Brouillon",
+      "active": "Actif",
+      "paused": "En pause"
+    },
+    "vertical": {
+      "dental": "Dentaire",
+      "plumbing": "Plomberie",
+      "hvac": "Chauffage/Clim",
+      "beauty": "Beauté",
+      "trades": "Métiers",
+      "restaurant": "Restauration",
+      "legal": "Juridique",
+      "general": "Général"
+    },
+    "voiceProvider": {
+      "elevenlabs": "ElevenLabs",
+      "azure": "Azure",
+      "deepgram": "Deepgram"
+    },
+    "language": {
+      "fr": "Français",
+      "en": "Anglais",
+      "bilingual": "Bilingue"
+    },
+    "form": {
+      "name": "Nom de l'agent",
+      "namePlaceholder": "Mon agent vocal",
+      "vertical": "Secteur d'activité",
+      "language": "Langue",
+      "voiceProvider": "Fournisseur de voix",
+      "voiceId": "ID de la voix",
+      "voiceIdPlaceholder": "Collez l'ID depuis le tableau Vapi",
+      "firstMessage": "Premier message",
+      "firstMessagePlaceholder": "Ce que l'IA dit en décrochant",
+      "systemPrompt": "Instructions système",
+      "systemPromptPlaceholder": "Instructions pour l'agent IA...",
+      "transferPhoneNumber": "Numéro de transfert",
+      "transferPhoneNumberPlaceholder": "+1 514 555 0000",
+      "maxCallDuration": "Durée max. d'appel",
+      "maxCallDurationMinutes": "{minutes} minutes",
+      "status": "Statut",
+      "submit": "Créer l'agent",
+      "save": "Enregistrer"
+    },
+    "detail": {
+      "overview": "Aperçu",
+      "test": "Test",
+      "settings": "Paramètres",
+      "callHistory": "Historique",
+      "totalCalls": "Total des appels",
+      "avgDuration": "Durée moy.",
+      "noCallsYet": "Aucun appel pour le moment."
+    },
+    "test": {
+      "start": "Démarrer l'appel",
+      "end": "Terminer l'appel",
+      "connecting": "Connexion en cours...",
+      "active": "Appel en cours",
+      "idle": "Prêt à tester",
+      "ended": "Appel terminé"
+    },
+    "delete": {
+      "title": "Supprimer l'agent",
+      "message": "Êtes-vous sûr de vouloir supprimer cet agent ? Cette action est irréversible.",
+      "confirm": "Supprimer",
+      "cancel": "Annuler"
+    },
+    "edit": "Modifier",
+    "deleteAction": "Supprimer"
   }
 }

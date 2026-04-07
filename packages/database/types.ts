@@ -36,11 +36,14 @@ export type Database = {
     Tables: {
       calls: {
         Row: {
-          caller_number: string | null
+          agent_id: string | null
           created_at: string
+          credits_used: number | null
           direction: string
           duration_seconds: number | null
           ended_at: string | null
+          ended_reason: string | null
+          from_number: string | null
           id: string
           org_id: string
           phone_number_id: string | null
@@ -48,17 +51,20 @@ export type Database = {
           started_at: string | null
           status: string
           summary: string | null
-          transcript: string | null
+          to_number: string | null
+          transcript: Json | null
           updated_at: string
           vapi_call_id: string | null
-          voice_agent_id: string | null
         }
         Insert: {
-          caller_number?: string | null
+          agent_id?: string | null
           created_at?: string
+          credits_used?: number | null
           direction: string
           duration_seconds?: number | null
           ended_at?: string | null
+          ended_reason?: string | null
+          from_number?: string | null
           id?: string
           org_id: string
           phone_number_id?: string | null
@@ -66,17 +72,20 @@ export type Database = {
           started_at?: string | null
           status?: string
           summary?: string | null
-          transcript?: string | null
+          to_number?: string | null
+          transcript?: Json | null
           updated_at?: string
           vapi_call_id?: string | null
-          voice_agent_id?: string | null
         }
         Update: {
-          caller_number?: string | null
+          agent_id?: string | null
           created_at?: string
+          credits_used?: number | null
           direction?: string
           duration_seconds?: number | null
           ended_at?: string | null
+          ended_reason?: string | null
+          from_number?: string | null
           id?: string
           org_id?: string
           phone_number_id?: string | null
@@ -84,10 +93,10 @@ export type Database = {
           started_at?: string | null
           status?: string
           summary?: string | null
-          transcript?: string | null
+          to_number?: string | null
+          transcript?: Json | null
           updated_at?: string
           vapi_call_id?: string | null
-          voice_agent_id?: string | null
         }
         Relationships: [
           {
@@ -106,7 +115,7 @@ export type Database = {
           },
           {
             foreignKeyName: "calls_voice_agent_id_fkey"
-            columns: ["voice_agent_id"]
+            columns: ["agent_id"]
             isOneToOne: false
             referencedRelation: "voice_agents"
             referencedColumns: ["id"]
@@ -216,29 +225,36 @@ export type Database = {
       organizations: {
         Row: {
           created_at: string
+          credits_balance: number
           id: string
           name: string
           slug: string
           updated_at: string
+          voice_minutes_used: number
         }
         Insert: {
           created_at?: string
+          credits_balance?: number
           id?: string
           name: string
           slug: string
           updated_at?: string
+          voice_minutes_used?: number
         }
         Update: {
           created_at?: string
+          credits_balance?: number
           id?: string
           name?: string
           slug?: string
           updated_at?: string
+          voice_minutes_used?: number
         }
         Relationships: []
       }
       phone_numbers: {
         Row: {
+          agent_id: string | null
           created_at: string
           friendly_name: string | null
           id: string
@@ -247,9 +263,9 @@ export type Database = {
           phone_number: string
           twilio_sid: string | null
           updated_at: string
-          voice_agent_id: string | null
         }
         Insert: {
+          agent_id?: string | null
           created_at?: string
           friendly_name?: string | null
           id?: string
@@ -258,9 +274,9 @@ export type Database = {
           phone_number: string
           twilio_sid?: string | null
           updated_at?: string
-          voice_agent_id?: string | null
         }
         Update: {
+          agent_id?: string | null
           created_at?: string
           friendly_name?: string | null
           id?: string
@@ -269,7 +285,6 @@ export type Database = {
           phone_number?: string
           twilio_sid?: string | null
           updated_at?: string
-          voice_agent_id?: string | null
         }
         Relationships: [
           {
@@ -281,7 +296,7 @@ export type Database = {
           },
           {
             foreignKeyName: "phone_numbers_voice_agent_id_fkey"
-            columns: ["voice_agent_id"]
+            columns: ["agent_id"]
             isOneToOne: false
             referencedRelation: "voice_agents"
             referencedColumns: ["id"]

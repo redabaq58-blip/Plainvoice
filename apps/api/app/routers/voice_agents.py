@@ -122,7 +122,7 @@ async def list_voice_agents(org: OrgDep) -> list[dict]:
         calls_resp = await client.get(
             f"{SUPABASE_URL}/rest/v1/calls",
             params={
-                "select": "voice_agent_id",
+                "select": "agent_id",
                 "org_id": f"eq.{org_id}",
             },
             headers=headers,
@@ -134,7 +134,7 @@ async def list_voice_agents(org: OrgDep) -> list[dict]:
     # Count calls per agent
     call_counts: dict[str, int] = {}
     for call in calls:
-        aid = call.get("voice_agent_id")
+        aid = call.get("agent_id")
         if aid:
             call_counts[aid] = call_counts.get(aid, 0) + 1
 

@@ -23,7 +23,7 @@ import type { VoiceAgentCreateInput } from "@/lib/schemas/voice-agent";
 
 type Call = {
   id: string;
-  caller_number: string | null;
+  from_number: string | null;
   duration_seconds: number | null;
   status: string;
   created_at: string;
@@ -167,7 +167,7 @@ export function AgentDetailTabs({
                     <TableCell>
                       {new Date(call.created_at).toLocaleDateString()}
                     </TableCell>
-                    <TableCell>{call.caller_number ?? "—"}</TableCell>
+                    <TableCell>{call.from_number ?? "—"}</TableCell>
                     <TableCell>
                       {call.duration_seconds != null
                         ? `${call.duration_seconds}s`

@@ -26,8 +26,8 @@ export default async function AgentDetailPage({ params }: Props) {
   // Fetch call stats
   const { data: calls } = await supabase
     .from("calls")
-    .select("id, duration_seconds, caller_number, status, created_at")
-    .eq("voice_agent_id", agentId)
+    .select("id, duration_seconds, from_number, status, created_at")
+    .eq("agent_id", agentId)
     .order("created_at", { ascending: false })
     .limit(10);
 

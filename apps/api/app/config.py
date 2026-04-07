@@ -15,6 +15,7 @@ class Settings(BaseSettings):
 
     # Vapi
     vapi_private_key: str = ""
+    vapi_webhook_secret: str = ""
 
     # Twilio
     twilio_account_sid: str = ""

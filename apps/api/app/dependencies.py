@@ -79,3 +79,43 @@ async def get_current_user_org(
 
     org_id: str = rows[0]["org_id"]
     return org_id, access_token
+
+
+# ── Service-role helpers (for webhook/server-to-server use) ──
+
+
+def get_supabase() -> dict[str, str]:
+    """Return service-role headers for trusted server-to-server Supabase REST calls.
+
+    Never use these headers in client-facing endpoints — service role bypasses RLS.
+    Safe to use in webhook handlers and background jobs.
+    """
+    return {
+        "apikey": settings.supabase_service_role_key,
+        "Authorization": f"Bearer {settings.supabase_service_role_key}",
+        "Content-Type": "application/json",
+    }
+
+
+async def get_org_from_vapi_call(vapi_call_id: str) -> str | None:
+    """Return org_id for an existing call record identified by its Vapi call id.
+
+    Queries the calls table using the service role (bypasses RLS).
+    Returns None if no matching call record is found.
+    Used for events (e.g. status-update) that arrive after the call record exists.
+    """
+    headers = get_supabase()
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(
+            f"{SUPABASE_URL}/rest/v1/calls",
+            params={
+                "vapi_call_id": f"eq.{vapi_call_id}",
+                "select": "org_id",
+                "limit": "1",
+            },
+            headers=headers,
+            timeout=10.0,
+        )
+    if resp.status_code != 200 or not resp.json():
+        return None
+    return resp.json()[0]["org_id"]

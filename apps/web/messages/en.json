@@ -48,6 +48,79 @@
     "creditsRemaining": "Credits Remaining",
     "thisMonthMinutes": "This Month's Minutes"
   },
+  "calls": {
+    "title": "Calls",
+    "empty": {
+      "title": "No calls yet",
+      "description": "Calls will appear here after the first conversation."
+    },
+    "stats": {
+      "totalCalls": "Calls this month",
+      "totalMinutes": "Minutes this month",
+      "avgDuration": "Avg. duration",
+      "sentiment": "Sentiment"
+    },
+    "filters": {
+      "dateFrom": "From",
+      "dateTo": "To",
+      "allDirections": "All directions",
+      "allSentiments": "All sentiments",
+      "phonePlaceholder": "Search by phone…"
+    },
+    "table": {
+      "date": "Date",
+      "direction": "Direction",
+      "from": "Caller",
+      "duration": "Duration",
+      "agent": "Agent",
+      "sentiment": "Sentiment",
+      "actions": "Actions"
+    },
+    "direction": {
+      "inbound": "Inbound",
+      "outbound": "Outbound",
+      "web": "Web"
+    },
+    "sentiment": {
+      "positive": "Positive",
+      "neutral": "Neutral",
+      "negative": "Negative",
+      "unknown": "Unknown"
+    },
+    "status": {
+      "queued": "Queued",
+      "ringing": "Ringing",
+      "in-progress": "In Progress",
+      "completed": "Completed",
+      "failed": "Failed",
+      "cancelled": "Cancelled"
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page {current} of {total}"
+    },
+    "detail": {
+      "summary": "AI Summary",
+      "noSummary": "No summary available.",
+      "contact": "Contact",
+      "noContact": "No contact linked",
+      "addContact": "Add as new contact",
+      "previousCalls": "Previous calls",
+      "email": "Email",
+      "noTranscript": "No transcript available.",
+      "transcript": "Transcript",
+      "recording": "Recording",
+      "noRecording": "No recording available.",
+      "download": "Download",
+      "caller": "Caller",
+      "agent": "Agent",
+      "duration": "Duration",
+      "endedReason": "Ended reason",
+      "credits": "Credits used",
+      "to": "To"
+    }
+  },
   "agents": {
     "title": "Voice Agents",
     "createAgent": "Create Agent",

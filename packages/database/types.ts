@@ -48,6 +48,7 @@ export type Database = {
           org_id: string
           phone_number_id: string | null
           recording_url: string | null
+          sentiment: string | null
           started_at: string | null
           status: string
           summary: string | null
@@ -69,6 +70,7 @@ export type Database = {
           org_id: string
           phone_number_id?: string | null
           recording_url?: string | null
+          sentiment?: string | null
           started_at?: string | null
           status?: string
           summary?: string | null
@@ -90,6 +92,7 @@ export type Database = {
           org_id?: string
           phone_number_id?: string | null
           recording_url?: string | null
+          sentiment?: string | null
           started_at?: string | null
           status?: string
           summary?: string | null

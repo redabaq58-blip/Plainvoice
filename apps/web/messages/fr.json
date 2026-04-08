@@ -48,6 +48,79 @@
     "creditsRemaining": "Crédits restants",
     "thisMonthMinutes": "Minutes ce mois-ci"
   },
+  "calls": {
+    "title": "Appels",
+    "empty": {
+      "title": "Aucun appel",
+      "description": "Les appels apparaîtront ici après la première conversation."
+    },
+    "stats": {
+      "totalCalls": "Appels ce mois",
+      "totalMinutes": "Minutes ce mois",
+      "avgDuration": "Durée moyenne",
+      "sentiment": "Sentiment"
+    },
+    "filters": {
+      "dateFrom": "Du",
+      "dateTo": "Au",
+      "allDirections": "Toutes directions",
+      "allSentiments": "Tous sentiments",
+      "phonePlaceholder": "Rechercher un numéro…"
+    },
+    "table": {
+      "date": "Date",
+      "direction": "Direction",
+      "from": "Appelant",
+      "duration": "Durée",
+      "agent": "Agent",
+      "sentiment": "Sentiment",
+      "actions": "Actions"
+    },
+    "direction": {
+      "inbound": "Entrant",
+      "outbound": "Sortant",
+      "web": "Web"
+    },
+    "sentiment": {
+      "positive": "Positif",
+      "neutral": "Neutre",
+      "negative": "Négatif",
+      "unknown": "Inconnu"
+    },
+    "status": {
+      "queued": "En file",
+      "ringing": "Sonnerie",
+      "in-progress": "En cours",
+      "completed": "Terminé",
+      "failed": "Échoué",
+      "cancelled": "Annulé"
+    },
+    "pagination": {
+      "previous": "Précédent",
+      "next": "Suivant",
+      "page": "Page {current} sur {total}"
+    },
+    "detail": {
+      "summary": "Résumé IA",
+      "noSummary": "Aucun résumé disponible.",
+      "contact": "Contact",
+      "noContact": "Aucun contact lié",
+      "addContact": "Ajouter comme contact",
+      "previousCalls": "Appels précédents",
+      "email": "Courriel",
+      "noTranscript": "Aucune transcription disponible.",
+      "transcript": "Transcription",
+      "recording": "Enregistrement",
+      "noRecording": "Aucun enregistrement disponible.",
+      "download": "Télécharger",
+      "caller": "Appelant",
+      "agent": "Agent",
+      "duration": "Durée",
+      "endedReason": "Raison de fin",
+      "credits": "Crédits utilisés",
+      "to": "Destinataire"
+    }
+  },
   "agents": {
     "title": "Agents vocaux",
     "createAgent": "Créer un agent",

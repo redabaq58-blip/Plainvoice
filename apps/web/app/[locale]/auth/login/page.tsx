@@ -50,7 +50,7 @@ export default async function LoginPage({ params, searchParams }: Props) {
       headersList.get("origin") ??
       process.env.NEXT_PUBLIC_SITE_URL ??
       "http://localhost:3000";
-    const redirectTo = `${origin}/auth/callback`;
+    const redirectTo = `${origin}/auth/callback?next=/${locale}/dashboard`;
 
     const supabase = await createSupabaseServerClient();
     const { data, error: oauthError } = await supabase.auth.signInWithOAuth({

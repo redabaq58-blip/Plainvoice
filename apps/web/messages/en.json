@@ -37,7 +37,9 @@
       "orgNamePlaceholder": "Acme Inc.",
       "submitButton": "Create Account",
       "loginLink": "Already have an account? Sign in",
-      "errorMismatch": "Passwords do not match"
+      "errorMismatch": "Passwords do not match",
+      "errorSignup": "An error occurred while creating your account",
+      "errorOrg": "Unable to create your organization — please try again"
     },
     "signOut": "Sign Out"
   },
@@ -189,7 +191,11 @@
       "callHistory": "Call History",
       "totalCalls": "Total Calls",
       "avgDuration": "Avg. Duration",
-      "noCallsYet": "No calls yet."
+      "noCallsYet": "No calls yet.",
+      "callHistoryDate": "Date",
+      "callHistoryFrom": "Caller",
+      "callHistoryDuration": "Duration",
+      "callHistoryStatus": "Status"
     },
     "test": {
       "start": "Start Call",

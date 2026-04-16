@@ -96,7 +96,11 @@ export default async function SignupPage({ params, searchParams }: Props) {
           {error && (
             <Alert variant="destructive">
               <AlertDescription>
-                {error === "mismatch" ? t("errorMismatch") : t("errorMismatch")}
+                {error === "mismatch"
+                  ? t("errorMismatch")
+                  : error === "org"
+                    ? t("errorOrg")
+                    : t("errorSignup")}
               </AlertDescription>
             </Alert>
           )}

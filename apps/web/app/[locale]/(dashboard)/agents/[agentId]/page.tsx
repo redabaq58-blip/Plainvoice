@@ -122,6 +122,10 @@ export default async function AgentDetailPage({ params }: Props) {
           totalCalls: t("detail.totalCalls"),
           avgDuration: t("detail.avgDuration"),
           noCallsYet: t("detail.noCallsYet"),
+          callHistoryDate: t("detail.callHistoryDate"),
+          callHistoryFrom: t("detail.callHistoryFrom"),
+          callHistoryDuration: t("detail.callHistoryDuration"),
+          callHistoryStatus: t("detail.callHistoryStatus"),
         }}
         testLabels={{
           start: t("test.start"),

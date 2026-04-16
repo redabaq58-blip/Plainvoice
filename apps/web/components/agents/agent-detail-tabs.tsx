@@ -37,6 +37,10 @@ type TabLabels = {
   totalCalls: string;
   avgDuration: string;
   noCallsYet: string;
+  callHistoryDate: string;
+  callHistoryFrom: string;
+  callHistoryDuration: string;
+  callHistoryStatus: string;
 };
 
 type TestLabels = {
@@ -155,10 +159,10 @@ export function AgentDetailTabs({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Caller</TableHead>
-                  <TableHead>Duration</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>{tabLabels.callHistoryDate}</TableHead>
+                  <TableHead>{tabLabels.callHistoryFrom}</TableHead>
+                  <TableHead>{tabLabels.callHistoryDuration}</TableHead>
+                  <TableHead>{tabLabels.callHistoryStatus}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

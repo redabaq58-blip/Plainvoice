@@ -93,12 +93,23 @@ export function AgentForm({
   });
 
   const currentLanguage = watch("language");
+  const currentVertical = watch("vertical");
 
   function handleVerticalChange(vertical: string) {
     setValue("vertical", vertical as VoiceAgentCreateInput["vertical"]);
     const template = getTemplate(vertical);
     if (template) {
       const isFr = currentLanguage === "fr" || currentLanguage === "bilingual";
+      setValue("systemPrompt", isFr ? template.systemPromptFr : template.systemPromptEn);
+      setValue("firstMessage", isFr ? template.firstMessageFr : template.firstMessageEn);
+    }
+  }
+
+  function handleLanguageChange(language: string) {
+    setValue("language", language as VoiceAgentCreateInput["language"]);
+    const template = getTemplate(currentVertical);
+    if (template) {
+      const isFr = language === "fr" || language === "bilingual";
       setValue("systemPrompt", isFr ? template.systemPromptFr : template.systemPromptEn);
       setValue("firstMessage", isFr ? template.firstMessageFr : template.firstMessageEn);
     }
@@ -163,9 +174,7 @@ export function AgentForm({
         <Label>{labels.language}</Label>
         <Select
           value={watch("language")}
-          onValueChange={(v) =>
-            setValue("language", v as VoiceAgentCreateInput["language"])
-          }
+          onValueChange={handleLanguageChange}
         >
           <SelectTrigger>
             <SelectValue />

@@ -24,6 +24,7 @@ type DeleteAgentButtonProps = {
     message: string;
     confirm: string;
     cancel: string;
+    error?: string;
   };
 };
 
@@ -31,9 +32,11 @@ export function DeleteAgentButton({ agentId, onDeleted, labels }: DeleteAgentBut
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleDelete() {
     setLoading(true);
+    setError(null);
     try {
       await apiFetch(`/api/voice-agents/${agentId}`, { method: "DELETE" });
       setOpen(false);
@@ -43,12 +46,14 @@ export function DeleteAgentButton({ agentId, onDeleted, labels }: DeleteAgentBut
         router.refresh();
       }
     } catch {
+      setError(labels.error ?? "Delete failed. Please try again.");
+    } finally {
       setLoading(false);
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setError(null); }}>
       <DialogTrigger asChild>
         <Button variant="ghost" size="icon-sm">
           <Trash2 className="h-4 w-4 text-destructive" />
@@ -59,8 +64,11 @@ export function DeleteAgentButton({ agentId, onDeleted, labels }: DeleteAgentBut
           <DialogTitle>{labels.title}</DialogTitle>
           <DialogDescription>{labels.message}</DialogDescription>
         </DialogHeader>
+        {error && (
+          <p className="text-sm text-destructive">{error}</p>
+        )}
         <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>
+          <Button variant="outline" onClick={() => setOpen(false)} disabled={loading}>
             {labels.cancel}
           </Button>
           <Button

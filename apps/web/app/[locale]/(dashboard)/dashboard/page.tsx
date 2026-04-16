@@ -23,24 +23,56 @@ export default async function DashboardPage({ params }: Props) {
   } = await supabase.auth.getUser();
 
   let orgName = "";
+  let orgId = "";
   if (user) {
     const { data: member } = await supabase
       .from("organization_members")
-      .select("org_id, organizations(name)")
+      .select("org_id, organizations(name, credits_balance, voice_minutes_used)")
       .eq("user_id", user.id)
       .limit(1)
       .single();
 
     if (member?.organizations && !Array.isArray(member.organizations)) {
       orgName = member.organizations.name;
+      orgId = member.org_id;
     }
   }
 
+  // Fetch real stats in parallel
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
+  const [activeAgentsResult, monthCallsResult, orgResult] = await Promise.all([
+    supabase
+      .from("voice_agents")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "active"),
+    supabase
+      .from("calls")
+      .select("duration_seconds")
+      .gte("started_at", monthStart),
+    orgId
+      ? supabase
+          .from("organizations")
+          .select("credits_balance, voice_minutes_used")
+          .eq("id", orgId)
+          .single()
+      : Promise.resolve({ data: null }),
+  ]);
+
+  const activeAgentCount = activeAgentsResult.count ?? 0;
+  const monthCalls = monthCallsResult.data ?? [];
+  const totalCallsThisMonth = monthCalls.length;
+  const totalMinutesThisMonth = Math.round(
+    monthCalls.reduce((sum, c) => sum + (c.duration_seconds ?? 0), 0) / 60,
+  );
+  const creditsBalance = orgResult.data?.credits_balance ?? 0;
+
   const stats = [
-    { label: t("totalCalls"), value: "0", icon: Phone },
-    { label: t("activeAgents"), value: "0", icon: Bot },
-    { label: t("creditsRemaining"), value: "0", icon: Coins },
-    { label: t("thisMonthMinutes"), value: "0 min", icon: Clock },
+    { label: t("totalCalls"), value: String(totalCallsThisMonth), icon: Phone },
+    { label: t("activeAgents"), value: String(activeAgentCount), icon: Bot },
+    { label: t("creditsRemaining"), value: String(creditsBalance), icon: Coins },
+    { label: t("thisMonthMinutes"), value: `${totalMinutesThisMonth} min`, icon: Clock },
   ] as const;
 
   return (

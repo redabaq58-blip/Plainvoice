@@ -45,7 +45,9 @@ export async function apiFetch<T>(
   });
 
   if (res.status === 401) {
-    window.location.href = "/auth/login";
+    const pathLocale = window.location.pathname.split("/")[1] ?? "";
+    const locale = ["fr", "en"].includes(pathLocale) ? pathLocale : "fr";
+    window.location.href = `/${locale}/auth/login`;
     throw new Error("Unauthorized");
   }
 

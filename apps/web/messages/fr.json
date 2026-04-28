@@ -1,6 +1,7 @@
 {
   "nav": {
     "dashboard": "Tableau de bord",
+    "contacts": "Contacts",
     "agents": "Agents",
     "calls": "Appels",
     "phoneNumbers": "Numéros",
@@ -206,6 +207,75 @@
       "10": "10 minutes",
       "15": "15 minutes",
       "20": "20 minutes"
+    }
+  },
+  "contacts": {
+    "title": "Contacts",
+    "subtitle": "Suivez les appelants, prospects, notes et historiques d'appels au meme endroit.",
+    "createButton": "Creer un contact",
+    "createTitle": "Creer un contact",
+    "createDescription": "Ajoutez un appelant, prospect ou client a votre CRM.",
+    "searchPlaceholder": "Rechercher nom, telephone, courriel ou entreprise...",
+    "filter": "Filtrer",
+    "doNotCall": "Ne pas appeler",
+    "filters": {
+      "all": "Tous les contacts",
+      "doNotCall": "Ne pas appeler",
+      "callable": "Appelable"
+    },
+    "empty": {
+      "title": "Aucun contact",
+      "description": "Creez votre premier contact ou ajoutez des appelants depuis les details d'appel."
+    },
+    "table": {
+      "name": "Nom",
+      "phone": "Telephone",
+      "email": "Courriel",
+      "company": "Entreprise",
+      "language": "Langue",
+      "leadScore": "Score",
+      "tags": "Tags",
+      "totalCalls": "Appels",
+      "lastCallAt": "Dernier appel"
+    },
+    "form": {
+      "firstName": "Prenom",
+      "lastName": "Nom",
+      "phone": "Telephone",
+      "email": "Courriel",
+      "company": "Entreprise",
+      "language": "Langue",
+      "leadScore": "Score du prospect",
+      "tags": "Tags",
+      "tagsPlaceholder": "prospect, urgent, vip",
+      "doNotCall": "Ne pas appeler",
+      "notes": "Notes",
+      "save": "Enregistrer",
+      "create": "Creer le contact"
+    },
+    "languages": {
+      "fr": "Francais",
+      "en": "Anglais"
+    },
+    "actions": {
+      "markDoNotCall": "Marquer ne pas appeler",
+      "markCallable": "Marquer appelable",
+      "delete": "Supprimer"
+    },
+    "detail": {
+      "profile": "Profil du contact",
+      "leadScore": "Score",
+      "totalCalls": "Total des appels",
+      "lastCallAt": "Dernier appel",
+      "callHistory": "Historique d'appels",
+      "noCalls": "Aucun appel pour ce contact."
+    },
+    "calls": {
+      "date": "Date",
+      "direction": "Direction",
+      "duration": "Duree",
+      "summary": "Resume",
+      "noSummary": "Aucun resume disponible."
     }
   },
   "agents": {

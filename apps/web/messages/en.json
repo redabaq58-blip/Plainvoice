@@ -1,6 +1,7 @@
 {
   "nav": {
     "dashboard": "Dashboard",
+    "contacts": "Contacts",
     "agents": "Agents",
     "calls": "Calls",
     "phoneNumbers": "Phone Numbers",
@@ -206,6 +207,75 @@
       "10": "10 minutes",
       "15": "15 minutes",
       "20": "20 minutes"
+    }
+  },
+  "contacts": {
+    "title": "Contacts",
+    "subtitle": "Track callers, leads, notes, and call history in one place.",
+    "createButton": "Create contact",
+    "createTitle": "Create contact",
+    "createDescription": "Add a caller, lead, or customer to your CRM.",
+    "searchPlaceholder": "Search name, phone, email, or company...",
+    "filter": "Filter",
+    "doNotCall": "Do not call",
+    "filters": {
+      "all": "All contacts",
+      "doNotCall": "Do not call",
+      "callable": "Callable"
+    },
+    "empty": {
+      "title": "No contacts yet",
+      "description": "Create your first contact or add callers from call detail pages."
+    },
+    "table": {
+      "name": "Name",
+      "phone": "Phone",
+      "email": "Email",
+      "company": "Company",
+      "language": "Language",
+      "leadScore": "Lead score",
+      "tags": "Tags",
+      "totalCalls": "Calls",
+      "lastCallAt": "Last call"
+    },
+    "form": {
+      "firstName": "First name",
+      "lastName": "Last name",
+      "phone": "Phone",
+      "email": "Email",
+      "company": "Company",
+      "language": "Language",
+      "leadScore": "Lead score",
+      "tags": "Tags",
+      "tagsPlaceholder": "lead, urgent, vip",
+      "doNotCall": "Do not call",
+      "notes": "Notes",
+      "save": "Save contact",
+      "create": "Create contact"
+    },
+    "languages": {
+      "fr": "French",
+      "en": "English"
+    },
+    "actions": {
+      "markDoNotCall": "Mark do-not-call",
+      "markCallable": "Mark callable",
+      "delete": "Delete"
+    },
+    "detail": {
+      "profile": "Contact profile",
+      "leadScore": "Lead score",
+      "totalCalls": "Total calls",
+      "lastCallAt": "Last call",
+      "callHistory": "Call history",
+      "noCalls": "No calls for this contact yet."
+    },
+    "calls": {
+      "date": "Date",
+      "direction": "Direction",
+      "duration": "Duration",
+      "summary": "Summary",
+      "noSummary": "No summary available."
     }
   },
   "agents": {

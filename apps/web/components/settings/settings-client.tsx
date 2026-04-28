@@ -240,17 +240,20 @@ export function SettingsClient({ initialValues, labels, saveSettings }: Props) {
                   </Label>
                   <Input
                     id={`${day}-open`}
-                    type="time"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-2][0-9]:[0-5][0-9]"
                     value={dayValues.openTime}
                     disabled={!dayValues.isOpen}
-                    onChange={(event) =>
+                    onInput={(event) => {
+                      const openTime = event.currentTarget.value;
                       setValues((current) => ({
                         ...current,
                         businessHours: updateBusinessDay(current.businessHours, day, {
-                          openTime: event.target.value,
+                          openTime,
                         }),
-                      }))
-                    }
+                      }));
+                    }}
                   />
                 </div>
 
@@ -260,17 +263,20 @@ export function SettingsClient({ initialValues, labels, saveSettings }: Props) {
                   </Label>
                   <Input
                     id={`${day}-close`}
-                    type="time"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-2][0-9]:[0-5][0-9]"
                     value={dayValues.closeTime}
                     disabled={!dayValues.isOpen}
-                    onChange={(event) =>
+                    onInput={(event) => {
+                      const closeTime = event.currentTarget.value;
                       setValues((current) => ({
                         ...current,
                         businessHours: updateBusinessDay(current.businessHours, day, {
-                          closeTime: event.target.value,
+                          closeTime,
                         }),
-                      }))
-                    }
+                      }));
+                    }}
                   />
                 </div>
               </div>

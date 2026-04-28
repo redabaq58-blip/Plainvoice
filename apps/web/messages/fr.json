@@ -152,6 +152,62 @@
     "refresh": "Actualiser",
     "assignmentSaved": "Assignation enregistrée."
   },
+  "settings": {
+    "title": "Parametres",
+    "subtitle": "Configurez les details d'affaires et le comportement vocal par defaut de cette organisation.",
+    "save": "Enregistrer",
+    "saving": "Enregistrement...",
+    "saved": "Parametres enregistres.",
+    "error": "Verifiez les parametres et reessayez.",
+    "profile": {
+      "title": "Profil de l'organisation",
+      "organizationName": "Nom de l'organisation",
+      "businessEmail": "Courriel d'affaires",
+      "businessPhone": "Telephone d'affaires",
+      "websiteUrl": "URL du site web",
+      "timezone": "Fuseau horaire"
+    },
+    "businessHours": {
+      "title": "Heures d'ouverture",
+      "open": "Ouvert",
+      "closed": "Ferme",
+      "openTime": "Ouverture",
+      "closeTime": "Fermeture"
+    },
+    "voice": {
+      "title": "Comportement vocal par defaut",
+      "defaultLanguage": "Langue par defaut",
+      "defaultVoiceProvider": "Fournisseur vocal par defaut",
+      "defaultVoiceId": "ID vocal par defaut",
+      "defaultVoiceIdPlaceholder": "ID vocal de votre fournisseur",
+      "defaultMaxCallDuration": "Duree maximale par defaut"
+    },
+    "days": {
+      "monday": "Lundi",
+      "tuesday": "Mardi",
+      "wednesday": "Mercredi",
+      "thursday": "Jeudi",
+      "friday": "Vendredi",
+      "saturday": "Samedi",
+      "sunday": "Dimanche"
+    },
+    "languages": {
+      "fr": "Francais",
+      "en": "Anglais",
+      "bilingual": "Bilingue"
+    },
+    "voiceProviders": {
+      "elevenlabs": "ElevenLabs",
+      "azure": "Azure",
+      "deepgram": "Deepgram"
+    },
+    "durations": {
+      "5": "5 minutes",
+      "10": "10 minutes",
+      "15": "15 minutes",
+      "20": "20 minutes"
+    }
+  },
   "agents": {
     "title": "Agents vocaux",
     "createAgent": "Créer un agent",

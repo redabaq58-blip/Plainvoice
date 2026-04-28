@@ -39,7 +39,7 @@ export default async function proxy(request: NextRequest) {
 
   // 3. Auth guards
   const isDashboard =
-    /^\/(en|fr)\/(dashboard|agents|calls|phone-numbers|settings)/.test(pathname);
+    /^\/(en|fr)\/(dashboard|contacts|agents|calls|phone-numbers|settings)/.test(pathname);
 
   if (isDashboard && !user) {
     return NextResponse.redirect(

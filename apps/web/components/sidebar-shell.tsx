@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import {
   LayoutDashboard,
+  Contact,
   Bot,
   Phone,
   PhoneCall,
@@ -18,6 +19,7 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/s
 
 type NavLabels = {
   dashboard: string;
+  contacts: string;
   agents: string;
   calls: string;
   phoneNumbers: string;
@@ -35,6 +37,7 @@ type Props = {
 
 const navItems = (locale: string, labels: NavLabels) => [
   { href: `/${locale}/dashboard`, label: labels.dashboard, icon: LayoutDashboard },
+  { href: `/${locale}/contacts`, label: labels.contacts, icon: Contact },
   { href: `/${locale}/agents`, label: labels.agents, icon: Bot },
   { href: `/${locale}/calls`, label: labels.calls, icon: Phone },
   { href: `/${locale}/phone-numbers`, label: labels.phoneNumbers, icon: PhoneCall },

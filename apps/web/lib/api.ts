@@ -1,4 +1,5 @@
 import { createBrowserClient } from "@repo/database";
+import { isAuthBypassed } from "@/lib/auth-bypass";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -28,12 +29,14 @@ export async function apiFetch<T>(
   path: string,
   options?: RequestInit,
 ): Promise<T> {
-  const supabase = createBrowserClient();
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  const token = session?.access_token ?? getTokenFromCookie() ?? "";
+  let token = "dev-bypass";
+  if (!isAuthBypassed()) {
+    const supabase = createBrowserClient();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    token = session?.access_token ?? getTokenFromCookie() ?? "";
+  }
 
   const res = await fetch(`${API_URL}${path}`, {
     ...options,

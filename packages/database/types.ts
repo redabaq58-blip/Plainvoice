@@ -258,36 +258,60 @@ export type Database = {
       phone_numbers: {
         Row: {
           agent_id: string | null
+          area_code: string | null
+          capabilities: Json
+          country: string
           created_at: string
           friendly_name: string | null
           id: string
           is_active: boolean
+          monthly_cost: number | null
+          monthly_cost_currency: string | null
           org_id: string
           phone_number: string
+          provisioning_error: string | null
+          provisioning_status: string
           twilio_sid: string | null
           updated_at: string
+          vapi_phone_number_id: string | null
         }
         Insert: {
           agent_id?: string | null
+          area_code?: string | null
+          capabilities?: Json
+          country?: string
           created_at?: string
           friendly_name?: string | null
           id?: string
           is_active?: boolean
+          monthly_cost?: number | null
+          monthly_cost_currency?: string | null
           org_id: string
           phone_number: string
+          provisioning_error?: string | null
+          provisioning_status?: string
           twilio_sid?: string | null
           updated_at?: string
+          vapi_phone_number_id?: string | null
         }
         Update: {
           agent_id?: string | null
+          area_code?: string | null
+          capabilities?: Json
+          country?: string
           created_at?: string
           friendly_name?: string | null
           id?: string
           is_active?: boolean
+          monthly_cost?: number | null
+          monthly_cost_currency?: string | null
           org_id?: string
           phone_number?: string
+          provisioning_error?: string | null
+          provisioning_status?: string
           twilio_sid?: string | null
           updated_at?: string
+          vapi_phone_number_id?: string | null
         }
         Relationships: [
           {
@@ -512,4 +536,3 @@ export const Constants = {
     Enums: {},
   },
 } as const
-

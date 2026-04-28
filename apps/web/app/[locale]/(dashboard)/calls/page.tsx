@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { createSupabaseServerClient } from "@/lib/supabase";
+import { isAuthBypassed } from "@/lib/auth-bypass";
 import { CallsClient } from "@/components/calls/calls-client";
 
 const PAGE_SIZE = 20;
@@ -45,6 +46,78 @@ export default async function CallsPage({ params, searchParams }: Props) {
   const from = (page - 1) * PAGE_SIZE;
 
   const t = await getTranslations("calls");
+  if (isAuthBypassed()) {
+    return (
+      <CallsClient
+        calls={[]}
+        stats={{
+          totalCallsThisMonth: 0,
+          totalMinutesThisMonth: 0,
+          avgDuration: formatDuration(0),
+          sentimentBreakdown: {
+            positive: 0,
+            neutral: 0,
+            negative: 0,
+            unknown: 0,
+          },
+        }}
+        page={page}
+        totalPages={1}
+        totalCount={0}
+        orgId=""
+        filters={{
+          direction: sp.direction ?? "all",
+          sentiment: sp.sentiment ?? "all",
+          dateFrom: sp.dateFrom ?? "",
+          dateTo: sp.dateTo ?? "",
+          phone: sp.phone ?? "",
+        }}
+        labels={{
+          title: t("title"),
+          empty: { title: t("empty.title"), description: t("empty.description") },
+          stats: {
+            totalCalls: t("stats.totalCalls"),
+            totalMinutes: t("stats.totalMinutes"),
+            avgDuration: t("stats.avgDuration"),
+            sentiment: t("stats.sentiment"),
+          },
+          filters: {
+            dateFrom: t("filters.dateFrom"),
+            dateTo: t("filters.dateTo"),
+            allDirections: t("filters.allDirections"),
+            allSentiments: t("filters.allSentiments"),
+            phonePlaceholder: t("filters.phonePlaceholder"),
+          },
+          table: {
+            date: t("table.date"),
+            direction: t("table.direction"),
+            from: t("table.from"),
+            duration: t("table.duration"),
+            agent: t("table.agent"),
+            sentiment: t("table.sentiment"),
+            actions: t("table.actions"),
+          },
+          direction: {
+            inbound: t("direction.inbound"),
+            outbound: t("direction.outbound"),
+            web: t("direction.web"),
+          },
+          sentiment: {
+            positive: t("sentiment.positive"),
+            neutral: t("sentiment.neutral"),
+            negative: t("sentiment.negative"),
+            unknown: t("sentiment.unknown"),
+          },
+          pagination: {
+            previous: t("pagination.previous"),
+            next: t("pagination.next"),
+            page: t("pagination.page", { current: page, total: 1 }),
+          },
+        }}
+      />
+    );
+  }
+
   const supabase = await createSupabaseServerClient();
 
   // Build server-side filters

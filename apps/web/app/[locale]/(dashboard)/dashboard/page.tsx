@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { createSupabaseServerClient } from "@/lib/supabase";
+import { isAuthBypassed } from "@/lib/auth-bypass";
 import {
   Card,
   CardContent,
@@ -16,23 +17,23 @@ export default async function DashboardPage({ params }: Props) {
   await params;
   const t = await getTranslations("dashboard");
 
-  const supabase = await createSupabaseServerClient();
+  let orgName = "PlainVoice Demo";
+  if (!isAuthBypassed()) {
+    const supabase = await createSupabaseServerClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (user) {
+      const { data: member } = await supabase
+        .from("organization_members")
+        .select("org_id, organizations(name)")
+        .eq("user_id", user.id)
+        .limit(1)
+        .single();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  let orgName = "";
-  if (user) {
-    const { data: member } = await supabase
-      .from("organization_members")
-      .select("org_id, organizations(name)")
-      .eq("user_id", user.id)
-      .limit(1)
-      .single();
-
-    if (member?.organizations && !Array.isArray(member.organizations)) {
-      orgName = member.organizations.name;
+      if (member?.organizations && !Array.isArray(member.organizations)) {
+        orgName = member.organizations.name;
+      }
     }
   }
 

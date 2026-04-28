@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createSupabaseServerClient } from "@/lib/supabase";
 import { SidebarShell } from "@/components/sidebar-shell";
+import { isAuthBypassed } from "@/lib/auth-bypass";
 
 type Props = {
   children: React.ReactNode;
@@ -10,11 +11,12 @@ type Props = {
 
 export default async function DashboardLayout({ children, params }: Props) {
   const { locale } = await params;
+  const authBypassed = isAuthBypassed();
 
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const supabase = authBypassed ? null : await createSupabaseServerClient();
+  const user = authBypassed
+    ? { email: "dev@plainvoice.local" }
+    : (await supabase!.auth.getUser()).data.user;
 
   if (!user) {
     redirect(`/${locale}/auth/login`);
@@ -24,6 +26,9 @@ export default async function DashboardLayout({ children, params }: Props) {
 
   async function signOut() {
     "use server";
+    if (isAuthBypassed()) {
+      redirect(`/${locale}/dashboard`);
+    }
     const supabase = await createSupabaseServerClient();
     await supabase.auth.signOut();
     redirect(`/${locale}/auth/login`);
@@ -38,7 +43,7 @@ export default async function DashboardLayout({ children, params }: Props) {
         dashboard: t("nav.dashboard"),
         agents: t("nav.agents"),
         calls: t("nav.calls"),
-        billing: t("nav.billing"),
+        phoneNumbers: t("nav.phoneNumbers"),
         settings: t("nav.settings"),
         signOut: t("auth.signOut"),
       }}

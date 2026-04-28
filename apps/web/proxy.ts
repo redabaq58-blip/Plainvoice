@@ -3,12 +3,23 @@ import { createServerClient } from "@repo/database";
 import type { CookieMethodsServer } from "@supabase/ssr";
 import { NextRequest, NextResponse } from "next/server";
 import { routing } from "./i18n/routing";
+import { isAuthBypassed } from "./lib/auth-bypass";
 
 type SetAllArg = Parameters<NonNullable<CookieMethodsServer["setAll"]>>[0];
 
 export default async function proxy(request: NextRequest) {
   // 1. Run next-intl first — get the locale-aware response we will ultimately return
   const intlResponse = createIntlMiddleware(routing)(request);
+  const { pathname } = request.nextUrl;
+  const locale = pathname.split("/")[1] ?? "fr";
+  const isAuth = /^\/(en|fr)\/auth/.test(pathname);
+
+  if (isAuthBypassed()) {
+    if (isAuth) {
+      return NextResponse.redirect(new URL(`/${locale}/dashboard`, request.url));
+    }
+    return intlResponse;
+  }
 
   // 2. Supabase session refresh:
   //    Read cookies from incoming request, write refreshed cookies onto intlResponse.
@@ -27,11 +38,8 @@ export default async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   // 3. Auth guards
-  const { pathname } = request.nextUrl;
-  const locale = pathname.split("/")[1] ?? "fr";
   const isDashboard =
-    /^\/(en|fr)\/(dashboard|agents|calls|billing|settings)/.test(pathname);
-  const isAuth = /^\/(en|fr)\/auth/.test(pathname);
+    /^\/(en|fr)\/(dashboard|agents|calls|phone-numbers|settings)/.test(pathname);
 
   if (isDashboard && !user) {
     return NextResponse.redirect(

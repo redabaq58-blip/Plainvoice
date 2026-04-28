@@ -97,3 +97,33 @@ async def delete_assistant(assistant_id: str) -> None:
             timeout=30.0,
         )
         resp.raise_for_status()
+
+
+async def create_twilio_phone_number(
+    *,
+    number: str,
+    name: str,
+    server_url: str,
+) -> dict:
+    """Import a Twilio-owned phone number into Vapi for dynamic inbound routing."""
+    payload = {
+        "provider": "twilio",
+        "number": number,
+        "twilioAccountSid": settings.twilio_account_sid,
+        "twilioAuthToken": settings.twilio_auth_token,
+        "name": name[:40],
+        "smsEnabled": False,
+        "server": {
+            "url": server_url,
+        },
+    }
+
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(
+            f"{VAPI_BASE}/phone-number",
+            headers=_headers(),
+            json=payload,
+            timeout=30.0,
+        )
+        resp.raise_for_status()
+        return resp.json()

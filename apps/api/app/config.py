@@ -23,6 +23,9 @@ class Settings(BaseSettings):
     twilio_phone_number: str = ""
 
     # App
+    disable_auth: bool = False
+    dev_auth_bypass: bool = False
+    public_api_url: str = "http://localhost:8000"
     next_public_api_url: str = "http://localhost:8000"
     database_url: str = ""
 

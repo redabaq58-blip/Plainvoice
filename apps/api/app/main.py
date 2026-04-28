@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.routers.phone_numbers import router as phone_numbers_router
 from app.routers.vapi_webhooks import router as vapi_webhooks_router
 from app.routers.voice_agents import router as voice_agents_router
 
@@ -15,6 +16,7 @@ app.add_middleware(
 )
 
 app.include_router(voice_agents_router, prefix="/api")
+app.include_router(phone_numbers_router, prefix="/api")
 app.include_router(vapi_webhooks_router, prefix="/api")
 
 

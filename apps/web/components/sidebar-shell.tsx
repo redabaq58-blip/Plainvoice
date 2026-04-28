@@ -7,20 +7,20 @@ import {
   LayoutDashboard,
   Bot,
   Phone,
-  CreditCard,
+  PhoneCall,
   Settings,
   Menu,
   LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 type NavLabels = {
   dashboard: string;
   agents: string;
   calls: string;
-  billing: string;
+  phoneNumbers: string;
   settings: string;
   signOut: string;
 };
@@ -37,7 +37,7 @@ const navItems = (locale: string, labels: NavLabels) => [
   { href: `/${locale}/dashboard`, label: labels.dashboard, icon: LayoutDashboard },
   { href: `/${locale}/agents`, label: labels.agents, icon: Bot },
   { href: `/${locale}/calls`, label: labels.calls, icon: Phone },
-  { href: `/${locale}/billing`, label: labels.billing, icon: CreditCard },
+  { href: `/${locale}/phone-numbers`, label: labels.phoneNumbers, icon: PhoneCall },
   { href: `/${locale}/settings`, label: labels.settings, icon: Settings },
 ];
 
@@ -157,6 +157,7 @@ export function SidebarShell({
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-60 p-0">
+              <SheetTitle className="sr-only">Navigation</SheetTitle>
               <NavContent
                 locale={locale}
                 userEmail={userEmail}

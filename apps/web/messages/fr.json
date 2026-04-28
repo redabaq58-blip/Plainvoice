@@ -3,7 +3,7 @@
     "dashboard": "Tableau de bord",
     "agents": "Agents",
     "calls": "Appels",
-    "billing": "Facturation",
+    "phoneNumbers": "Numéros",
     "settings": "Paramètres"
   },
   "common": {
@@ -120,6 +120,37 @@
       "credits": "Crédits utilisés",
       "to": "Destinataire"
     }
+  },
+  "phoneNumbers": {
+    "title": "Numéros de téléphone",
+    "subtitle": "Recherchez, achetez et assignez des numéros Twilio canadiens à vos agents vocaux.",
+    "searchTitle": "Rechercher des numéros disponibles",
+    "areaCode": "Indicatif",
+    "areaCodePlaceholder": "514",
+    "search": "Rechercher",
+    "searching": "Recherche...",
+    "availableTitle": "Numéros disponibles",
+    "ownedTitle": "Numéros achetés",
+    "noResults": "Aucun numéro disponible pour le moment.",
+    "noOwned": "Aucun numéro acheté pour le moment.",
+    "purchase": "Acheter",
+    "purchasing": "Achat...",
+    "assignedTo": "Assigné à",
+    "unassigned": "Non assigné",
+    "status": "Statut",
+    "active": "Actif",
+    "vapiError": "Erreur Vapi",
+    "capabilities": "Capacités",
+    "voice": "Voix",
+    "sms": "SMS",
+    "mms": "MMS",
+    "monthlyCost": "{amount}/mois",
+    "priceUnavailable": "Prix indisponible",
+    "location": "{locality}, {region}",
+    "loading": "Chargement des numéros...",
+    "genericError": "Une erreur s'est produite.",
+    "refresh": "Actualiser",
+    "assignmentSaved": "Assignation enregistrée."
   },
   "agents": {
     "title": "Agents vocaux",

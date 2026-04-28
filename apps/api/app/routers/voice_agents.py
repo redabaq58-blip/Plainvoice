@@ -105,31 +105,43 @@ async def list_voice_agents(org: OrgDep) -> list[dict]:
 
     async with httpx.AsyncClient() as client:
         # Fetch agents with their linked phone number
-        agents_resp = await client.get(
-            f"{SUPABASE_URL}/rest/v1/voice_agents",
-            params={
-                "select": "*, phone_numbers(phone_number)",
-                "org_id": f"eq.{org_id}",
-                "order": "created_at.desc",
-            },
-            headers=headers,
-            timeout=10.0,
-        )
-        agents_resp.raise_for_status()
+        try:
+            agents_resp = await client.get(
+                f"{SUPABASE_URL}/rest/v1/voice_agents",
+                params={
+                    "select": "*, phone_numbers(phone_number)",
+                    "org_id": f"eq.{org_id}",
+                    "order": "created_at.desc",
+                },
+                headers=headers,
+                timeout=10.0,
+            )
+            agents_resp.raise_for_status()
+        except httpx.HTTPError:
+            if access_token == settings.supabase_service_role_key:
+                return []
+            raise
         agents = agents_resp.json()
 
         # Fetch call counts per agent
-        calls_resp = await client.get(
-            f"{SUPABASE_URL}/rest/v1/calls",
-            params={
-                "select": "agent_id",
-                "org_id": f"eq.{org_id}",
-            },
-            headers=headers,
-            timeout=10.0,
-        )
-        calls_resp.raise_for_status()
-        calls = calls_resp.json()
+        try:
+            calls_resp = await client.get(
+                f"{SUPABASE_URL}/rest/v1/calls",
+                params={
+                    "select": "agent_id",
+                    "org_id": f"eq.{org_id}",
+                },
+                headers=headers,
+                timeout=10.0,
+            )
+            calls_resp.raise_for_status()
+        except httpx.HTTPError:
+            if access_token == settings.supabase_service_role_key:
+                calls = []
+            else:
+                raise
+        else:
+            calls = calls_resp.json()
 
     # Count calls per agent
     call_counts: dict[str, int] = {}

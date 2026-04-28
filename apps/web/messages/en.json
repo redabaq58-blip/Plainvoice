@@ -3,7 +3,7 @@
     "dashboard": "Dashboard",
     "agents": "Agents",
     "calls": "Calls",
-    "billing": "Billing",
+    "phoneNumbers": "Phone Numbers",
     "settings": "Settings"
   },
   "common": {
@@ -120,6 +120,37 @@
       "credits": "Credits used",
       "to": "To"
     }
+  },
+  "phoneNumbers": {
+    "title": "Phone Numbers",
+    "subtitle": "Search, buy, and assign Canadian Twilio numbers to your voice agents.",
+    "searchTitle": "Search available numbers",
+    "areaCode": "Area code",
+    "areaCodePlaceholder": "514",
+    "search": "Search",
+    "searching": "Searching...",
+    "availableTitle": "Available numbers",
+    "ownedTitle": "Owned numbers",
+    "noResults": "No available numbers yet.",
+    "noOwned": "No phone numbers purchased yet.",
+    "purchase": "Purchase",
+    "purchasing": "Purchasing...",
+    "assignedTo": "Assigned to",
+    "unassigned": "Unassigned",
+    "status": "Status",
+    "active": "Active",
+    "vapiError": "Vapi setup error",
+    "capabilities": "Capabilities",
+    "voice": "Voice",
+    "sms": "SMS",
+    "mms": "MMS",
+    "monthlyCost": "{amount}/month",
+    "priceUnavailable": "Price unavailable",
+    "location": "{locality}, {region}",
+    "loading": "Loading phone numbers...",
+    "genericError": "Something went wrong.",
+    "refresh": "Refresh",
+    "assignmentSaved": "Assignment saved."
   },
   "agents": {
     "title": "Voice Agents",

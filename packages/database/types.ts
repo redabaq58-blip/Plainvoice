@@ -227,31 +227,58 @@ export type Database = {
       }
       organizations: {
         Row: {
+          business_email: string | null
+          business_hours: Json
+          business_phone: string | null
           created_at: string
           credits_balance: number
+          default_language: string
+          default_max_call_duration_minutes: number
+          default_voice_id: string | null
+          default_voice_provider: string
           id: string
           name: string
           slug: string
           updated_at: string
+          timezone: string
           voice_minutes_used: number
+          website_url: string | null
         }
         Insert: {
+          business_email?: string | null
+          business_hours?: Json
+          business_phone?: string | null
           created_at?: string
           credits_balance?: number
+          default_language?: string
+          default_max_call_duration_minutes?: number
+          default_voice_id?: string | null
+          default_voice_provider?: string
           id?: string
           name: string
           slug: string
           updated_at?: string
+          timezone?: string
           voice_minutes_used?: number
+          website_url?: string | null
         }
         Update: {
+          business_email?: string | null
+          business_hours?: Json
+          business_phone?: string | null
           created_at?: string
           credits_balance?: number
+          default_language?: string
+          default_max_call_duration_minutes?: number
+          default_voice_id?: string | null
+          default_voice_provider?: string
           id?: string
           name?: string
           slug?: string
           updated_at?: string
+          timezone?: string
           voice_minutes_used?: number
+          website_url?: string | null
         }
         Relationships: []
       }

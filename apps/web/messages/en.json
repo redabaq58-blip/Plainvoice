@@ -152,6 +152,62 @@
     "refresh": "Refresh",
     "assignmentSaved": "Assignment saved."
   },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Configure the business details and default voice behavior for this organization.",
+    "save": "Save settings",
+    "saving": "Saving...",
+    "saved": "Settings saved.",
+    "error": "Review the highlighted settings and try again.",
+    "profile": {
+      "title": "Organization Profile",
+      "organizationName": "Organization name",
+      "businessEmail": "Business email",
+      "businessPhone": "Business phone",
+      "websiteUrl": "Website URL",
+      "timezone": "Timezone"
+    },
+    "businessHours": {
+      "title": "Business Hours",
+      "open": "Open",
+      "closed": "Closed",
+      "openTime": "Open time",
+      "closeTime": "Close time"
+    },
+    "voice": {
+      "title": "Default Voice Behavior",
+      "defaultLanguage": "Default language",
+      "defaultVoiceProvider": "Default voice provider",
+      "defaultVoiceId": "Default voice ID",
+      "defaultVoiceIdPlaceholder": "Voice ID from your provider",
+      "defaultMaxCallDuration": "Default max call duration"
+    },
+    "days": {
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday",
+      "sunday": "Sunday"
+    },
+    "languages": {
+      "fr": "French",
+      "en": "English",
+      "bilingual": "Bilingual"
+    },
+    "voiceProviders": {
+      "elevenlabs": "ElevenLabs",
+      "azure": "Azure",
+      "deepgram": "Deepgram"
+    },
+    "durations": {
+      "5": "5 minutes",
+      "10": "10 minutes",
+      "15": "15 minutes",
+      "20": "20 minutes"
+    }
+  },
   "agents": {
     "title": "Voice Agents",
     "createAgent": "Create Agent",

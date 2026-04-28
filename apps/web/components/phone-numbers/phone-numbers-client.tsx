@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 import { RefreshCw, Search, ShoppingCart } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -131,7 +131,7 @@ export function PhoneNumbersClient({ labels }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
-  async function loadData() {
+  const loadData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -146,11 +146,11 @@ export function PhoneNumbersClient({ labels }: Props) {
     } finally {
       setLoading(false);
     }
-  }
+  }, [labels.genericError]);
 
   useEffect(() => {
     void loadData();
-  }, []);
+  }, [loadData]);
 
   async function handleSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

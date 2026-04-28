@@ -1,6 +1,7 @@
 {
   "$schema": "https://turborepo.dev/schema.json",
   "ui": "tui",
+  "globalEnv": ["NODE_ENV", "SUPABASE_SERVICE_ROLE_KEY"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],

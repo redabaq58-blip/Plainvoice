@@ -4,6 +4,8 @@ Run this checklist whenever voice prompts, templates, or Vapi config change.
 Each scenario has a setup, the expected agent behavior, and pass/fail criteria.
 A scenario fails if the agent gives a robotic response, hallucinates, promises something it cannot do, or derails the conversation.
 
+**This file covers the 13 generic call scenarios.** Industry-specific scenarios live alongside each demo pack in [`apps/web/lib/demo-packs.ts`](../apps/web/lib/demo-packs.ts) under the `qaScript` field. After running the 13 generic scenarios on a fresh agent, run the demo-pack scenarios for whichever industry you're testing.
+
 ---
 
 ## How to Use
@@ -12,6 +14,7 @@ A scenario fails if the agent gives a robotic response, hallucinates, promises s
 2. Click **Start Call** (requires `NEXT_PUBLIC_VAPI_PUBLIC_KEY` set).
 3. Work through each scenario. Mark ✅ pass or ❌ fail with a note.
 4. Fix any failing scenario before merging prompt changes.
+5. For industry-specific tests: create an agent from the demo pack at `/[locale]/agents/new`, then run the matching `qaScript` scenarios from `demo-packs.ts`.
 
 ---
 

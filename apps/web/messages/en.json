@@ -527,6 +527,33 @@
           "direct": "Direct"
         },
         "promptPreview": "Prompt preview"
+      },
+      "demoPack": {
+        "title": "Start from a demo pack",
+        "description": "Pre-fill realistic services, FAQs, hours, emergency rules, and a QA call script for a specific industry. You can edit anything after.",
+        "placeholder": "Choose an industry...",
+        "apply": "Apply pack",
+        "clear": "Clear",
+        "packs": {
+          "dental_clinic": "Dental clinic",
+          "med_spa": "Med spa",
+          "auto_repair": "Auto repair",
+          "real_estate": "Real estate",
+          "home_services": "Home services / contractor",
+          "legal_office": "Legal office",
+          "restaurant": "Restaurant",
+          "hvac_plumbing": "HVAC + plumbing (24/7 emergency)"
+        },
+        "preview": {
+          "included": "What this pack includes:",
+          "services": "services",
+          "faqs": "FAQs",
+          "businessHours": "days of business hours",
+          "emergency": "Emergency rules",
+          "pricing": "Pricing notes",
+          "qaScenarios": "industry QA scenarios",
+          "smsTemplates": "SMS follow-up templates (after call, missed, booking)"
+        }
       }
     },
     "detail": {

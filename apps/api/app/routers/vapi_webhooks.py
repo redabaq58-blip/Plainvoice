@@ -322,12 +322,14 @@ async def _handle_assistant_request(call: VapiCall | None) -> dict:
     # Build and return Vapi assistant config
     config = vapi_service.build_vapi_config(
         name=agent["name"],
+        vertical=agent["vertical"],
         system_prompt=agent.get("system_prompt"),
         first_message=agent.get("first_message"),
         voice_provider=agent["voice_provider"],
         voice_id=agent.get("voice_id"),
         language=agent["language"],
         max_call_duration_minutes=agent["max_call_duration_minutes"],
+        knowledge_base=agent.get("knowledge_base"),
     )
     return {"assistant": config}
 

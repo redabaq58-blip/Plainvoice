@@ -141,6 +141,28 @@
       "defaultCallTitle": "Faire un suivi avec {phone}",
       "unknownCaller": "l'appelant"
     },
+    "smsHistory": {
+      "title": "Historique SMS",
+      "empty": "Aucun SMS enregistre pour cet appel.",
+      "timestamp": "Moment",
+      "recipient": "Destinataire",
+      "sender": "Expediteur",
+      "type": "Type",
+      "status": "Statut",
+      "body": "Message",
+      "error": "Erreur",
+      "openCall": "Ouvrir l'appel",
+      "statuses": {
+        "sent": "Envoye",
+        "failed": "Echoue",
+        "skipped": "Ignore"
+      },
+      "types": {
+        "follow_up": "Suivi",
+        "owner_notification": "Notification proprietaire",
+        "booking_confirmation": "Confirmation de reservation"
+      }
+    },
     "detail": {
       "summary": "Résumé IA",
       "noSummary": "Aucun résumé disponible.",
@@ -453,6 +475,28 @@
     },
     "tasks": {
       "defaultContactTitle": "Faire un suivi avec {name}"
+    },
+    "smsHistory": {
+      "title": "Historique SMS",
+      "empty": "Aucun SMS enregistre pour ce contact.",
+      "timestamp": "Moment",
+      "recipient": "Destinataire",
+      "sender": "Expediteur",
+      "type": "Type",
+      "status": "Statut",
+      "body": "Message",
+      "error": "Erreur",
+      "openCall": "Ouvrir l'appel",
+      "statuses": {
+        "sent": "Envoye",
+        "failed": "Echoue",
+        "skipped": "Ignore"
+      },
+      "types": {
+        "follow_up": "Suivi",
+        "owner_notification": "Notification proprietaire",
+        "booking_confirmation": "Confirmation de reservation"
+      }
     },
     "detail": {
       "profile": "Profil du contact",

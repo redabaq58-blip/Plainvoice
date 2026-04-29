@@ -117,6 +117,10 @@ export default async function AgentDetailPage({ params, searchParams }: Props) {
       restaurant: t("vertical.restaurant"),
       legal: t("vertical.legal"),
       general: t("vertical.general"),
+      auto_repair: t("vertical.auto_repair"),
+      real_estate: t("vertical.real_estate"),
+      home_services: t("vertical.home_services"),
+      med_spa: t("vertical.med_spa"),
     },
     languageLabels: {
       fr: t("language.fr"),

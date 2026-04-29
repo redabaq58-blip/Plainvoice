@@ -527,6 +527,33 @@
           "direct": "Direct"
         },
         "promptPreview": "Apercu du prompt"
+      },
+      "demoPack": {
+        "title": "Démarrer à partir d'un modèle d'industrie",
+        "description": "Pré-remplir des services réalistes, FAQs, heures d'ouverture, règles d'urgence et un script d'appel QA pour une industrie spécifique. Vous pouvez tout modifier ensuite.",
+        "placeholder": "Choisir une industrie...",
+        "apply": "Appliquer",
+        "clear": "Effacer",
+        "packs": {
+          "dental_clinic": "Clinique dentaire",
+          "med_spa": "Médecine esthétique",
+          "auto_repair": "Garage automobile",
+          "real_estate": "Courtage immobilier",
+          "home_services": "Services à domicile / Entrepreneur",
+          "legal_office": "Cabinet juridique",
+          "restaurant": "Restaurant",
+          "hvac_plumbing": "Chauffage + plomberie (urgence 24/7)"
+        },
+        "preview": {
+          "included": "Ce que ce modèle inclut :",
+          "services": "services",
+          "faqs": "FAQs",
+          "businessHours": "jours d'heures d'ouverture",
+          "emergency": "Règles d'urgence",
+          "pricing": "Notes de tarification",
+          "qaScenarios": "scénarios QA spécifiques à l'industrie",
+          "smsTemplates": "modèles SMS de suivi (après appel, manqué, réservation)"
+        }
       }
     },
     "detail": {

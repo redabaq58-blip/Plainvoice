@@ -35,6 +35,13 @@ import {
   getTemplateFirstMessage,
   getTemplatePrompt,
 } from "@/lib/agent-templates";
+import {
+  DEMO_PACKS,
+  applyDemoPack,
+  getDemoPack,
+  summarizeDemoPack,
+  type DemoPackId,
+} from "@/lib/demo-packs";
 
 type Labels = {
   name: string;
@@ -85,6 +92,24 @@ type Labels = {
   languageLabels: Record<string, string>;
   voiceProviderLabels: Record<string, string>;
   statusLabels: Record<string, string>;
+  demoPack?: {
+    title: string;
+    description: string;
+    placeholder: string;
+    apply: string;
+    clear: string;
+    packs: Record<string, string>;
+    preview: {
+      services: string;
+      faqs: string;
+      businessHours: string;
+      emergency: string;
+      pricing: string;
+      qaScenarios: string;
+      smsTemplates: string;
+      included: string;
+    };
+  };
 };
 
 type AgentFormProps = {
@@ -139,6 +164,19 @@ export function AgentForm({
   const promptPreview = buildAgentSystemPrompt(currentValues);
   const faqs = currentValues.knowledgeBase.faqs;
   const [vapiWarning, setVapiWarning] = useState<string | null>(null);
+  const [selectedPackId, setSelectedPackId] = useState<DemoPackId | "">("");
+  const selectedPack = selectedPackId ? getDemoPack(selectedPackId) : undefined;
+  const packSummary = selectedPack ? summarizeDemoPack(selectedPack) : undefined;
+
+  function handleApplyDemoPack() {
+    if (!selectedPack) return;
+    const overrides = applyDemoPack(selectedPack, currentLanguage);
+    if (overrides.name !== undefined) setValue("name", overrides.name);
+    if (overrides.vertical !== undefined) setValue("vertical", overrides.vertical);
+    if (overrides.firstMessage !== undefined) setValue("firstMessage", overrides.firstMessage);
+    if (overrides.systemPrompt !== undefined) setValue("systemPrompt", overrides.systemPrompt);
+    if (overrides.knowledgeBase !== undefined) setValue("knowledgeBase", overrides.knowledgeBase);
+  }
 
   function handleVerticalChange(vertical: string) {
     setValue("vertical", vertical as VoiceAgentCreateInput["vertical"]);
@@ -201,6 +239,68 @@ export function AgentForm({
         <div className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
           {vapiWarning}
         </div>
+      )}
+
+      {/* Demo Pack — create mode only */}
+      {mode === "create" && labels.demoPack && (
+        <section className="space-y-3 rounded-md border border-dashed bg-muted/30 p-4">
+          <div>
+            <Label className="text-base">{labels.demoPack.title}</Label>
+            <p className="text-sm text-muted-foreground">
+              {labels.demoPack.description}
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Select
+              value={selectedPackId}
+              onValueChange={(v) => setSelectedPackId(v as DemoPackId)}
+            >
+              <SelectTrigger className="flex-1">
+                <SelectValue placeholder={labels.demoPack.placeholder} />
+              </SelectTrigger>
+              <SelectContent>
+                {DEMO_PACKS.map((pack) => (
+                  <SelectItem key={pack.id} value={pack.id}>
+                    {labels.demoPack!.packs[pack.id] ?? pack.id}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              type="button"
+              onClick={handleApplyDemoPack}
+              disabled={!selectedPack}
+            >
+              {labels.demoPack.apply}
+            </Button>
+          </div>
+          {selectedPack && packSummary && (
+            <div className="space-y-1 text-sm">
+              <div className="font-medium">{labels.demoPack.preview.included}</div>
+              <ul className="list-disc space-y-0.5 pl-5 text-muted-foreground">
+                <li>
+                  {packSummary.services} {labels.demoPack.preview.services}
+                </li>
+                <li>
+                  {packSummary.faqs} {labels.demoPack.preview.faqs}
+                </li>
+                <li>
+                  {packSummary.businessHoursDays} {labels.demoPack.preview.businessHours}
+                </li>
+                {packSummary.hasEmergency && (
+                  <li>{labels.demoPack.preview.emergency}</li>
+                )}
+                {packSummary.hasPricing && <li>{labels.demoPack.preview.pricing}</li>}
+                <li>
+                  {packSummary.qaScenarios} {labels.demoPack.preview.qaScenarios}
+                </li>
+                <li>
+                  {packSummary.smsTemplates} {labels.demoPack.preview.smsTemplates}
+                </li>
+              </ul>
+            </div>
+          )}
+        </section>
       )}
 
       {/* Name */}

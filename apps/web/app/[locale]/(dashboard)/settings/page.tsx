@@ -33,6 +33,10 @@ type SettingsOrganization = Pick<
   | "default_voice_provider"
   | "default_voice_id"
   | "default_max_call_duration_minutes"
+  | "booking_enabled"
+  | "calcom_api_key"
+  | "calcom_event_type_id"
+  | "calcom_username"
 >;
 
 function createServiceRoleClient() {
@@ -85,7 +89,7 @@ async function getOrgSettings() {
   const { data: organization, error } = await supabase
     .from("organizations")
     .select(
-      "id, name, business_email, business_phone, website_url, timezone, business_hours, default_language, default_voice_provider, default_voice_id, default_max_call_duration_minutes",
+      "id, name, business_email, business_phone, website_url, timezone, business_hours, default_language, default_voice_provider, default_voice_id, default_max_call_duration_minutes, booking_enabled, calcom_api_key, calcom_event_type_id, calcom_username",
     )
     .eq("id", orgId)
     .single();
@@ -102,6 +106,10 @@ async function getOrgSettings() {
       default_voice_provider: "elevenlabs",
       default_voice_id: null,
       default_max_call_duration_minutes: 10,
+      booking_enabled: false,
+      calcom_api_key: null,
+      calcom_event_type_id: null,
+      calcom_username: null,
     } satisfies SettingsOrganization;
   }
 
@@ -121,6 +129,10 @@ function toFormValues(organization: SettingsOrganization): OrganizationSettingsI
       organization.default_voice_provider as OrganizationSettingsInput["defaultVoiceProvider"],
     defaultVoiceId: organization.default_voice_id ?? "",
     defaultMaxCallDurationMinutes: organization.default_max_call_duration_minutes,
+    bookingEnabled: organization.booking_enabled,
+    calcomApiKey: organization.calcom_api_key ?? "",
+    calcomEventTypeId: organization.calcom_event_type_id ?? "",
+    calcomUsername: organization.calcom_username ?? "",
   };
 }
 
@@ -145,6 +157,14 @@ function buildLabels(t: Awaited<ReturnType<typeof getTranslations>>): SettingsLa
     defaultVoiceId: t("voice.defaultVoiceId"),
     defaultVoiceIdPlaceholder: t("voice.defaultVoiceIdPlaceholder"),
     defaultMaxCallDuration: t("voice.defaultMaxCallDuration"),
+    bookingTitle: t("booking.title"),
+    bookingEnabled: t("booking.enabled"),
+    calcomApiKey: t("booking.calcomApiKey"),
+    calcomApiKeyPlaceholder: t("booking.calcomApiKeyPlaceholder"),
+    calcomEventTypeId: t("booking.calcomEventTypeId"),
+    calcomEventTypeIdPlaceholder: t("booking.calcomEventTypeIdPlaceholder"),
+    calcomUsername: t("booking.calcomUsername"),
+    calcomUsernamePlaceholder: t("booking.calcomUsernamePlaceholder"),
     save: t("save"),
     saving: t("saving"),
     saved: t("saved"),
@@ -217,6 +237,10 @@ export default async function SettingsPage({ params }: Props) {
         default_voice_provider: parsed.data.defaultVoiceProvider,
         default_voice_id: toNullable(parsed.data.defaultVoiceId),
         default_max_call_duration_minutes: parsed.data.defaultMaxCallDurationMinutes,
+        booking_enabled: parsed.data.bookingEnabled,
+        calcom_api_key: toNullable(parsed.data.calcomApiKey),
+        calcom_event_type_id: toNullable(parsed.data.calcomEventTypeId),
+        calcom_username: toNullable(parsed.data.calcomUsername),
       })
       .eq("id", orgId);
 

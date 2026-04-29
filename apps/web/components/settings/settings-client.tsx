@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useState, useTransition } from "react";
-import { Clock, Save } from "lucide-react";
+import { CalendarCheck, Clock, Save } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -44,6 +44,14 @@ export type SettingsLabels = {
   defaultVoiceId: string;
   defaultVoiceIdPlaceholder: string;
   defaultMaxCallDuration: string;
+  bookingTitle: string;
+  bookingEnabled: string;
+  calcomApiKey: string;
+  calcomApiKeyPlaceholder: string;
+  calcomEventTypeId: string;
+  calcomEventTypeIdPlaceholder: string;
+  calcomUsername: string;
+  calcomUsernamePlaceholder: string;
   save: string;
   saving: string;
   saved: string;
@@ -376,6 +384,78 @@ export function SettingsClient({ initialValues, labels, saveSettings }: Props) {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{labels.bookingTitle}</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-4 md:grid-cols-2">
+          <div className="flex items-center gap-3 rounded-md border p-3 md:col-span-2">
+            <CalendarCheck className="h-4 w-4 text-muted-foreground" />
+            <Label htmlFor="booking-enabled" className="flex-1">
+              {labels.bookingEnabled}
+            </Label>
+            <input
+              id="booking-enabled"
+              type="checkbox"
+              className="h-4 w-4"
+              checked={values.bookingEnabled}
+              onChange={(event) =>
+                setValues((current) => ({
+                  ...current,
+                  bookingEnabled: event.target.checked,
+                }))
+              }
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="calcom-api-key">{labels.calcomApiKey}</Label>
+            <Input
+              id="calcom-api-key"
+              type="password"
+              value={values.calcomApiKey}
+              placeholder={labels.calcomApiKeyPlaceholder}
+              onChange={(event) =>
+                setValues((current) => ({
+                  ...current,
+                  calcomApiKey: event.target.value,
+                }))
+              }
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="calcom-event-type-id">{labels.calcomEventTypeId}</Label>
+            <Input
+              id="calcom-event-type-id"
+              value={values.calcomEventTypeId}
+              placeholder={labels.calcomEventTypeIdPlaceholder}
+              onChange={(event) =>
+                setValues((current) => ({
+                  ...current,
+                  calcomEventTypeId: event.target.value,
+                }))
+              }
+            />
+          </div>
+
+          <div className="space-y-2 md:col-span-2">
+            <Label htmlFor="calcom-username">{labels.calcomUsername}</Label>
+            <Input
+              id="calcom-username"
+              value={values.calcomUsername}
+              placeholder={labels.calcomUsernamePlaceholder}
+              onChange={(event) =>
+                setValues((current) => ({
+                  ...current,
+                  calcomUsername: event.target.value,
+                }))
+              }
+            />
           </div>
         </CardContent>
       </Card>

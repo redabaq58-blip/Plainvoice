@@ -111,6 +111,44 @@ export type Database = {
           },
         ]
       },
+      inbox_reviews: {
+        Row: {
+          created_at: string
+          id: string
+          item_key: string
+          item_type: string
+          org_id: string
+          reviewed_at: string
+          reviewed_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_key: string
+          item_type: string
+          org_id: string
+          reviewed_at?: string
+          reviewed_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_key?: string
+          item_type?: string
+          org_id?: string
+          reviewed_at?: string
+          reviewed_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inbox_reviews_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       calls: {
         Row: {
           agent_id: string | null

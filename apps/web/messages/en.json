@@ -1,6 +1,7 @@
 {
   "nav": {
     "dashboard": "Dashboard",
+    "inbox": "Inbox",
     "onboarding": "Onboarding",
     "contacts": "Contacts",
     "agents": "Agents",
@@ -643,6 +644,84 @@
       "owner_notification_skipped": "Owner notification skipped",
       "human_transfer_requested": "Human transfer requested",
       "human_transfer_unavailable": "Human transfer unavailable"
+    }
+  },
+  "inbox": {
+    "title": "Business Inbox",
+    "subtitle": "Every failed automation, handoff, urgent call, new lead, and follow-up that needs attention.",
+    "openItems": "items need action",
+    "empty": {
+      "title": "Nothing needs attention",
+      "description": "Failed automations, urgent calls, transfer requests, new leads, and follow-ups will appear here."
+    },
+    "filters": {
+      "all": "All",
+      "urgent": "Urgent",
+      "failed": "Failed",
+      "follow-up": "Follow-up",
+      "new-leads": "New leads",
+      "transfer": "Transfer"
+    },
+    "kind": {
+      "urgent": "Urgent",
+      "failed": "Failed",
+      "follow-up": "Follow-up",
+      "new-leads": "New lead",
+      "transfer": "Transfer"
+    },
+    "fields": {
+      "type": "Type",
+      "status": "Status",
+      "source": "Source"
+    },
+    "actions": {
+      "markDone": "Mark done",
+      "openCall": "Open call",
+      "openContact": "Open contact",
+      "openActivity": "Open activity"
+    },
+    "derived": {
+      "callNeedsFollowUp": "Call needs follow-up.",
+      "smsFailed": "SMS follow-up failed.",
+      "bookingFailed": "Booking automation failed.",
+      "newLead": "New contact created."
+    },
+    "status": {
+      "success": "Success",
+      "failed": "Failed",
+      "skipped": "Skipped",
+      "info": "Info",
+      "new": "New",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "queued": "Queued",
+      "ringing": "Ringing",
+      "in-progress": "In progress"
+    },
+    "source": {
+      "vapi": "Vapi",
+      "calcom": "Cal.com",
+      "twilio": "Twilio",
+      "system": "System"
+    },
+    "type": {
+      "call_received": "Call received",
+      "call_saved": "Call saved",
+      "transcript_saved": "Transcript saved",
+      "summary_saved": "Summary saved",
+      "contact_created": "Contact created",
+      "booking_attempted": "Booking attempted",
+      "booking_succeeded": "Booking succeeded",
+      "booking_failed": "Booking failed",
+      "sms_attempted": "SMS attempted",
+      "sms_sent": "SMS sent",
+      "sms_failed": "SMS failed",
+      "owner_notification_sent": "Owner notification sent",
+      "owner_notification_skipped": "Owner notification skipped",
+      "human_transfer_requested": "Human transfer requested",
+      "human_transfer_unavailable": "Human transfer unavailable",
+      "call_follow_up": "Call follow-up",
+      "new_lead": "New lead"
     }
   }
 }

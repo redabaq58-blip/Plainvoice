@@ -41,6 +41,7 @@ export default async function DashboardLayout({ children, params }: Props) {
       signOut={signOut}
       navLabels={{
         dashboard: t("nav.dashboard"),
+        onboarding: t("nav.onboarding"),
         contacts: t("nav.contacts"),
         agents: t("nav.agents"),
         calls: t("nav.calls"),

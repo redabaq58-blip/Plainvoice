@@ -1,6 +1,7 @@
 {
   "nav": {
     "dashboard": "Dashboard",
+    "onboarding": "Onboarding",
     "contacts": "Contacts",
     "agents": "Agents",
     "calls": "Calls",
@@ -183,6 +184,105 @@
     "genericError": "Something went wrong.",
     "refresh": "Refresh",
     "assignmentSaved": "Assignment saved."
+  },
+  "onboarding": {
+    "title": "Onboarding",
+    "subtitle": "Configure the business, first agent, phone number, integrations, and test path in one guided flow.",
+    "loading": "Loading onboarding...",
+    "saving": "Saving...",
+    "saved": "Saved.",
+    "saveStep": "Save step",
+    "next": "Next",
+    "back": "Back",
+    "complete": "Finish onboarding",
+    "completed": "complete",
+    "incomplete": "Incomplete",
+    "optional": "Optional",
+    "error": "Review the onboarding details and try again.",
+    "steps": {
+      "profile": "Business profile",
+      "hours": "Business hours",
+      "agent": "First agent",
+      "phone": "Phone number",
+      "integrations": "Integrations",
+      "test": "Test call"
+    },
+    "profile": {
+      "title": "Business profile",
+      "description": "Set the details PlainVoice uses across calls, bookings, and follow-up messages.",
+      "businessName": "Business name",
+      "email": "Email",
+      "phone": "Phone",
+      "website": "Website",
+      "timezone": "Timezone"
+    },
+    "hours": {
+      "title": "Business hours",
+      "description": "Tell the agent when the business is open and when to collect a message.",
+      "open": "Open",
+      "closed": "Closed",
+      "openTime": "Open time",
+      "closeTime": "Close time",
+      "days": {
+        "monday": "Monday",
+        "tuesday": "Tuesday",
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday",
+        "saturday": "Saturday",
+        "sunday": "Sunday"
+      }
+    },
+    "agent": {
+      "title": "First agent setup",
+      "description": "Create or customize the first voice agent and seed its basic knowledge base.",
+      "existing": "Customize the first agent already in this workspace.",
+      "create": "Create the first agent for this workspace.",
+      "name": "Agent name",
+      "language": "Language",
+      "firstMessage": "First message",
+      "businessDescription": "Business description",
+      "servicesOffered": "Services offered",
+      "serviceArea": "Service area / address",
+      "policies": "Policies",
+      "languageLabels": {
+        "fr": "French",
+        "en": "English",
+        "bilingual": "Bilingual"
+      }
+    },
+    "phone": {
+      "title": "Phone number setup",
+      "description": "Assign an owned phone number to the first agent.",
+      "noNumbers": "No phone numbers are owned yet. Buy a number before assigning it to the agent.",
+      "manageNumbers": "Open phone numbers",
+      "assignedTo": "Assigned to",
+      "unassigned": "Unassigned",
+      "active": "Active",
+      "vapiError": "Vapi setup error"
+    },
+    "integrations": {
+      "title": "Integrations status",
+      "description": "Confirm Cal.com booking and SMS follow-up readiness.",
+      "calcom": "Cal.com booking",
+      "sms": "SMS follow-up",
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "settingsReady": "Settings look ready.",
+      "settingsMissing": "Settings need attention.",
+      "openSettings": "Open settings"
+    },
+    "test": {
+      "title": "Test call checklist",
+      "description": "Review setup status and open the agent test page when everything is ready.",
+      "profile": "Business profile saved",
+      "hours": "Business hours configured",
+      "agent": "First agent configured",
+      "phone": "Phone number assigned",
+      "integrations": "At least one integration ready",
+      "testAgent": "Open agent test",
+      "openDashboard": "Open dashboard"
+    }
   },
   "settings": {
     "title": "Settings",

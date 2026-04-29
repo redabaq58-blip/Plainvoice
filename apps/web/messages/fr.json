@@ -6,7 +6,8 @@
     "agents": "Agents",
     "calls": "Appels",
     "phoneNumbers": "Numéros",
-    "settings": "Paramètres"
+    "settings": "Paramètres",
+    "activity": "Activite"
   },
   "common": {
     "loading": "Chargement...",
@@ -23,7 +24,7 @@
       "passwordPlaceholder": "••••••••",
       "submitButton": "Se connecter",
       "googleButton": "Continuer avec Google",
-      "signupLink": "Pas encore de compte ? S'inscrire",
+      "signupLink": "Pas encore de compte ' S'inscrire",
       "errorInvalid": "Courriel ou mot de passe invalide"
     },
     "signup": {
@@ -38,7 +39,7 @@
       "orgNameLabel": "Nom de l'organisation",
       "orgNamePlaceholder": "Acme inc.",
       "submitButton": "Créer le compte",
-      "loginLink": "Déjà un compte ? Se connecter",
+      "loginLink": "Déjà un compte ' Se connecter",
       "errorMismatch": "Les mots de passe ne correspondent pas"
     },
     "signOut": "Se déconnecter"
@@ -151,7 +152,32 @@
       "duration": "Durée",
       "endedReason": "Raison de fin",
       "credits": "Crédits utilisés",
-      "to": "Destinataire"
+      "to": "Destinataire",
+      "activity": "Chronologie d'activite",
+      "noActivity": "Aucune activite journalisee pour cet appel."
+    },
+    "activityStatus": {
+      "success": "Reussi",
+      "failed": "Echoue",
+      "skipped": "Ignore",
+      "info": "Info"
+    },
+    "activityType": {
+      "call_received": "Appel recu",
+      "call_saved": "Appel enregistre",
+      "transcript_saved": "Transcription enregistree",
+      "summary_saved": "Resume enregistre",
+      "contact_created": "Contact cree",
+      "booking_attempted": "Reservation tentee",
+      "booking_succeeded": "Reservation reussie",
+      "booking_failed": "Reservation echouee",
+      "sms_attempted": "SMS tente",
+      "sms_sent": "SMS envoye",
+      "sms_failed": "SMS echoue",
+      "owner_notification_sent": "Notification proprietaire envoyee",
+      "owner_notification_skipped": "Notification proprietaire ignoree",
+      "human_transfer_requested": "Transfert humain demande",
+      "human_transfer_unavailable": "Transfert humain indisponible"
     }
   },
   "phoneNumbers": {
@@ -508,9 +534,9 @@
         "pricingNotesPlaceholder": "Ajoutez les fourchettes, regles de soumission, depots ou details de prix.",
         "faqs": "FAQ",
         "question": "Question",
-        "questionPlaceholder": "Que demandent souvent les appelants ?",
+        "questionPlaceholder": "Que demandent souvent les appelants '",
         "answer": "Reponse",
-        "answerPlaceholder": "Comment l'agent doit-il repondre ?",
+        "answerPlaceholder": "Comment l'agent doit-il repondre '",
         "addFaq": "Ajouter une FAQ",
         "removeFaq": "Supprimer la FAQ",
         "policies": "Politiques",
@@ -575,11 +601,48 @@
     },
     "delete": {
       "title": "Supprimer l'agent",
-      "message": "Êtes-vous sûr de vouloir supprimer cet agent ? Cette action est irréversible.",
+      "message": "Êtes-vous sûr de vouloir supprimer cet agent ' Cette action est irréversible.",
       "confirm": "Supprimer",
       "cancel": "Annuler"
     },
     "edit": "Modifier",
     "deleteAction": "Supprimer"
+  },
+  "activity": {
+    "title": "Activite",
+    "subtitle": "Une chronologie des appels, reservations, SMS, contacts et resultats automatises.",
+    "timeline": "Chronologie des automatisations",
+    "empty": "Aucun evenement automatise pour le moment.",
+    "openCall": "Ouvrir l'appel",
+    "openContact": "Ouvrir le contact",
+    "status": {
+      "success": "Reussi",
+      "failed": "Echoue",
+      "skipped": "Ignore",
+      "info": "Info"
+    },
+    "source": {
+      "vapi": "Vapi",
+      "calcom": "Cal.com",
+      "twilio": "Twilio",
+      "system": "Systeme"
+    },
+    "eventType": {
+      "call_received": "Appel recu",
+      "call_saved": "Appel enregistre",
+      "transcript_saved": "Transcription enregistree",
+      "summary_saved": "Resume enregistre",
+      "contact_created": "Contact cree",
+      "booking_attempted": "Reservation tentee",
+      "booking_succeeded": "Reservation reussie",
+      "booking_failed": "Reservation echouee",
+      "sms_attempted": "SMS tente",
+      "sms_sent": "SMS envoye",
+      "sms_failed": "SMS echoue",
+      "owner_notification_sent": "Notification proprietaire envoyee",
+      "owner_notification_skipped": "Notification proprietaire ignoree",
+      "human_transfer_requested": "Transfert humain demande",
+      "human_transfer_unavailable": "Transfert humain indisponible"
+    }
   }
 }

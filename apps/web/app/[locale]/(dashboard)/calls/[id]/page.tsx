@@ -1,12 +1,13 @@
 import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createSupabaseServerClient } from "@/lib/supabase";
+import { createContactsSupabaseClient } from "@/lib/contacts-server";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CallTranscript } from "@/components/calls/call-transcript";
 import { CallRecording } from "@/components/calls/call-recording";
-import { Phone, User, Clock, ArrowLeft } from "lucide-react";
+import { Activity, Phone, User, Clock, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 type Props = {
@@ -16,6 +17,16 @@ type Props = {
 type TranscriptEntry = {
   role: string;
   content: string;
+};
+
+type AutomationEvent = {
+  id: string;
+  event_type: string;
+  status: string;
+  source: string;
+  message: string;
+  error: string | null;
+  created_at: string;
 };
 
 function formatDuration(seconds: number | null): string {
@@ -47,12 +58,15 @@ const STATUS_VARIANT: Record<string, "default" | "secondary" | "destructive" | "
   "in-progress": "secondary",
   failed: "destructive",
   cancelled: "outline",
+  success: "default",
+  skipped: "secondary",
+  info: "outline",
 };
 
 export default async function CallDetailPage({ params }: Props) {
   const { locale, id } = await params;
   const t = await getTranslations("calls");
-  const supabase = await createSupabaseServerClient();
+  const supabase = await createContactsSupabaseClient();
 
   // Fetch call with agent name
   const { data: call } = await supabase
@@ -69,6 +83,14 @@ export default async function CallDetailPage({ params }: Props) {
     call.voice_agents && !Array.isArray(call.voice_agents)
       ? call.voice_agents.name
       : null;
+
+  const { data: eventRows } = await supabase
+    .from("automation_events")
+    .select("id, event_type, status, source, message, error, created_at")
+    .eq("call_id", id)
+    .order("created_at", { ascending: true })
+    .limit(20);
+  const events = (eventRows ?? []) as AutomationEvent[];
 
   // Fetch linked contact by from_number
   const contact =
@@ -91,10 +113,28 @@ export default async function CallDetailPage({ params }: Props) {
       .limit(1)
       .single();
     if (!member || !resolvedCall.from_number) return;
-    await sb.from("contacts").insert({
-      org_id: member.org_id,
-      phone: resolvedCall.from_number,
-    });
+    const { data: created } = await sb
+      .from("contacts")
+      .insert({
+        org_id: member.org_id,
+        phone: resolvedCall.from_number,
+      })
+      .select("id")
+      .single();
+    if (created?.id) {
+      await sb.from("automation_events").insert({
+        org_id: member.org_id,
+        event_type: "contact_created",
+        status: "success",
+        source: "system",
+        call_id: resolvedCall.id,
+        contact_id: created.id,
+        agent_id: resolvedCall.agent_id,
+        phone_number: resolvedCall.from_number,
+        message: `Contact created for ${resolvedCall.from_number}.`,
+        metadata: { source_page: "call_detail" },
+      });
+    }
     redirect(`/${locale}/calls/${id}`);
   }
 
@@ -222,6 +262,41 @@ export default async function CallDetailPage({ params }: Props) {
                 </form>
               )}
             </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Activity timeline */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-sm font-medium">
+            <Activity className="h-4 w-4" />
+            {t("detail.activity")}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {events.length === 0 ? (
+            <p className="text-sm text-muted-foreground">{t("detail.noActivity")}</p>
+          ) : (
+            <ol className="space-y-3">
+              {events.map((event) => (
+                <li key={event.id} className="border-l pl-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="text-sm font-medium">{event.message}</p>
+                    <Badge variant={STATUS_VARIANT[event.status] ?? "outline"}>
+                      {t(`activityStatus.${event.status}` as Parameters<typeof t>[0])}
+                    </Badge>
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {formatDateTime(event.created_at)} -{" "}
+                    {t(`activityType.${event.event_type}` as Parameters<typeof t>[0])}
+                  </p>
+                  {event.error && (
+                    <p className="mt-1 text-xs text-destructive">{event.error}</p>
+                  )}
+                </li>
+              ))}
+            </ol>
           )}
         </CardContent>
       </Card>

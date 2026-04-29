@@ -158,6 +158,16 @@ export default async function ContactsPage({ params, searchParams }: Props) {
       .single();
 
     if (created?.id) {
+      await sb.from("automation_events").insert({
+        org_id: currentOrgId,
+        event_type: "contact_created",
+        status: "success",
+        source: "system",
+        contact_id: created.id,
+        phone_number: payload.phone,
+        message: `Contact created${payload.phone ? ` for ${payload.phone}` : ""}.`,
+        metadata: { source_page: "contacts" },
+      });
       redirect(`/${locale}/contacts/${created.id}`);
     }
 

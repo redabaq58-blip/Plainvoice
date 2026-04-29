@@ -6,6 +6,7 @@ import { useState } from "react";
 import {
   LayoutDashboard,
   ListChecks,
+  Activity,
   Contact,
   Bot,
   Phone,
@@ -21,6 +22,7 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/s
 type NavLabels = {
   dashboard: string;
   onboarding: string;
+  activity: string;
   contacts: string;
   agents: string;
   calls: string;
@@ -40,6 +42,7 @@ type Props = {
 const navItems = (locale: string, labels: NavLabels) => [
   { href: `/${locale}/dashboard`, label: labels.dashboard, icon: LayoutDashboard },
   { href: `/${locale}/onboarding`, label: labels.onboarding, icon: ListChecks },
+  { href: `/${locale}/activity`, label: labels.activity, icon: Activity },
   { href: `/${locale}/contacts`, label: labels.contacts, icon: Contact },
   { href: `/${locale}/agents`, label: labels.agents, icon: Bot },
   { href: `/${locale}/calls`, label: labels.calls, icon: Phone },

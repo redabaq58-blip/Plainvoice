@@ -19,7 +19,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { CallWidget } from "@/components/voice/call-widget";
 import { AgentForm } from "@/components/agents/agent-form";
-import type { VoiceAgentCreateInput } from "@/lib/schemas/voice-agent";
+import type { HandoffSettings, VoiceAgentCreateInput } from "@/lib/schemas/voice-agent";
 
 type Call = {
   id: string;
@@ -61,6 +61,7 @@ type AgentDetailTabsProps = {
   tabLabels: TabLabels;
   testLabels: TestLabels;
   formLabels: FormLabels;
+  handoffSettings?: HandoffSettings;
 };
 
 export function AgentDetailTabs({
@@ -74,6 +75,7 @@ export function AgentDetailTabs({
   tabLabels,
   testLabels,
   formLabels,
+  handoffSettings,
 }: AgentDetailTabsProps) {
   return (
     <Tabs defaultValue="overview">
@@ -140,6 +142,7 @@ export function AgentDetailTabs({
           mode="edit"
           agentId={agentId}
           defaultValues={agentDefaults}
+          handoffSettings={handoffSettings}
           labels={formLabels}
         />
       </TabsContent>

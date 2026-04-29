@@ -410,6 +410,28 @@ async def _get_sms_organization(org_id: str) -> dict | None:
     return None
 
 
+async def _get_handoff_organization(org_id: str) -> dict | None:
+    headers = get_supabase()
+    async with httpx.AsyncClient() as client:
+        org_resp = await client.get(
+            f"{SUPABASE_URL}/rest/v1/organizations",
+            params={
+                "id": f"eq.{org_id}",
+                "select": (
+                    "id,name,handoff_enabled,handoff_phone_number,"
+                    "urgent_handoff_enabled,handoff_fallback_message"
+                ),
+                "limit": "1",
+            },
+            headers=headers,
+            timeout=10.0,
+        )
+    if org_resp.status_code == 200 and org_resp.json():
+        return org_resp.json()[0]
+
+    return None
+
+
 async def _resolve_sms_sender(organization: dict, headers: dict[str, str]) -> str | None:
     sender_id = organization.get("sms_sender_phone_number_id")
     if sender_id:
@@ -550,6 +572,233 @@ async def _store_booking_result(call: VapiCall | None, org_id: str, booking_resu
         )
     if resp.status_code not in (200, 201):
         logger.warning("Failed to store booking result for SMS follow-up: %s", resp.text)
+
+
+async def _upsert_handoff_call(
+    *,
+    call: VapiCall | None,
+    org_id: str,
+    status: str,
+    notes: str | None,
+) -> str | None:
+    if not call:
+        return None
+
+    headers = get_supabase()
+    upsert_headers = {
+        **headers,
+        "Prefer": "resolution=merge-duplicates,return=representation",
+    }
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(
+            f"{SUPABASE_URL}/rest/v1/calls",
+            params={"on_conflict": "vapi_call_id"},
+            headers=upsert_headers,
+            json={
+                "org_id": org_id,
+                "vapi_call_id": call.id,
+                "direction": _map_direction(call.call_type),
+                "status": call.status or "queued",
+                "from_number": call.customer.number if call.customer else None,
+                "to_number": call.phone_number.number if call.phone_number else None,
+                "handoff_requested": True,
+                "handoff_status": status,
+                "handoff_notes": notes,
+                "follow_up_required": True,
+                "urgency": "urgent" if status == "requested" else "high",
+                "outcome": "urgent" if status == "requested" else "needs_follow_up",
+            },
+            timeout=10.0,
+        )
+    if resp.status_code not in (200, 201):
+        logger.warning("Failed to store handoff call state: %s", resp.text)
+        return None
+
+    row = resp.json()
+    if isinstance(row, list):
+        row = row[0] if row else {}
+    return row.get("id") if isinstance(row, dict) else None
+
+
+async def _create_handoff_task(
+    *,
+    org_id: str,
+    call_id: str | None,
+    agent_id: str | None,
+    phone_number: str | None,
+    urgency: str,
+    notes: str | None,
+) -> None:
+    headers = get_supabase()
+    title = f"Human handoff requested by {phone_number or 'unknown caller'}"
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(
+            f"{SUPABASE_URL}/rest/v1/follow_up_tasks",
+            headers=headers,
+            json={
+                "org_id": org_id,
+                "title": title,
+                "description": notes,
+                "priority": "urgent" if urgency == "urgent" else "high",
+                "call_id": call_id,
+                "agent_id": agent_id,
+                "source": "automation_event",
+            },
+            timeout=10.0,
+        )
+    if resp.status_code not in (200, 201):
+        logger.warning("Failed to create handoff task: %s", resp.text)
+
+
+async def _send_handoff_owner_sms(
+    *,
+    organization: dict,
+    call: VapiCall | None,
+    call_id: str | None,
+    agent_id: str | None,
+    notes: str | None,
+) -> None:
+    sms_organization = await _get_sms_organization(organization["id"])
+    if not sms_organization or not sms_organization.get("sms_enabled"):
+        return
+
+    owner_phone = sms_organization.get("owner_notification_phone")
+    if not owner_phone:
+        return
+
+    headers = get_supabase()
+    sender = await _resolve_sms_sender(sms_organization, headers)
+    customer_phone = call.customer.number if call and call.customer else None
+    body = (
+        f"PlainVoice handoff requested from {customer_phone or 'unknown caller'}."
+        f" Notes: {notes or 'No details provided.'}"
+    )
+    await automation_events.log_automation_event(
+        org_id=organization["id"],
+        event_type="sms_attempted",
+        status="info",
+        source="twilio",
+        call_id=call_id,
+        agent_id=agent_id,
+        phone_number=owner_phone,
+        message="Owner handoff notification SMS attempted.",
+        metadata={"vapi_call_id": call.id if call else None, "recipient": "owner"},
+    )
+    result = await sms_service.send_sms(to=owner_phone, sender=sender or "", body=body)
+    await _record_sms_message(
+        org_id=organization["id"],
+        recipient=owner_phone,
+        sender=sender,
+        body=body,
+        status=_sms_history_status(result),
+        message_type="owner_notification",
+        call_id=call_id,
+        agent_id=agent_id,
+        result=result,
+        metadata={"vapi_call_id": call.id if call else None, "recipient": "owner", "handoff": True},
+    )
+    await automation_events.log_automation_event(
+        org_id=organization["id"],
+        event_type="owner_notification_sent" if result.get("ok") else "sms_failed",
+        status="success" if result.get("ok") else result.get("status") or "failed",
+        source="twilio",
+        call_id=call_id,
+        agent_id=agent_id,
+        phone_number=owner_phone,
+        message="Owner handoff notification SMS sent." if result.get("ok") else "Owner handoff notification SMS failed.",
+        error=None if result.get("ok") else result.get("error"),
+        metadata={"vapi_call_id": call.id if call else None, "twilio": result, "handoff": True},
+    )
+
+
+async def _handle_handoff_request(call: VapiCall | None, org_id: str | None, arguments: dict) -> dict:
+    if not org_id:
+        return {
+            "ok": False,
+            "status": "unavailable",
+            "message": "I could not identify the organization. Please collect a detailed message for follow-up.",
+        }
+
+    organization = await _get_handoff_organization(org_id)
+    reason = str(arguments.get("reason") or "Caller requested a person.").strip()
+    notes = str(arguments.get("notes") or reason).strip()
+    requested_urgency = str(arguments.get("urgency") or "high").strip()
+    urgency = requested_urgency if requested_urgency in {"normal", "high", "urgent"} else "high"
+    phone_number = call.customer.number if call and call.customer else None
+    agent_id = None
+
+    handoff_ready = bool(
+        organization
+        and organization.get("handoff_enabled")
+        and organization.get("handoff_phone_number")
+    )
+    status = "requested" if handoff_ready else "unavailable"
+    call_id = await _upsert_handoff_call(call=call, org_id=org_id, status=status, notes=notes)
+
+    await automation_events.log_automation_event(
+        org_id=org_id,
+        event_type="human_transfer_requested",
+        status="info",
+        source="vapi",
+        call_id=call_id,
+        agent_id=agent_id,
+        phone_number=phone_number,
+        message="Human handoff requested by the caller.",
+        metadata={
+            "vapi_call_id": call.id if call else None,
+            "reason": reason,
+            "urgency": urgency,
+            "handoff_ready": handoff_ready,
+        },
+    )
+
+    if not handoff_ready:
+        await automation_events.log_automation_event(
+            org_id=org_id,
+            event_type="human_transfer_unavailable",
+            status="skipped",
+            source="vapi",
+            call_id=call_id,
+            agent_id=agent_id,
+            phone_number=phone_number,
+            message="Human handoff unavailable; follow-up task created.",
+            error="Handoff is disabled or no handoff phone number is configured.",
+            metadata={"vapi_call_id": call.id if call else None, "reason": reason, "urgency": urgency},
+        )
+
+    await _create_handoff_task(
+        org_id=org_id,
+        call_id=call_id,
+        agent_id=agent_id,
+        phone_number=phone_number,
+        urgency=urgency,
+        notes=notes,
+    )
+
+    if organization and handoff_ready:
+        await _send_handoff_owner_sms(
+            organization=organization,
+            call=call,
+            call_id=call_id,
+            agent_id=agent_id,
+            notes=notes,
+        )
+
+    fallback_message = (
+        organization.get("handoff_fallback_message")
+        if organization and isinstance(organization.get("handoff_fallback_message"), str)
+        else None
+    )
+    return {
+        "ok": handoff_ready,
+        "status": status,
+        "message": (
+            "I have flagged this for the team and they will follow up."
+            if handoff_ready
+            else fallback_message
+            or "I cannot connect you live right now, but I will take a detailed message and make sure the team follows up."
+        ),
+    }
 
 
 async def _send_sms_followups(
@@ -837,6 +1086,7 @@ async def _handle_assistant_request(call: VapiCall | None) -> dict:
         return {"assistant": {}}
 
     agent = agent_resp.json()[0]
+    handoff_org = await _get_handoff_organization(pn.get("org_id"))
 
     # Build and return Vapi assistant config
     config = vapi_service.build_vapi_config(
@@ -849,6 +1099,12 @@ async def _handle_assistant_request(call: VapiCall | None) -> dict:
         language=agent["language"],
         max_call_duration_minutes=agent["max_call_duration_minutes"],
         knowledge_base=agent.get("knowledge_base"),
+        handoff_settings={
+            "enabled": bool(handoff_org and handoff_org.get("handoff_enabled")),
+            "phone_number": handoff_org.get("handoff_phone_number") if handoff_org else None,
+            "urgent_enabled": handoff_org.get("urgent_handoff_enabled") if handoff_org else True,
+            "fallback_message": handoff_org.get("handoff_fallback_message") if handoff_org else None,
+        },
     )
     return {"assistant": config}
 
@@ -922,30 +1178,8 @@ async def _handle_tool_calls(
                     error=result.get("message"),
                     metadata={"tool": tc.function.name, "vapi_call_id": call.id if call else None, "result": result},
                 )
-        elif tc.function.name in {"transfer_call", "transferCall", "human_transfer"}:
-            await automation_events.log_automation_event(
-                org_id=org_id,
-                event_type="human_transfer_requested",
-                status="info",
-                source="vapi",
-                phone_number=call.customer.number if call and call.customer else None,
-                message="Human transfer requested by the voice agent.",
-                metadata={"tool": tc.function.name, "vapi_call_id": call.id if call else None},
-            )
-            result = {
-                "ok": False,
-                "message": "Human transfer is not available yet. Please collect the caller's details for follow-up.",
-            }
-            await automation_events.log_automation_event(
-                org_id=org_id,
-                event_type="human_transfer_unavailable",
-                status="skipped",
-                source="vapi",
-                phone_number=call.customer.number if call and call.customer else None,
-                message="Human transfer unavailable.",
-                error=result["message"],
-                metadata={"tool": tc.function.name, "vapi_call_id": call.id if call else None},
-            )
+        elif tc.function.name in {"request_human_handoff", "transfer_call", "transferCall", "human_transfer"}:
+            result = await _handle_handoff_request(call, org_id, tc.function.arguments)
         else:
             result = "Fonction non supportee"
         results.append({"toolCallId": tc.id, "result": result})

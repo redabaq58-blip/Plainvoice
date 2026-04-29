@@ -40,6 +40,10 @@ type SettingsOrganization = Pick<
   | "sms_followup_template"
   | "sms_booking_confirmation_template"
   | "sms_missed_call_template"
+  | "handoff_enabled"
+  | "handoff_phone_number"
+  | "urgent_handoff_enabled"
+  | "handoff_fallback_message"
 >;
 
 function fallbackOrganization(): SettingsOrganization {
@@ -65,6 +69,10 @@ function fallbackOrganization(): SettingsOrganization {
     sms_followup_template: null,
     sms_booking_confirmation_template: null,
     sms_missed_call_template: null,
+    handoff_enabled: false,
+    handoff_phone_number: null,
+    urgent_handoff_enabled: true,
+    handoff_fallback_message: null,
   };
 }
 
@@ -92,6 +100,10 @@ function toFormValues(organization: SettingsOrganization): OrganizationSettingsI
     smsFollowupTemplate: organization.sms_followup_template ?? "",
     smsBookingConfirmationTemplate: organization.sms_booking_confirmation_template ?? "",
     smsMissedCallTemplate: organization.sms_missed_call_template ?? "",
+    handoffEnabled: organization.handoff_enabled,
+    handoffPhoneNumber: organization.handoff_phone_number ?? "",
+    urgentHandoffEnabled: organization.urgent_handoff_enabled,
+    handoffFallbackMessage: organization.handoff_fallback_message ?? "",
   };
 }
 
@@ -105,7 +117,7 @@ async function getOrgSettings() {
   const { data: organization, error } = await supabase
     .from("organizations")
     .select(
-      "name, business_email, business_phone, website_url, timezone, business_hours, default_language, default_voice_provider, default_voice_id, default_max_call_duration_minutes, booking_enabled, calcom_api_key, calcom_event_type_id, calcom_username, sms_enabled, sms_sender_phone_number_id, sms_sender_number, owner_notification_phone, sms_followup_template, sms_booking_confirmation_template, sms_missed_call_template",
+      "name, business_email, business_phone, website_url, timezone, business_hours, default_language, default_voice_provider, default_voice_id, default_max_call_duration_minutes, booking_enabled, calcom_api_key, calcom_event_type_id, calcom_username, sms_enabled, sms_sender_phone_number_id, sms_sender_number, owner_notification_phone, sms_followup_template, sms_booking_confirmation_template, sms_missed_call_template, handoff_enabled, handoff_phone_number, urgent_handoff_enabled, handoff_fallback_message",
     )
     .eq("id", orgId)
     .single();
@@ -167,6 +179,10 @@ export default async function OnboardingPage({ params }: Props) {
           parsed.data.smsBookingConfirmationTemplate,
         ),
         sms_missed_call_template: toNullable(parsed.data.smsMissedCallTemplate),
+        handoff_enabled: parsed.data.handoffEnabled,
+        handoff_phone_number: toNullable(parsed.data.handoffPhoneNumber),
+        urgent_handoff_enabled: parsed.data.urgentHandoffEnabled,
+        handoff_fallback_message: toNullable(parsed.data.handoffFallbackMessage),
       })
       .eq("id", orgId);
 

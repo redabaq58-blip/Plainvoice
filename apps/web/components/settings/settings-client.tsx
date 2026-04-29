@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useState, useTransition } from "react";
-import { CalendarCheck, Clock, MessageSquareText, Save } from "lucide-react";
+import { CalendarCheck, Clock, MessageSquareText, PhoneForwarded, Save } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -65,6 +65,14 @@ export type SettingsLabels = {
   smsBookingConfirmationTemplatePlaceholder: string;
   smsMissedCallTemplate: string;
   smsMissedCallTemplatePlaceholder: string;
+  handoffTitle: string;
+  handoffDescription: string;
+  handoffEnabled: string;
+  handoffPhoneNumber: string;
+  handoffPhoneNumberPlaceholder: string;
+  urgentHandoffEnabled: string;
+  handoffFallbackMessage: string;
+  handoffFallbackMessagePlaceholder: string;
   save: string;
   saving: string;
   saved: string;
@@ -316,6 +324,82 @@ export function SettingsClient({ initialValues, labels, saveSettings }: Props) {
                 setValues((current) => ({
                   ...current,
                   smsMissedCallTemplate: event.target.value,
+                }))
+              }
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{labels.handoffTitle}</CardTitle>
+          <p className="text-sm text-muted-foreground">{labels.handoffDescription}</p>
+        </CardHeader>
+        <CardContent className="grid gap-4 md:grid-cols-2">
+          <div className="flex items-center gap-3 rounded-md border p-3 md:col-span-2">
+            <PhoneForwarded className="h-4 w-4 text-muted-foreground" />
+            <Label htmlFor="handoff-enabled" className="flex-1">
+              {labels.handoffEnabled}
+            </Label>
+            <input
+              id="handoff-enabled"
+              type="checkbox"
+              className="h-4 w-4"
+              checked={values.handoffEnabled}
+              onChange={(event) =>
+                setValues((current) => ({
+                  ...current,
+                  handoffEnabled: event.target.checked,
+                }))
+              }
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="handoff-phone-number">{labels.handoffPhoneNumber}</Label>
+            <Input
+              id="handoff-phone-number"
+              type="tel"
+              value={values.handoffPhoneNumber}
+              placeholder={labels.handoffPhoneNumberPlaceholder}
+              onChange={(event) =>
+                setValues((current) => ({
+                  ...current,
+                  handoffPhoneNumber: event.target.value,
+                }))
+              }
+            />
+          </div>
+
+          <div className="flex items-center gap-3 rounded-md border p-3">
+            <Label htmlFor="urgent-handoff-enabled" className="flex-1">
+              {labels.urgentHandoffEnabled}
+            </Label>
+            <input
+              id="urgent-handoff-enabled"
+              type="checkbox"
+              className="h-4 w-4"
+              checked={values.urgentHandoffEnabled}
+              onChange={(event) =>
+                setValues((current) => ({
+                  ...current,
+                  urgentHandoffEnabled: event.target.checked,
+                }))
+              }
+            />
+          </div>
+
+          <div className="space-y-2 md:col-span-2">
+            <Label htmlFor="handoff-fallback-message">{labels.handoffFallbackMessage}</Label>
+            <Textarea
+              id="handoff-fallback-message"
+              value={values.handoffFallbackMessage}
+              placeholder={labels.handoffFallbackMessagePlaceholder}
+              onChange={(event) =>
+                setValues((current) => ({
+                  ...current,
+                  handoffFallbackMessage: event.target.value,
                 }))
               }
             />

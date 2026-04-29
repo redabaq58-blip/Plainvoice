@@ -340,6 +340,9 @@ export type Database = {
           ended_reason: string | null
           follow_up_required: boolean
           from_number: string | null
+          handoff_notes: string | null
+          handoff_requested: boolean
+          handoff_status: string | null
           id: string
           org_id: string
           outcome: string | null
@@ -369,6 +372,9 @@ export type Database = {
           ended_reason?: string | null
           follow_up_required?: boolean
           from_number?: string | null
+          handoff_notes?: string | null
+          handoff_requested?: boolean
+          handoff_status?: string | null
           id?: string
           org_id: string
           outcome?: string | null
@@ -398,6 +404,9 @@ export type Database = {
           ended_reason?: string | null
           follow_up_required?: boolean
           from_number?: string | null
+          handoff_notes?: string | null
+          handoff_requested?: boolean
+          handoff_status?: string | null
           id?: string
           org_id?: string
           outcome?: string | null
@@ -555,6 +564,9 @@ export type Database = {
           default_max_call_duration_minutes: number
           default_voice_id: string | null
           default_voice_provider: string
+          handoff_enabled: boolean
+          handoff_fallback_message: string | null
+          handoff_phone_number: string | null
           id: string
           name: string
           owner_notification_phone: string | null
@@ -567,6 +579,7 @@ export type Database = {
           sms_sender_phone_number_id: string | null
           updated_at: string
           timezone: string
+          urgent_handoff_enabled: boolean
           voice_minutes_used: number
           website_url: string | null
         }
@@ -584,6 +597,9 @@ export type Database = {
           default_max_call_duration_minutes?: number
           default_voice_id?: string | null
           default_voice_provider?: string
+          handoff_enabled?: boolean
+          handoff_fallback_message?: string | null
+          handoff_phone_number?: string | null
           id?: string
           name: string
           owner_notification_phone?: string | null
@@ -596,6 +612,7 @@ export type Database = {
           sms_sender_phone_number_id?: string | null
           updated_at?: string
           timezone?: string
+          urgent_handoff_enabled?: boolean
           voice_minutes_used?: number
           website_url?: string | null
         }
@@ -613,6 +630,9 @@ export type Database = {
           default_max_call_duration_minutes?: number
           default_voice_id?: string | null
           default_voice_provider?: string
+          handoff_enabled?: boolean
+          handoff_fallback_message?: string | null
+          handoff_phone_number?: string | null
           id?: string
           name?: string
           owner_notification_phone?: string | null
@@ -625,6 +645,7 @@ export type Database = {
           sms_sender_phone_number_id?: string | null
           updated_at?: string
           timezone?: string
+          urgent_handoff_enabled?: boolean
           voice_minutes_used?: number
           website_url?: string | null
         }

@@ -96,6 +96,29 @@ def _supabase_headers(access_token: str) -> dict[str, str]:
     }
 
 
+async def _get_handoff_settings(org_id: str, headers: dict[str, str]) -> dict:
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(
+            f"{SUPABASE_URL}/rest/v1/organizations",
+            params={
+                "id": f"eq.{org_id}",
+                "select": "handoff_enabled,handoff_phone_number,urgent_handoff_enabled,handoff_fallback_message",
+                "limit": "1",
+            },
+            headers=headers,
+            timeout=10.0,
+        )
+    if resp.status_code != 200 or not resp.json():
+        return {}
+    org = resp.json()[0]
+    return {
+        "enabled": org.get("handoff_enabled"),
+        "phone_number": org.get("handoff_phone_number"),
+        "urgent_enabled": org.get("urgent_handoff_enabled"),
+        "fallback_message": org.get("handoff_fallback_message"),
+    }
+
+
 # ── Endpoints ────────────────────────────────────────────────
 
 
@@ -173,6 +196,8 @@ async def list_voice_agents(org: OrgDep) -> list[dict]:
 async def create_voice_agent(body: VoiceAgentCreate, org: OrgDep) -> dict:
     """Create a new voice agent with Vapi sync."""
     org_id, access_token = org
+    headers = _supabase_headers(access_token)
+    handoff_settings = await _get_handoff_settings(org_id, headers)
 
     # 1. Build Vapi config and create assistant
     vapi_config = vapi_service.build_vapi_config(
@@ -186,6 +211,7 @@ async def create_voice_agent(body: VoiceAgentCreate, org: OrgDep) -> dict:
         max_call_duration_minutes=body.max_call_duration_minutes,
         knowledge_base=body.knowledge_base,
         transfer_phone_number=body.transfer_phone_number,
+        handoff_settings=handoff_settings,
     )
 
     vapi_assistant_id = None
@@ -221,7 +247,7 @@ async def create_voice_agent(body: VoiceAgentCreate, org: OrgDep) -> dict:
         "knowledge_base": body.knowledge_base or {},
     }
 
-    headers = {**_supabase_headers(access_token), "Prefer": "return=representation"}
+    headers = {**headers, "Prefer": "return=representation"}
     async with httpx.AsyncClient() as client:
         resp = await client.post(
             f"{SUPABASE_URL}/rest/v1/voice_agents",
@@ -252,6 +278,7 @@ async def update_voice_agent(
     """Update a voice agent and sync changes to Vapi."""
     org_id, access_token = org
     headers = _supabase_headers(access_token)
+    handoff_settings = await _get_handoff_settings(org_id, headers)
 
     # 1. Fetch existing agent (RLS ensures org scope)
     async with httpx.AsyncClient() as client:
@@ -288,6 +315,7 @@ async def update_voice_agent(
             max_call_duration_minutes=merged["max_call_duration_minutes"],
             knowledge_base=merged.get("knowledge_base"),
             transfer_phone_number=merged.get("transfer_phone_number"),
+            handoff_settings=handoff_settings,
         )
         if vapi_service.has_credentials():
             try:

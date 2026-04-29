@@ -57,6 +57,12 @@ export const voiceAgentCreateSchema = z.object({
 
 export type VoiceAgentCreateInput = z.infer<typeof voiceAgentCreateSchema>;
 export type KnowledgeBaseInput = z.infer<typeof knowledgeBaseSchema>;
+export type HandoffSettings = {
+  enabled: boolean;
+  phoneNumber?: string | null;
+  urgentEnabled: boolean;
+  fallbackMessage?: string | null;
+};
 
 export const defaultKnowledgeBase: KnowledgeBaseInput = {
   businessDescription: "",
@@ -112,8 +118,12 @@ function toneInstruction(tone: VoiceAgentCreateInput["knowledgeBase"]["tone"]): 
   return "Be clear, calm, and professional. Two short sentences per reply at most. No slang, no filler phrases.";
 }
 
-export function buildAgentSystemPrompt(data: VoiceAgentCreateInput): string {
+export function buildAgentSystemPrompt(data: VoiceAgentCreateInput, handoff?: HandoffSettings): string {
   const kb = data.knowledgeBase;
+  const handoffEnabled = Boolean(handoff?.enabled && handoff.phoneNumber?.trim());
+  const fallbackMessage =
+    handoff?.fallbackMessage?.trim() ||
+    "I cannot connect you live right now, but I will take a detailed message and make sure the team follows up.";
   const lines = [
     data.systemPrompt?.trim() || "You are a calm, helpful phone receptionist for this business.",
     "\n## Agent",
@@ -144,6 +154,27 @@ export function buildAgentSystemPrompt(data: VoiceAgentCreateInput): string {
     lines.push(
       "\n## No Transfer Available",
       "If the caller asks to speak to a human, tell them you cannot transfer right now and offer to take a detailed message so the team can follow up with them.",
+    );
+  }
+
+  if (handoffEnabled) {
+    lines.push(
+      "\n## Human Handoff",
+      "If the caller asks for a person, says they need a human, is upset, or you cannot safely help, acknowledge it calmly.",
+      "Do not claim a live transfer has happened. Live transfer is not safely enabled in this configuration.",
+      "Say: \"Let me get this to someone who can help.\" Then use request_human_handoff.",
+      `Handoff phone number configured for the business: ${handoff?.phoneNumber?.trim()}`,
+      handoff?.urgentEnabled
+        ? "For urgent escalation, use request_human_handoff and mark the request urgent."
+        : "For urgent or emergency situations, follow the emergency instructions and take a detailed message for the team.",
+    );
+  } else {
+    lines.push(
+      "\n## Human Handoff Unavailable",
+      "If the caller asks for a person, do not claim you can transfer them.",
+      fallbackMessage,
+      "Collect the caller's name, phone number, reason for calling, urgency, and the best time to follow up.",
+      "Mark follow-up required so the team can respond.",
     );
   }
 

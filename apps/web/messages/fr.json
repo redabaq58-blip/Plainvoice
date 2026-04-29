@@ -223,6 +223,18 @@
       "save": "Enregistrer le resultat",
       "reviewedAt": "Revise {date}"
     },
+    "handoff": {
+      "title": "Transfert humain",
+      "requested": "Transfert demande",
+      "openTasks": "Ouvrir les taches liees",
+      "openActivity": "Ouvrir l'activite",
+      "status": {
+        "requested": "Demande",
+        "completed": "Complete",
+        "failed": "Echoue",
+        "unavailable": "Transfert indisponible"
+      }
+    },
     "smsHistory": {
       "title": "Historique SMS",
       "empty": "Aucun SMS enregistre pour cet appel.",
@@ -475,6 +487,16 @@
       "bookingConfirmationTemplatePlaceholder": "Votre rendez-vous est reserve pour '{booking_start}'.",
       "missedCallTemplate": "Modele d'appel manque",
       "missedCallTemplatePlaceholder": "PlainVoice a manque un appel de '{customer_phone}'."
+    },
+    "handoff": {
+      "title": "Transfert humain",
+      "description": "Si active avec un numero, PlainVoice enregistre les demandes de transfert humain, alerte le proprietaire quand les notifications SMS sont configurees et cree une tache de suivi. Si desactive ou sans numero, l'agent prend un message detaille et ne pretend pas pouvoir transferer.",
+      "enabled": "Activer le transfert humain",
+      "phoneNumber": "Numero de transfert",
+      "phoneNumberPlaceholder": "+15145550102",
+      "urgentEnabled": "Traiter les demandes urgentes comme transferts urgents",
+      "fallbackMessage": "Message de repli",
+      "fallbackMessagePlaceholder": "Je ne peux pas vous connecter en direct maintenant, mais je vais prendre un message detaille et l'equipe fera un suivi."
     },
     "days": {
       "monday": "Lundi",

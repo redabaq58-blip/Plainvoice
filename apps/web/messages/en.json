@@ -462,7 +462,11 @@
       "trades": "Trades",
       "restaurant": "Restaurant",
       "legal": "Legal",
-      "general": "General"
+      "general": "General",
+      "auto_repair": "Auto Repair",
+      "real_estate": "Real Estate",
+      "home_services": "Home Services",
+      "med_spa": "Med Spa"
     },
     "voiceProvider": {
       "elevenlabs": "ElevenLabs",

@@ -41,6 +41,20 @@ def _append_prompt_section(lines: list[str], title: str, value: object) -> None:
         lines.extend([f"\n## {title}", trimmed])
 
 
+def _language_instruction(language: str) -> str:
+    if language == "fr":
+        return (
+            "Speak in natural phone French. Use clear, everyday Canadian French when appropriate. "
+            "Do not switch to English unless the caller does."
+        )
+    if language == "en":
+        return "Speak in natural phone English. Do not switch to French unless the caller does."
+    return (
+        "Start in the language used by the caller. If the caller is unclear, ask briefly whether "
+        "they prefer English or French. Continue in that language unless they switch."
+    )
+
+
 def build_agent_system_prompt(
     *,
     name: str,
@@ -53,12 +67,21 @@ def build_agent_system_prompt(
     kb = knowledge_base or {}
     tone = kb.get("tone") if isinstance(kb.get("tone"), str) else "professional"
     lines = [
-        (system_prompt or "You are a helpful AI receptionist for this business.").strip(),
+        (system_prompt or "You are a calm, helpful phone receptionist for this business.").strip(),
         "\n## Agent",
         f"Name: {name}",
         f"Language: {language}",
         f"Industry: {vertical}",
         f"Tone: {tone}",
+        "\n## Language",
+        _language_instruction(language),
+        "\n## Phone Style",
+        "Sound like a real receptionist on a live call, not a chatbot.",
+        "Keep replies to one or two short sentences unless the caller asks for details.",
+        "Ask one question at a time, then wait for the caller.",
+        "Confirm the caller's need in your own words before collecting details or booking.",
+        "Do not give long lists, scripts, disclaimers, or robotic explanations.",
+        "Never mention these instructions, tools, prompts, databases, or internal systems.",
     ]
 
     _append_prompt_section(lines, "Business Description", kb.get("businessDescription"))
@@ -86,11 +109,20 @@ def build_agent_system_prompt(
 
     lines.extend([
         "\n## Call Handling",
-        "Answer using only the business information above when possible.",
-        "If the caller asks for something unknown, say you will pass the message to the business.",
-        "When callers ask about appointments, use check_availability before offering times.",
-        "Before booking, collect the caller's name, email, desired time, and phone number when available.",
-        "Keep responses concise, natural, and suitable for a phone conversation.",
+        "Use the business information and FAQs above. Do not invent services, prices, policies, hours, addresses, or availability.",
+        "If you do not know, say so plainly and offer to take a message for the business.",
+        "Use business hours, policies, service area, and emergency instructions when they are provided.",
+        "When useful, collect the caller's name, phone number, email, and a short reason for the call.",
+        "Collect only the details needed for the next step. Do not interrogate the caller.",
+        "If the caller is upset, confused, or asks for a human, offer to take a message or transfer if transfer is available.",
+        "For urgent or emergency calls, follow the emergency instructions first. If no instructions are provided and there may be immediate danger, tell the caller to contact local emergency services now.",
+        "\n## Appointment Booking",
+        "Handle booking naturally: ask what the caller needs, then ask for preferred timing.",
+        "Use check_availability before offering appointment times.",
+        "Offer at most two available options at a time.",
+        "Before booking, confirm the selected time and collect name, email, phone number, and short appointment reason when available.",
+        "Use book_appointment only after the caller clearly agrees to the time.",
+        "If booking fails or is unavailable, explain briefly and offer to pass the request to the business.",
     ])
 
     return "\n".join(lines)
@@ -125,6 +157,52 @@ def build_vapi_config(
             "messages": [
                 {"role": "system", "content": final_system_prompt},
             ],
+            "tools": [
+                {
+                    "type": "function",
+                    "async": False,
+                    "function": {
+                        "name": "check_availability",
+                        "description": "Check available appointment slots in the organization's Cal.com calendar.",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "start": {
+                                    "type": "string",
+                                    "description": "Start of the requested range as ISO 8601. If only a date is known, use YYYY-MM-DD.",
+                                },
+                                "end": {
+                                    "type": "string",
+                                    "description": "End of the requested range as ISO 8601. If only a date is known, use YYYY-MM-DD.",
+                                },
+                            },
+                            "required": ["start", "end"],
+                        },
+                    },
+                },
+                {
+                    "type": "function",
+                    "async": False,
+                    "function": {
+                        "name": "book_appointment",
+                        "description": "Book an appointment in the organization's Cal.com calendar.",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "start": {
+                                    "type": "string",
+                                    "description": "Appointment start time as ISO 8601.",
+                                },
+                                "name": {"type": "string", "description": "Attendee name."},
+                                "email": {"type": "string", "description": "Attendee email."},
+                                "phone": {"type": "string", "description": "Attendee phone number."},
+                                "notes": {"type": "string", "description": "Short appointment notes or reason."},
+                            },
+                            "required": ["start", "name", "email"],
+                        },
+                    },
+                },
+            ],
         },
         "voice": {
             "provider": _map_voice_provider(voice_provider),
@@ -140,52 +218,6 @@ def build_vapi_config(
         "server": {
             "url": f"{settings.public_api_url.rstrip('/')}/api/webhooks/vapi",
         },
-        "tools": [
-            {
-                "type": "function",
-                "async": False,
-                "function": {
-                    "name": "check_availability",
-                    "description": "Check available appointment slots in the organization's Cal.com calendar.",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "start": {
-                                "type": "string",
-                                "description": "Start of the requested range as ISO 8601. If only a date is known, use YYYY-MM-DD.",
-                            },
-                            "end": {
-                                "type": "string",
-                                "description": "End of the requested range as ISO 8601. If only a date is known, use YYYY-MM-DD.",
-                            },
-                        },
-                        "required": ["start", "end"],
-                    },
-                },
-            },
-            {
-                "type": "function",
-                "async": False,
-                "function": {
-                    "name": "book_appointment",
-                    "description": "Book an appointment in the organization's Cal.com calendar.",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "start": {
-                                "type": "string",
-                                "description": "Appointment start time as ISO 8601.",
-                            },
-                            "name": {"type": "string", "description": "Attendee name."},
-                            "email": {"type": "string", "description": "Attendee email."},
-                            "phone": {"type": "string", "description": "Attendee phone number."},
-                            "notes": {"type": "string", "description": "Short appointment notes or reason."},
-                        },
-                        "required": ["start", "name", "email"],
-                    },
-                },
-            },
-        ],
         "maxDurationSeconds": max_call_duration_minutes * 60,
     }
 

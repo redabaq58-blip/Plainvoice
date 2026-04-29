@@ -30,7 +30,11 @@ import {
   TONES,
   type VoiceAgentCreateInput,
 } from "@/lib/schemas/voice-agent";
-import { getTemplate } from "@/lib/agent-templates";
+import {
+  getTemplate,
+  getTemplateFirstMessage,
+  getTemplatePrompt,
+} from "@/lib/agent-templates";
 
 type Labels = {
   name: string;
@@ -101,6 +105,8 @@ export function AgentForm({
   onSaved,
 }: AgentFormProps) {
   const router = useRouter();
+  const defaultTemplate = getTemplate(defaultValues?.vertical ?? "general");
+  const defaultLanguage = defaultValues?.language ?? "fr";
   const {
     register,
     handleSubmit,
@@ -115,8 +121,12 @@ export function AgentForm({
       language: "fr",
       voiceProvider: "elevenlabs",
       voiceId: "",
-      firstMessage: "",
-      systemPrompt: "",
+      firstMessage: defaultTemplate
+        ? getTemplateFirstMessage(defaultTemplate, defaultLanguage)
+        : "",
+      systemPrompt: defaultTemplate
+        ? getTemplatePrompt(defaultTemplate, defaultLanguage)
+        : "",
       transferPhoneNumber: "",
       maxCallDurationMinutes: 10,
       status: "draft",
@@ -134,9 +144,18 @@ export function AgentForm({
     setValue("vertical", vertical as VoiceAgentCreateInput["vertical"]);
     const template = getTemplate(vertical);
     if (template) {
-      const isFr = currentLanguage === "fr" || currentLanguage === "bilingual";
-      setValue("systemPrompt", isFr ? template.systemPromptFr : template.systemPromptEn);
-      setValue("firstMessage", isFr ? template.firstMessageFr : template.firstMessageEn);
+      setValue("systemPrompt", getTemplatePrompt(template, currentLanguage));
+      setValue("firstMessage", getTemplateFirstMessage(template, currentLanguage));
+    }
+  }
+
+  function handleLanguageChange(language: string) {
+    const nextLanguage = language as VoiceAgentCreateInput["language"];
+    setValue("language", nextLanguage);
+    const template = getTemplate(watch("vertical"));
+    if (template) {
+      setValue("systemPrompt", getTemplatePrompt(template, nextLanguage));
+      setValue("firstMessage", getTemplateFirstMessage(template, nextLanguage));
     }
   }
 
@@ -222,9 +241,7 @@ export function AgentForm({
         <Label>{labels.language}</Label>
         <Select
           value={watch("language")}
-          onValueChange={(v) =>
-            setValue("language", v as VoiceAgentCreateInput["language"])
-          }
+          onValueChange={handleLanguageChange}
         >
           <SelectTrigger>
             <SelectValue />

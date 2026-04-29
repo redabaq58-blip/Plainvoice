@@ -72,21 +72,22 @@ class Settings(BaseSettings):
         if self.is_production() and self.next_public_api_url.startswith(LOCAL_API_PREFIXES):
             errors.append("NEXT_PUBLIC_API_URL must not point to localhost in production.")
 
-        required = {
-            "NEXT_PUBLIC_SUPABASE_URL": self.next_public_supabase_url,
-            "NEXT_PUBLIC_SUPABASE_ANON_KEY": self.next_public_supabase_anon_key,
-            "SUPABASE_SERVICE_ROLE_KEY": self.supabase_service_role_key,
-            "VAPI_PRIVATE_KEY": self.vapi_private_key,
-            "TWILIO_ACCOUNT_SID": self.twilio_account_sid,
-            "TWILIO_AUTH_TOKEN": self.twilio_auth_token,
-            "TWILIO_PHONE_NUMBER": self.twilio_phone_number,
-            "PUBLIC_API_URL": self.public_api_url,
-            "NEXT_PUBLIC_API_URL": self.next_public_api_url,
-            "NEXT_PUBLIC_SITE_URL": self.next_public_site_url,
-        }
-        for name, value in required.items():
-            if not value:
-                errors.append(f"{name} is required in production.")
+        if self.is_production():
+            required = {
+                "NEXT_PUBLIC_SUPABASE_URL": self.next_public_supabase_url,
+                "NEXT_PUBLIC_SUPABASE_ANON_KEY": self.next_public_supabase_anon_key,
+                "SUPABASE_SERVICE_ROLE_KEY": self.supabase_service_role_key,
+                "VAPI_PRIVATE_KEY": self.vapi_private_key,
+                "TWILIO_ACCOUNT_SID": self.twilio_account_sid,
+                "TWILIO_AUTH_TOKEN": self.twilio_auth_token,
+                "TWILIO_PHONE_NUMBER": self.twilio_phone_number,
+                "PUBLIC_API_URL": self.public_api_url,
+                "NEXT_PUBLIC_API_URL": self.next_public_api_url,
+                "NEXT_PUBLIC_SITE_URL": self.next_public_site_url,
+            }
+            for name, value in required.items():
+                if not value:
+                    errors.append(f"{name} is required in production.")
 
         return errors
 

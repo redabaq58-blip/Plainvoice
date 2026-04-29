@@ -22,7 +22,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from app.config import settings
 from app.dependencies import get_org_from_vapi_call, get_supabase
-from app.services import calcom_service, vapi_service
+from app.services import calcom_service, sms_service, vapi_service
 
 logger = logging.getLogger(__name__)
 
@@ -194,6 +194,7 @@ async def _handle_end_of_call_report(
     async with httpx.AsyncClient() as client:
         upsert_resp = await client.post(
             f"{SUPABASE_URL}/rest/v1/calls",
+            params={"on_conflict": "vapi_call_id"},
             headers=upsert_headers,
             json=row_data,
             timeout=10.0,
@@ -201,6 +202,12 @@ async def _handle_end_of_call_report(
     if upsert_resp.status_code not in (200, 201):
         logger.error("Failed to upsert call: %s", upsert_resp.text)
         return
+
+    upserted_call = upsert_resp.json()
+    if isinstance(upserted_call, list):
+        upserted_call = upserted_call[0] if upserted_call else {}
+    booking_result = upserted_call.get("booking_result") if isinstance(upserted_call, dict) else None
+    existing_sms_status = upserted_call.get("sms_status") if isinstance(upserted_call, dict) else {}
 
     # Update org voice_minutes_used and credits_balance
     minutes_used = int(call.duration_seconds / 60) if call.duration_seconds else 0
@@ -253,6 +260,16 @@ async def _handle_end_of_call_report(
                     },
                     timeout=10.0,
                 )
+
+    sms_organization = await _get_sms_organization(org_id)
+    if sms_organization:
+        await _send_sms_followups(
+            call=call,
+            artifact=artifact,
+            organization=sms_organization,
+            booking_result=booking_result if isinstance(booking_result, dict) else None,
+            existing_sms_status=existing_sms_status if isinstance(existing_sms_status, dict) else {},
+        )
 
 
 async def _handle_status_update(call: VapiCall | None) -> None:
@@ -325,6 +342,174 @@ async def _get_booking_organization(org_id: str) -> dict | None:
         return org_resp.json()[0]
 
     return None
+
+
+async def _get_sms_organization(org_id: str) -> dict | None:
+    headers = get_supabase()
+    async with httpx.AsyncClient() as client:
+        org_resp = await client.get(
+            f"{SUPABASE_URL}/rest/v1/organizations",
+            params={
+                "id": f"eq.{org_id}",
+                "select": (
+                    "id,name,sms_enabled,sms_sender_phone_number_id,sms_sender_number,"
+                    "owner_notification_phone,sms_followup_template,"
+                    "sms_booking_confirmation_template,sms_missed_call_template"
+                ),
+                "limit": "1",
+            },
+            headers=headers,
+            timeout=10.0,
+        )
+    if org_resp.status_code == 200 and org_resp.json():
+        return org_resp.json()[0]
+
+    return None
+
+
+async def _resolve_sms_sender(organization: dict, headers: dict[str, str]) -> str | None:
+    sender_id = organization.get("sms_sender_phone_number_id")
+    if sender_id:
+        async with httpx.AsyncClient() as client:
+            sender_resp = await client.get(
+                f"{SUPABASE_URL}/rest/v1/phone_numbers",
+                params={
+                    "id": f"eq.{sender_id}",
+                    "org_id": f"eq.{organization['id']}",
+                    "is_active": "eq.true",
+                    "select": "phone_number,capabilities",
+                    "limit": "1",
+                },
+                headers=headers,
+                timeout=10.0,
+            )
+        if sender_resp.status_code == 200 and sender_resp.json():
+            row = sender_resp.json()[0]
+            capabilities = row.get("capabilities") or {}
+            if capabilities.get("sms") is not False:
+                return row.get("phone_number")
+
+    return organization.get("sms_sender_number") or settings.twilio_phone_number or None
+
+
+def _render_sms_template(template: str | None, fallback: str, context: dict[str, object]) -> str:
+    message = template.strip() if template and template.strip() else fallback
+    for key, value in context.items():
+        message = message.replace(f"{{{key}}}", "" if value is None else str(value))
+    return message
+
+
+def _is_missed_call(call: VapiCall) -> bool:
+    reason = (call.ended_reason or "").lower()
+    return (
+        call.duration_seconds is not None
+        and call.duration_seconds <= 0
+        or "no-answer" in reason
+        or "missed" in reason
+    )
+
+
+async def _patch_call_sms_status(vapi_call_id: str, sms_status: dict) -> None:
+    headers = get_supabase()
+    async with httpx.AsyncClient() as client:
+        resp = await client.patch(
+            f"{SUPABASE_URL}/rest/v1/calls",
+            params={"vapi_call_id": f"eq.{vapi_call_id}"},
+            headers=headers,
+            json={"sms_status": sms_status},
+            timeout=10.0,
+        )
+    if resp.status_code not in (200, 204):
+        logger.warning("Failed to store SMS status for call %s: %s", vapi_call_id, resp.text)
+
+
+async def _store_booking_result(call: VapiCall | None, org_id: str, booking_result: dict) -> None:
+    if not call:
+        return
+
+    headers = get_supabase()
+    upsert_headers = {
+        **headers,
+        "Prefer": "resolution=merge-duplicates,return=representation",
+    }
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(
+            f"{SUPABASE_URL}/rest/v1/calls",
+            params={"on_conflict": "vapi_call_id"},
+            headers=upsert_headers,
+            json={
+                "org_id": org_id,
+                "vapi_call_id": call.id,
+                "direction": _map_direction(call.call_type),
+                "status": call.status or "queued",
+                "from_number": call.customer.number if call.customer else None,
+                "to_number": call.phone_number.number if call.phone_number else None,
+                "booking_result": booking_result,
+            },
+            timeout=10.0,
+        )
+    if resp.status_code not in (200, 201):
+        logger.warning("Failed to store booking result for SMS follow-up: %s", resp.text)
+
+
+async def _send_sms_followups(
+    *,
+    call: VapiCall,
+    artifact: VapiArtifact | None,
+    organization: dict,
+    booking_result: dict | None,
+    existing_sms_status: dict | None,
+) -> None:
+    if not organization.get("sms_enabled"):
+        return
+
+    headers = get_supabase()
+    sender = await _resolve_sms_sender(organization, headers)
+    summary = artifact.summary if artifact and artifact.summary else "No summary available."
+    customer_phone = call.customer.number if call.customer else None
+    context = {
+        "organization_name": organization.get("name") or "PlainVoice",
+        "customer_phone": customer_phone or "Unknown caller",
+        "summary": summary,
+        "booking_start": (booking_result or {}).get("booking", {}).get("start"),
+        "booking_end": (booking_result or {}).get("booking", {}).get("end"),
+    }
+    status = dict(existing_sms_status or {})
+
+    owner_phone = organization.get("owner_notification_phone")
+    if owner_phone:
+        is_missed = _is_missed_call(call)
+        owner_body = _render_sms_template(
+            organization.get("sms_missed_call_template" if is_missed else "sms_followup_template"),
+            (
+                "PlainVoice missed a call from {customer_phone}."
+                if is_missed
+                else "PlainVoice call from {customer_phone}: {summary}"
+            ),
+            context,
+        )
+        owner_result = await sms_service.send_sms(to=owner_phone, sender=sender or "", body=owner_body)
+        status["owner_summary"] = owner_result
+        if not owner_result.get("ok"):
+            logger.warning("Owner summary SMS skipped/failed: %s", owner_result.get("error"))
+
+    if booking_result and booking_result.get("ok") and customer_phone:
+        booking_body = _render_sms_template(
+            organization.get("sms_booking_confirmation_template"),
+            "Your appointment is booked for {booking_start}.",
+            context,
+        )
+        booking_sms = await sms_service.send_sms(
+            to=customer_phone,
+            sender=sender or "",
+            body=booking_body,
+        )
+        status["booking_confirmation"] = booking_sms
+        if not booking_sms.get("ok"):
+            logger.warning("Booking confirmation SMS skipped/failed: %s", booking_sms.get("error"))
+
+    if status:
+        await _patch_call_sms_status(call.id, status)
 
 
 async def _handle_assistant_request(call: VapiCall | None) -> dict:
@@ -409,6 +594,8 @@ async def _handle_tool_calls(
                 tc.function.arguments,
                 call.id if call else None,
             )
+            if isinstance(result, dict) and result.get("ok") and org_id:
+                await _store_booking_result(call, org_id, result)
         else:
             result = "Fonction non supportée"
         results.append({"toolCallId": tc.id, "result": result})

@@ -193,6 +193,20 @@
       "calcomUsername": "Cal.com username",
       "calcomUsernamePlaceholder": "your-cal-username"
     },
+    "sms": {
+      "title": "SMS Follow-up",
+      "enabled": "Send SMS follow-ups after calls and bookings",
+      "senderNumber": "Sender number",
+      "senderNumberPlaceholder": "+15145550100",
+      "ownerNotificationPhone": "Owner notification phone",
+      "ownerNotificationPhonePlaceholder": "+15145550101",
+      "followupTemplate": "Owner summary template",
+      "followupTemplatePlaceholder": "PlainVoice call from '{customer_phone}': '{summary}'",
+      "bookingConfirmationTemplate": "Booking confirmation template",
+      "bookingConfirmationTemplatePlaceholder": "Your appointment is booked for '{booking_start}'.",
+      "missedCallTemplate": "Missed call template",
+      "missedCallTemplatePlaceholder": "PlainVoice missed a call from '{customer_phone}'."
+    },
     "days": {
       "monday": "Monday",
       "tuesday": "Tuesday",

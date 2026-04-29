@@ -37,6 +37,7 @@ export type Database = {
       calls: {
         Row: {
           agent_id: string | null
+          booking_result: Json | null
           created_at: string
           credits_used: number | null
           direction: string
@@ -49,6 +50,7 @@ export type Database = {
           phone_number_id: string | null
           recording_url: string | null
           sentiment: string | null
+          sms_status: Json
           started_at: string | null
           status: string
           summary: string | null
@@ -59,6 +61,7 @@ export type Database = {
         }
         Insert: {
           agent_id?: string | null
+          booking_result?: Json | null
           created_at?: string
           credits_used?: number | null
           direction: string
@@ -71,6 +74,7 @@ export type Database = {
           phone_number_id?: string | null
           recording_url?: string | null
           sentiment?: string | null
+          sms_status?: Json
           started_at?: string | null
           status?: string
           summary?: string | null
@@ -81,6 +85,7 @@ export type Database = {
         }
         Update: {
           agent_id?: string | null
+          booking_result?: Json | null
           created_at?: string
           credits_used?: number | null
           direction?: string
@@ -93,6 +98,7 @@ export type Database = {
           phone_number_id?: string | null
           recording_url?: string | null
           sentiment?: string | null
+          sms_status?: Json
           started_at?: string | null
           status?: string
           summary?: string | null
@@ -242,7 +248,14 @@ export type Database = {
           default_voice_provider: string
           id: string
           name: string
+          owner_notification_phone: string | null
           slug: string
+          sms_booking_confirmation_template: string | null
+          sms_enabled: boolean
+          sms_followup_template: string | null
+          sms_missed_call_template: string | null
+          sms_sender_number: string | null
+          sms_sender_phone_number_id: string | null
           updated_at: string
           timezone: string
           voice_minutes_used: number
@@ -264,7 +277,14 @@ export type Database = {
           default_voice_provider?: string
           id?: string
           name: string
+          owner_notification_phone?: string | null
           slug: string
+          sms_booking_confirmation_template?: string | null
+          sms_enabled?: boolean
+          sms_followup_template?: string | null
+          sms_missed_call_template?: string | null
+          sms_sender_number?: string | null
+          sms_sender_phone_number_id?: string | null
           updated_at?: string
           timezone?: string
           voice_minutes_used?: number
@@ -286,7 +306,14 @@ export type Database = {
           default_voice_provider?: string
           id?: string
           name?: string
+          owner_notification_phone?: string | null
           slug?: string
+          sms_booking_confirmation_template?: string | null
+          sms_enabled?: boolean
+          sms_followup_template?: string | null
+          sms_missed_call_template?: string | null
+          sms_sender_number?: string | null
+          sms_sender_phone_number_id?: string | null
           updated_at?: string
           timezone?: string
           voice_minutes_used?: number

@@ -47,6 +47,13 @@ export const organizationSettingsSchema = z.object({
   calcomApiKey: z.string().trim().max(240),
   calcomEventTypeId: z.string().trim().max(80),
   calcomUsername: z.string().trim().max(120),
+  smsEnabled: z.boolean(),
+  smsSenderPhoneNumberId: z.string().trim().max(80),
+  smsSenderNumber: z.string().trim().max(40),
+  ownerNotificationPhone: z.string().trim().max(40),
+  smsFollowupTemplate: z.string().trim().max(500),
+  smsBookingConfirmationTemplate: z.string().trim().max(500),
+  smsMissedCallTemplate: z.string().trim().max(500),
 });
 
 export type BusinessDay = z.infer<typeof businessDaySchema>;

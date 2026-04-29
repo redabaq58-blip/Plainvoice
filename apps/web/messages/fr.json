@@ -44,10 +44,41 @@
   },
   "dashboard": {
     "welcome": "Bon retour, {org}",
-    "totalCalls": "Total des appels",
-    "activeAgents": "Agents actifs",
-    "creditsRemaining": "Crédits restants",
-    "thisMonthMinutes": "Minutes ce mois-ci"
+    "subtitle": "Indicateurs reels des appels, contacts, reservations et suivis SMS.",
+    "unknownAgent": "Agent inconnu",
+    "metrics": {
+      "totalCallsThisMonth": "Appels ce mois-ci",
+      "completedCallsThisMonth": "Appels termines",
+      "missedFailedCalls": "Appels manques / echoues",
+      "totalMinutesThisMonth": "Minutes ce mois-ci",
+      "activeAgents": "Agents actifs",
+      "totalContacts": "Contacts totaux",
+      "newContactsThisMonth": "Nouveaux contacts",
+      "appointmentsBooked": "Rendez-vous reserves",
+      "smsSentFailed": "SMS envoyes / echoues"
+    },
+    "recentCalls": {
+      "title": "Appels recents",
+      "empty": "Aucun appel pour le moment.",
+      "caller": "Appelant",
+      "status": "Statut",
+      "agent": "Agent",
+      "when": "Moment"
+    },
+    "recentContacts": {
+      "title": "Contacts recents",
+      "empty": "Aucun contact pour le moment.",
+      "name": "Nom",
+      "phone": "Telephone",
+      "company": "Entreprise",
+      "created": "Cree"
+    },
+    "topAgents": {
+      "title": "Meilleurs agents ce mois-ci",
+      "empty": "Aucune activite d'appel par agent ce mois-ci.",
+      "agent": "Agent",
+      "calls": "Appels"
+    }
   },
   "calls": {
     "title": "Appels",

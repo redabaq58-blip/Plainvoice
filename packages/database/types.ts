@@ -242,6 +242,92 @@ export type Database = {
           },
         ]
       }
+      sms_messages: {
+        Row: {
+          agent_id: string | null
+          body: string
+          call_id: string | null
+          contact_id: string | null
+          created_at: string
+          error: string | null
+          id: string
+          message_type: string
+          metadata: Json
+          org_id: string
+          provider_message_id: string | null
+          provider_status: string | null
+          recipient: string | null
+          sender: string | null
+          source: string
+          status: string
+        }
+        Insert: {
+          agent_id?: string | null
+          body: string
+          call_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          message_type?: string
+          metadata?: Json
+          org_id: string
+          provider_message_id?: string | null
+          provider_status?: string | null
+          recipient?: string | null
+          sender?: string | null
+          source?: string
+          status: string
+        }
+        Update: {
+          agent_id?: string | null
+          body?: string
+          call_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          message_type?: string
+          metadata?: Json
+          org_id?: string
+          provider_message_id?: string | null
+          provider_status?: string | null
+          recipient?: string | null
+          sender?: string | null
+          source?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sms_messages_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "voice_agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sms_messages_call_id_fkey"
+            columns: ["call_id"]
+            isOneToOne: false
+            referencedRelation: "calls"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sms_messages_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sms_messages_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       calls: {
         Row: {
           agent_id: string | null

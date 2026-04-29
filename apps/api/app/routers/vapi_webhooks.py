@@ -272,6 +272,7 @@ async def _handle_end_of_call_report(
 
     # Update contact total_calls if matching contact exists
     from_number = call.customer.number if call.customer else None
+    contact_id: str | None = None
     if from_number:
         async with httpx.AsyncClient() as client:
             contact_resp = await client.get(
@@ -287,6 +288,7 @@ async def _handle_end_of_call_report(
             )
         if contact_resp.status_code == 200 and contact_resp.json():
             contact = contact_resp.json()[0]
+            contact_id = contact["id"]
             async with httpx.AsyncClient() as client:
                 await client.patch(
                     f"{SUPABASE_URL}/rest/v1/contacts",
@@ -308,6 +310,7 @@ async def _handle_end_of_call_report(
             booking_result=booking_result if isinstance(booking_result, dict) else None,
             existing_sms_status=existing_sms_status if isinstance(existing_sms_status, dict) else {},
             call_row_id=call_row_id,
+            contact_id=contact_id,
             agent_id=agent_id,
         )
 
@@ -463,6 +466,63 @@ async def _patch_call_sms_status(vapi_call_id: str, sms_status: dict) -> None:
         logger.warning("Failed to store SMS status for call %s: %s", vapi_call_id, resp.text)
 
 
+def _sms_history_status(result: dict | None = None, *, fallback: str = "skipped") -> str:
+    if result and result.get("ok"):
+        return "sent"
+    status = (result or {}).get("status") or fallback
+    return "skipped" if status == "skipped" else "failed"
+
+
+async def _record_sms_message(
+    *,
+    org_id: str | None,
+    recipient: str | None,
+    sender: str | None,
+    body: str,
+    status: str,
+    message_type: str,
+    call_id: str | None = None,
+    contact_id: str | None = None,
+    agent_id: str | None = None,
+    result: dict | None = None,
+    error: str | None = None,
+    metadata: dict | None = None,
+) -> None:
+    if not org_id:
+        return
+
+    payload = {
+        "org_id": org_id,
+        "recipient": recipient,
+        "sender": sender,
+        "body": body,
+        "status": status,
+        "message_type": message_type,
+        "call_id": call_id,
+        "contact_id": contact_id,
+        "agent_id": agent_id,
+        "source": "twilio",
+        "provider_message_id": (result or {}).get("sid"),
+        "provider_status": (result or {}).get("status"),
+        "error": error or (result or {}).get("error"),
+        "metadata": metadata or {},
+    }
+
+    try:
+        headers = get_supabase()
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(
+                f"{SUPABASE_URL}/rest/v1/sms_messages",
+                headers=headers,
+                json=payload,
+                timeout=10.0,
+            )
+        if resp.status_code not in (200, 201):
+            logger.warning("SMS history insert failed: %s", resp.text)
+    except Exception as exc:
+        logger.warning("SMS history logging failed: %s", exc)
+
+
 async def _store_booking_result(call: VapiCall | None, org_id: str, booking_result: dict) -> None:
     if not call:
         return
@@ -500,9 +560,38 @@ async def _send_sms_followups(
     booking_result: dict | None,
     existing_sms_status: dict | None,
     call_row_id: str | None = None,
+    contact_id: str | None = None,
     agent_id: str | None = None,
 ) -> None:
     if not organization.get("sms_enabled"):
+        skipped_body = "SMS follow-up skipped because SMS is disabled."
+        customer_phone = call.customer.number if call.customer else None
+        fallback_sender = organization.get("sms_sender_number") or settings.twilio_phone_number or None
+        if customer_phone:
+            await _record_sms_message(
+                org_id=organization.get("id"),
+                recipient=customer_phone,
+                sender=fallback_sender,
+                body=skipped_body,
+                status="skipped",
+                message_type="follow_up",
+                call_id=call_row_id,
+                contact_id=contact_id,
+                agent_id=agent_id,
+                metadata={"vapi_call_id": call.id},
+            )
+        await _record_sms_message(
+            org_id=organization.get("id"),
+            recipient=organization.get("owner_notification_phone"),
+            sender=fallback_sender,
+            body="Owner notification skipped because SMS is disabled.",
+            status="skipped",
+            message_type="owner_notification",
+            call_id=call_row_id,
+            contact_id=contact_id,
+            agent_id=agent_id,
+            metadata={"vapi_call_id": call.id},
+        )
         await automation_events.log_automation_event(
             org_id=organization.get("id"),
             event_type="sms_attempted",
@@ -565,6 +654,19 @@ async def _send_sms_followups(
         )
         owner_result = await sms_service.send_sms(to=owner_phone, sender=sender or "", body=owner_body)
         status["owner_summary"] = owner_result
+        await _record_sms_message(
+            org_id=organization.get("id"),
+            recipient=owner_phone,
+            sender=sender,
+            body=owner_body,
+            status=_sms_history_status(owner_result),
+            message_type="owner_notification",
+            call_id=call_row_id,
+            contact_id=contact_id,
+            agent_id=agent_id,
+            result=owner_result,
+            metadata={"vapi_call_id": call.id, "recipient": "owner"},
+        )
         if owner_result.get("ok"):
             await automation_events.log_automation_event(
                 org_id=organization.get("id"),
@@ -592,6 +694,18 @@ async def _send_sms_followups(
                 metadata={"vapi_call_id": call.id, "twilio": owner_result},
             )
     else:
+        await _record_sms_message(
+            org_id=organization.get("id"),
+            recipient=None,
+            sender=sender,
+            body="Owner notification skipped because no owner phone is configured.",
+            status="skipped",
+            message_type="owner_notification",
+            call_id=call_row_id,
+            contact_id=contact_id,
+            agent_id=agent_id,
+            metadata={"vapi_call_id": call.id, "recipient": "owner"},
+        )
         await automation_events.log_automation_event(
             org_id=organization.get("id"),
             event_type="owner_notification_skipped",
@@ -626,6 +740,19 @@ async def _send_sms_followups(
             body=booking_body,
         )
         status["booking_confirmation"] = booking_sms
+        await _record_sms_message(
+            org_id=organization.get("id"),
+            recipient=customer_phone,
+            sender=sender,
+            body=booking_body,
+            status=_sms_history_status(booking_sms),
+            message_type="booking_confirmation",
+            call_id=call_row_id,
+            contact_id=contact_id,
+            agent_id=agent_id,
+            result=booking_sms,
+            metadata={"vapi_call_id": call.id, "recipient": "customer"},
+        )
         if booking_sms.get("ok"):
             await automation_events.log_automation_event(
                 org_id=organization.get("id"),

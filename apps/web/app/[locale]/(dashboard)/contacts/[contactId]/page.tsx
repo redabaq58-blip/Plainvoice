@@ -14,6 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ContactForm } from "@/components/contacts/contact-form";
+import { SmsHistoryCard, type SmsHistoryItem } from "@/components/sms/sms-history-card";
 import {
   contactFromFormData,
   tagsToInput,
@@ -110,6 +111,22 @@ export default async function ContactDetailPage({ params }: Props) {
     : { data: [] };
 
   const calls = (callRows ?? []) as CallRow[];
+
+  let smsQuery = supabase
+    .from("sms_messages")
+    .select("id, recipient, sender, body, status, message_type, call_id, error, created_at")
+    .eq("org_id", orgId)
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  if (resolvedContact.phone) {
+    smsQuery = smsQuery.or(`contact_id.eq.${contactId},recipient.eq.${resolvedContact.phone}`);
+  } else {
+    smsQuery = smsQuery.eq("contact_id", contactId);
+  }
+
+  const { data: smsRows } = await smsQuery;
+  const smsMessages = (smsRows ?? []) as SmsHistoryItem[];
 
   async function updateContact(formData: FormData) {
     "use server";
@@ -323,6 +340,34 @@ export default async function ContactDetailPage({ params }: Props) {
           )}
         </CardContent>
       </Card>
+
+      <SmsHistoryCard
+        locale={locale}
+        messages={smsMessages}
+        showCallLink
+        labels={{
+          title: t("smsHistory.title"),
+          empty: t("smsHistory.empty"),
+          timestamp: t("smsHistory.timestamp"),
+          recipient: t("smsHistory.recipient"),
+          sender: t("smsHistory.sender"),
+          type: t("smsHistory.type"),
+          status: t("smsHistory.status"),
+          body: t("smsHistory.body"),
+          error: t("smsHistory.error"),
+          openCall: t("smsHistory.openCall"),
+          statusLabels: {
+            sent: t("smsHistory.statuses.sent"),
+            failed: t("smsHistory.statuses.failed"),
+            skipped: t("smsHistory.statuses.skipped"),
+          },
+          typeLabels: {
+            follow_up: t("smsHistory.types.follow_up"),
+            owner_notification: t("smsHistory.types.owner_notification"),
+            booking_confirmation: t("smsHistory.types.booking_confirmation"),
+          },
+        }}
+      />
     </div>
   );
 }

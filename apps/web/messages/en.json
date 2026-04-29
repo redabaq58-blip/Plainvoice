@@ -141,6 +141,28 @@
       "defaultCallTitle": "Follow up with {phone}",
       "unknownCaller": "caller"
     },
+    "smsHistory": {
+      "title": "SMS history",
+      "empty": "No SMS messages recorded for this call.",
+      "timestamp": "Time",
+      "recipient": "Recipient",
+      "sender": "Sender",
+      "type": "Type",
+      "status": "Status",
+      "body": "Message",
+      "error": "Error",
+      "openCall": "Open call",
+      "statuses": {
+        "sent": "Sent",
+        "failed": "Failed",
+        "skipped": "Skipped"
+      },
+      "types": {
+        "follow_up": "Follow-up",
+        "owner_notification": "Owner notification",
+        "booking_confirmation": "Booking confirmation"
+      }
+    },
     "detail": {
       "summary": "AI Summary",
       "noSummary": "No summary available.",
@@ -453,6 +475,28 @@
     },
     "tasks": {
       "defaultContactTitle": "Follow up with {name}"
+    },
+    "smsHistory": {
+      "title": "SMS history",
+      "empty": "No SMS messages recorded for this contact.",
+      "timestamp": "Time",
+      "recipient": "Recipient",
+      "sender": "Sender",
+      "type": "Type",
+      "status": "Status",
+      "body": "Message",
+      "error": "Error",
+      "openCall": "Open call",
+      "statuses": {
+        "sent": "Sent",
+        "failed": "Failed",
+        "skipped": "Skipped"
+      },
+      "types": {
+        "follow_up": "Follow-up",
+        "owner_notification": "Owner notification",
+        "booking_confirmation": "Booking confirmation"
+      }
     },
     "detail": {
       "profile": "Contact profile",

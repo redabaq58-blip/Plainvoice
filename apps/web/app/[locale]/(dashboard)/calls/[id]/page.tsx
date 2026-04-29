@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CallTranscript } from "@/components/calls/call-transcript";
 import { CallRecording } from "@/components/calls/call-recording";
+import { SmsHistoryCard, type SmsHistoryItem } from "@/components/sms/sms-history-card";
 import { Activity, Phone, User, Clock, ArrowLeft, ClipboardList } from "lucide-react";
 import Link from "next/link";
 
@@ -91,6 +92,14 @@ export default async function CallDetailPage({ params }: Props) {
     .order("created_at", { ascending: true })
     .limit(20);
   const events = (eventRows ?? []) as AutomationEvent[];
+
+  const { data: smsRows } = await supabase
+    .from("sms_messages")
+    .select("id, recipient, sender, body, status, message_type, call_id, error, created_at")
+    .eq("call_id", id)
+    .order("created_at", { ascending: false })
+    .limit(50);
+  const smsMessages = (smsRows ?? []) as SmsHistoryItem[];
 
   // Fetch linked contact by from_number
   const contact =
@@ -332,6 +341,33 @@ export default async function CallDetailPage({ params }: Props) {
           )}
         </CardContent>
       </Card>
+
+      <SmsHistoryCard
+        locale={locale}
+        messages={smsMessages}
+        labels={{
+          title: t("smsHistory.title"),
+          empty: t("smsHistory.empty"),
+          timestamp: t("smsHistory.timestamp"),
+          recipient: t("smsHistory.recipient"),
+          sender: t("smsHistory.sender"),
+          type: t("smsHistory.type"),
+          status: t("smsHistory.status"),
+          body: t("smsHistory.body"),
+          error: t("smsHistory.error"),
+          openCall: t("smsHistory.openCall"),
+          statusLabels: {
+            sent: t("smsHistory.statuses.sent"),
+            failed: t("smsHistory.statuses.failed"),
+            skipped: t("smsHistory.statuses.skipped"),
+          },
+          typeLabels: {
+            follow_up: t("smsHistory.types.follow_up"),
+            owner_notification: t("smsHistory.types.owner_notification"),
+            booking_confirmation: t("smsHistory.types.booking_confirmation"),
+          },
+        }}
+      />
 
       {/* Recording */}
       <CallRecording

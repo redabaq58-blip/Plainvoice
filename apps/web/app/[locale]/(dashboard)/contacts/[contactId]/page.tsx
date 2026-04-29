@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { ArrowLeft, Ban, Phone } from "lucide-react";
+import { ArrowLeft, Ban, ClipboardList, Phone } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -97,6 +97,7 @@ export default async function ContactDetailPage({ params }: Props) {
   }
   const resolvedContact = contact;
   const nextDoNotCall = !resolvedContact.do_not_call;
+  const defaultTaskTitle = t("tasks.defaultContactTitle", { name: contactName(resolvedContact) });
 
   const { data: callRows } = resolvedContact.phone
     ? await supabase
@@ -164,6 +165,26 @@ export default async function ContactDetailPage({ params }: Props) {
     redirect(`/${locale}/contacts`);
   }
 
+  async function createFollowUpTask() {
+    "use server";
+
+    const currentOrgId = await getCurrentOrgId();
+    if (!currentOrgId) {
+      return;
+    }
+
+    const sb = await createContactsSupabaseClient();
+    await sb.from("follow_up_tasks").insert({
+      org_id: currentOrgId,
+      title: defaultTaskTitle,
+      contact_id: contactId,
+      priority: "normal",
+      source: "contact",
+    });
+
+    redirect(`/${locale}/tasks`);
+  }
+
   return (
     <div className="space-y-6">
       <Link
@@ -191,6 +212,12 @@ export default async function ContactDetailPage({ params }: Props) {
           <form action={toggleDoNotCall}>
             <Button type="submit" variant="outline" size="sm">
               {resolvedContact.do_not_call ? t("actions.markCallable") : t("actions.markDoNotCall")}
+            </Button>
+          </form>
+          <form action={createFollowUpTask}>
+            <Button type="submit" variant="outline" size="sm">
+              <ClipboardList className="h-4 w-4" />
+              {t("actions.createTask")}
             </Button>
           </form>
           <form action={deleteContact}>

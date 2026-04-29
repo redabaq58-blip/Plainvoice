@@ -1,13 +1,13 @@
 import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createSupabaseServerClient } from "@/lib/supabase";
-import { createContactsSupabaseClient } from "@/lib/contacts-server";
+import { createContactsSupabaseClient, getCurrentOrgId } from "@/lib/contacts-server";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CallTranscript } from "@/components/calls/call-transcript";
 import { CallRecording } from "@/components/calls/call-recording";
-import { Activity, Phone, User, Clock, ArrowLeft } from "lucide-react";
+import { Activity, Phone, User, Clock, ArrowLeft, ClipboardList } from "lucide-react";
 import Link from "next/link";
 
 type Props = {
@@ -102,6 +102,9 @@ export default async function CallDetailPage({ params }: Props) {
           .maybeSingle()
           .then(({ data }) => data)
       : null;
+  const defaultTaskTitle = t("tasks.defaultCallTitle", {
+    phone: resolvedCall.from_number ?? t("tasks.unknownCaller"),
+  });
 
   // Server action: add caller as contact
   async function addContact() {
@@ -138,6 +141,29 @@ export default async function CallDetailPage({ params }: Props) {
     redirect(`/${locale}/calls/${id}`);
   }
 
+  async function createFollowUpTask() {
+    "use server";
+
+    const currentOrgId = await getCurrentOrgId();
+    if (!currentOrgId) {
+      return;
+    }
+
+    const sb = await createContactsSupabaseClient();
+    await sb.from("follow_up_tasks").insert({
+      org_id: currentOrgId,
+      title: defaultTaskTitle,
+      description: resolvedCall.summary,
+      call_id: resolvedCall.id,
+      contact_id: contact?.id ?? null,
+      agent_id: resolvedCall.agent_id,
+      priority: resolvedCall.sentiment === "negative" || resolvedCall.status === "failed" ? "high" : "normal",
+      source: "call",
+    });
+
+    redirect(`/${locale}/tasks`);
+  }
+
   const transcript = Array.isArray(call.transcript)
     ? (call.transcript as TranscriptEntry[])
     : null;
@@ -169,6 +195,12 @@ export default async function CallDetailPage({ params }: Props) {
             {t(`sentiment.${call.sentiment}` as Parameters<typeof t>[0])}
           </Badge>
         )}
+        <form action={createFollowUpTask}>
+          <Button type="submit" variant="outline" size="sm">
+            <ClipboardList className="h-4 w-4" />
+            {t("tasks.createTask")}
+          </Button>
+        </form>
       </div>
 
       {/* Metadata grid */}

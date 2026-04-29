@@ -59,6 +59,10 @@
       "totalContacts": "Contacts totaux",
       "newContactsThisMonth": "Nouveaux contacts",
       "appointmentsBooked": "Rendez-vous reserves",
+      "newLeadCalls": "Appels nouveaux prospects",
+      "urgentCalls": "Appels urgents",
+      "followUpRequired": "Suivi requis",
+      "missedOpportunities": "Occasions manquees",
       "smsSentFailed": "SMS envoyes / echoues"
     },
     "recentCalls": {
@@ -101,6 +105,9 @@
       "dateTo": "Au",
       "allDirections": "Toutes directions",
       "allSentiments": "Tous sentiments",
+      "allOutcomes": "Tous resultats",
+      "allFollowUp": "Tous suivis",
+      "followUpRequired": "Suivi requis",
       "phonePlaceholder": "Rechercher un numéro…"
     },
     "table": {
@@ -110,6 +117,8 @@
       "duration": "Durée",
       "agent": "Agent",
       "sentiment": "Sentiment",
+      "outcome": "Resultat",
+      "urgency": "Urgence",
       "actions": "Actions"
     },
     "direction": {
@@ -122,6 +131,26 @@
       "neutral": "Neutre",
       "negative": "Négatif",
       "unknown": "Inconnu"
+    },
+    "outcome": {
+      "booked_appointment": "Rendez-vous reserve",
+      "new_lead": "Nouveau prospect",
+      "existing_customer": "Client existant",
+      "needs_follow_up": "Suivi requis",
+      "urgent": "Urgent / urgence",
+      "spam": "Spam",
+      "wrong_number": "Mauvais numero",
+      "price_shopper": "Compare les prix",
+      "complaint": "Plainte",
+      "missed_opportunity": "Occasion manquee",
+      "other": "Autre",
+      "unknown": "Non revise"
+    },
+    "urgency": {
+      "low": "Faible",
+      "normal": "Normale",
+      "high": "Haute",
+      "urgent": "Urgente"
     },
     "status": {
       "queued": "En file",
@@ -140,6 +169,15 @@
       "createTask": "Creer une tache de suivi",
       "defaultCallTitle": "Faire un suivi avec {phone}",
       "unknownCaller": "l'appelant"
+    },
+    "outcomeReview": {
+      "title": "Resultat de l'appel",
+      "outcome": "Resultat d'affaires",
+      "urgency": "Urgence",
+      "followUpRequired": "Suivi requis",
+      "ownerNotes": "Notes proprietaire",
+      "save": "Enregistrer le resultat",
+      "reviewedAt": "Revise {date}"
     },
     "smsHistory": {
       "title": "Historique SMS",
@@ -206,7 +244,8 @@
       "owner_notification_sent": "Notification proprietaire envoyee",
       "owner_notification_skipped": "Notification proprietaire ignoree",
       "human_transfer_requested": "Transfert humain demande",
-      "human_transfer_unavailable": "Transfert humain indisponible"
+      "human_transfer_unavailable": "Transfert humain indisponible",
+      "call_outcome_updated": "Resultat d'appel mis a jour"
     }
   },
   "phoneNumbers": {
@@ -697,7 +736,8 @@
       "owner_notification_sent": "Notification proprietaire envoyee",
       "owner_notification_skipped": "Notification proprietaire ignoree",
       "human_transfer_requested": "Transfert humain demande",
-      "human_transfer_unavailable": "Transfert humain indisponible"
+      "human_transfer_unavailable": "Transfert humain indisponible",
+      "call_outcome_updated": "Resultat d'appel mis a jour"
     }
   },
   "inbox": {
@@ -737,6 +777,7 @@
     },
     "derived": {
       "callNeedsFollowUp": "Appel a suivre.",
+      "urgentCall": "Appel urgent a traiter.",
       "smsFailed": "Le suivi SMS a echoue.",
       "bookingFailed": "La reservation a echoue.",
       "newLead": "Nouveau contact cree."
@@ -775,6 +816,8 @@
       "owner_notification_skipped": "Notification proprietaire ignoree",
       "human_transfer_requested": "Transfert humain demande",
       "human_transfer_unavailable": "Transfert humain indisponible",
+      "call_outcome_updated": "Resultat d'appel mis a jour",
+      "urgent_call": "Appel urgent",
       "call_follow_up": "Suivi d'appel",
       "new_lead": "Nouveau prospect"
     }

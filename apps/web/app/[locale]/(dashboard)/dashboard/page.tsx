@@ -10,6 +10,7 @@ import {
   MessageSquareText,
   Phone,
   PhoneMissed,
+  Siren,
   UserPlus,
 } from "lucide-react";
 import {
@@ -41,10 +42,13 @@ type CallRow = {
   duration_seconds: number | null;
   ended_reason: string | null;
   from_number: string | null;
+  follow_up_required: boolean;
+  outcome: string | null;
   sms_status: Json;
   started_at: string | null;
   status: string;
   summary: string | null;
+  urgency: string;
 };
 
 type ContactRow = {
@@ -154,14 +158,14 @@ export default async function DashboardPage({ params }: Props) {
     supabase
       .from("calls")
       .select(
-        "id, agent_id, booking_result, duration_seconds, ended_reason, from_number, sms_status, started_at, status, summary",
+        "id, agent_id, booking_result, duration_seconds, ended_reason, follow_up_required, from_number, outcome, sms_status, started_at, status, summary, urgency",
       )
       .eq("org_id", orgId)
       .gte("started_at", monthStart)
       .order("started_at", { ascending: false }),
     supabase
       .from("calls")
-      .select("id, agent_id, duration_seconds, from_number, started_at, status, summary")
+      .select("id, agent_id, booking_result, duration_seconds, ended_reason, follow_up_required, from_number, outcome, sms_status, started_at, status, summary, urgency")
       .eq("org_id", orgId)
       .order("started_at", { ascending: false })
       .limit(5),
@@ -197,8 +201,12 @@ export default async function DashboardPage({ params }: Props) {
   const completedCalls = monthCalls.filter((call) => call.status === "completed").length;
   const missedOrFailedCalls = monthCalls.filter(isMissedOrFailed).length;
   const appointmentBookings = monthCalls.filter((call) =>
-    isSuccessfulBooking(call.booking_result),
+    call.outcome === "booked_appointment" || isSuccessfulBooking(call.booking_result),
   ).length;
+  const newLeadCalls = monthCalls.filter((call) => call.outcome === "new_lead").length;
+  const urgentCalls = monthCalls.filter((call) => call.urgency === "urgent" || call.outcome === "urgent").length;
+  const followUpRequiredCalls = monthCalls.filter((call) => call.follow_up_required).length;
+  const missedOpportunityCalls = monthCalls.filter((call) => call.outcome === "missed_opportunity").length;
   const sms = smsCounts(monthCalls);
 
   const callsByAgent = new Map<string, number>();
@@ -227,6 +235,10 @@ export default async function DashboardPage({ params }: Props) {
     { label: t("metrics.totalContacts"), value: String(contactsCountResult.count ?? 0), icon: Contact },
     { label: t("metrics.newContactsThisMonth"), value: String(newContactsResult.count ?? 0), icon: UserPlus },
     { label: t("metrics.appointmentsBooked"), value: String(appointmentBookings), icon: CalendarCheck },
+    { label: t("metrics.newLeadCalls"), value: String(newLeadCalls), icon: UserPlus },
+    { label: t("metrics.urgentCalls"), value: String(urgentCalls), icon: Siren },
+    { label: t("metrics.followUpRequired"), value: String(followUpRequiredCalls), icon: PhoneMissed },
+    { label: t("metrics.missedOpportunities"), value: String(missedOpportunityCalls), icon: PhoneMissed },
     { label: t("metrics.smsSentFailed"), value: `${sms.sent}/${sms.failed}`, icon: MessageSquareText },
   ] as const;
 

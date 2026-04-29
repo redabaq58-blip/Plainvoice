@@ -47,12 +47,16 @@ type CallRow = {
   booking_result: Json | null;
   duration_seconds: number | null;
   ended_reason: string | null;
+  follow_up_required: boolean;
   from_number: string | null;
+  outcome: string | null;
+  owner_notes: string | null;
   sentiment: string | null;
   sms_status: Json;
   started_at: string | null;
   status: string;
   summary: string | null;
+  urgency: string;
   created_at: string;
 };
 
@@ -165,6 +169,9 @@ function hasFailedBooking(call: CallRow) {
 function needsFollowUp(call: CallRow) {
   const reason = (call.ended_reason ?? "").toLowerCase();
   return (
+    call.follow_up_required ||
+    call.outcome === "needs_follow_up" ||
+    call.outcome === "missed_opportunity" ||
     call.status === "failed" ||
     call.status === "cancelled" ||
     reason.includes("no-answer") ||
@@ -274,7 +281,7 @@ export default async function InboxPage({ params, searchParams }: Props) {
       .limit(150),
     supabase
       .from("calls")
-      .select("id, booking_result, duration_seconds, ended_reason, from_number, sentiment, sms_status, started_at, status, summary, created_at")
+      .select("id, booking_result, duration_seconds, ended_reason, follow_up_required, from_number, outcome, owner_notes, sentiment, sms_status, started_at, status, summary, urgency, created_at")
       .eq("org_id", orgId)
       .gte("created_at", since)
       .order("created_at", { ascending: false })
@@ -321,6 +328,24 @@ export default async function InboxPage({ params, searchParams }: Props) {
     const timestamp = call.started_at ?? call.created_at;
     const items: InboxItem[] = [];
 
+    if (call.urgency === "urgent" || call.outcome === "urgent") {
+      items.push({
+        key: `call:${call.id}:urgent-outcome`,
+        itemType: "call",
+        id: call.id,
+        kind: "urgent",
+        typeLabelKey: "urgent_call",
+        status: call.status,
+        source: "system",
+        phone: call.from_number,
+        callId: call.id,
+        contactId: null,
+        message: call.owner_notes || call.summary || t("derived.urgentCall"),
+        error: null,
+        timestamp,
+      });
+    }
+
     if (needsFollowUp(call)) {
       items.push({
         key: `call:${call.id}:follow-up`,
@@ -333,7 +358,7 @@ export default async function InboxPage({ params, searchParams }: Props) {
         phone: call.from_number,
         callId: call.id,
         contactId: null,
-        message: call.summary || t("derived.callNeedsFollowUp"),
+        message: call.owner_notes || call.summary || t("derived.callNeedsFollowUp"),
         error: call.ended_reason,
         timestamp,
       });

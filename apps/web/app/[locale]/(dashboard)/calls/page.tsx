@@ -14,6 +14,8 @@ type Props = {
     dateFrom?: string;
     dateTo?: string;
     phone?: string;
+    outcome?: string;
+    followUp?: string;
   }>;
 };
 
@@ -27,6 +29,9 @@ type CallRow = {
   started_at: string | null;
   duration_seconds: number | null;
   credits_used: number | null;
+  outcome: string | null;
+  urgency: string;
+  follow_up_required: boolean;
   agent_id: string | null;
   voice_agents: { name: string } | null;
 };
@@ -71,6 +76,8 @@ export default async function CallsPage({ params, searchParams }: Props) {
           dateFrom: sp.dateFrom ?? "",
           dateTo: sp.dateTo ?? "",
           phone: sp.phone ?? "",
+          outcome: sp.outcome ?? "all",
+          followUp: sp.followUp ?? "all",
         }}
         labels={{
           title: t("title"),
@@ -86,6 +93,9 @@ export default async function CallsPage({ params, searchParams }: Props) {
             dateTo: t("filters.dateTo"),
             allDirections: t("filters.allDirections"),
             allSentiments: t("filters.allSentiments"),
+            allOutcomes: t("filters.allOutcomes"),
+            followUpRequired: t("filters.followUpRequired"),
+            allFollowUp: t("filters.allFollowUp"),
             phonePlaceholder: t("filters.phonePlaceholder"),
           },
           table: {
@@ -95,6 +105,8 @@ export default async function CallsPage({ params, searchParams }: Props) {
             duration: t("table.duration"),
             agent: t("table.agent"),
             sentiment: t("table.sentiment"),
+            outcome: t("table.outcome"),
+            urgency: t("table.urgency"),
             actions: t("table.actions"),
           },
           direction: {
@@ -107,6 +119,26 @@ export default async function CallsPage({ params, searchParams }: Props) {
             neutral: t("sentiment.neutral"),
             negative: t("sentiment.negative"),
             unknown: t("sentiment.unknown"),
+          },
+          outcome: {
+            booked_appointment: t("outcome.booked_appointment"),
+            new_lead: t("outcome.new_lead"),
+            existing_customer: t("outcome.existing_customer"),
+            needs_follow_up: t("outcome.needs_follow_up"),
+            urgent: t("outcome.urgent"),
+            spam: t("outcome.spam"),
+            wrong_number: t("outcome.wrong_number"),
+            price_shopper: t("outcome.price_shopper"),
+            complaint: t("outcome.complaint"),
+            missed_opportunity: t("outcome.missed_opportunity"),
+            other: t("outcome.other"),
+            unknown: t("outcome.unknown"),
+          },
+          urgency: {
+            low: t("urgency.low"),
+            normal: t("urgency.normal"),
+            high: t("urgency.high"),
+            urgent: t("urgency.urgent"),
           },
           pagination: {
             previous: t("pagination.previous"),
@@ -123,7 +155,7 @@ export default async function CallsPage({ params, searchParams }: Props) {
   // Build server-side filters
   let query = supabase
     .from("calls")
-    .select("id, direction, status, sentiment, from_number, to_number, started_at, duration_seconds, credits_used, agent_id, voice_agents(name)", {
+    .select("id, direction, status, sentiment, from_number, to_number, started_at, duration_seconds, credits_used, outcome, urgency, follow_up_required, agent_id, voice_agents(name)", {
       count: "exact",
     })
     .order("started_at", { ascending: false });
@@ -147,6 +179,16 @@ export default async function CallsPage({ params, searchParams }: Props) {
   }
   if (sp.phone) {
     query = query.ilike("from_number", `%${sp.phone}%`);
+  }
+  if (sp.outcome && sp.outcome !== "all") {
+    if (sp.outcome === "unknown") {
+      query = query.is("outcome", null);
+    } else {
+      query = query.eq("outcome", sp.outcome);
+    }
+  }
+  if (sp.followUp === "required") {
+    query = query.eq("follow_up_required", true);
   }
 
   const { data, count } = await query.range(from, from + PAGE_SIZE - 1);
@@ -209,6 +251,9 @@ export default async function CallsPage({ params, searchParams }: Props) {
         started_at: c.started_at,
         duration_seconds: c.duration_seconds,
         credits_used: c.credits_used,
+        outcome: c.outcome,
+        urgency: c.urgency,
+        follow_up_required: c.follow_up_required,
         agentName: c.voice_agents?.name ?? null,
       }))}
       stats={stats}
@@ -222,6 +267,8 @@ export default async function CallsPage({ params, searchParams }: Props) {
         dateFrom: sp.dateFrom ?? "",
         dateTo: sp.dateTo ?? "",
         phone: sp.phone ?? "",
+        outcome: sp.outcome ?? "all",
+        followUp: sp.followUp ?? "all",
       }}
       labels={{
         title: t("title"),
@@ -237,6 +284,9 @@ export default async function CallsPage({ params, searchParams }: Props) {
           dateTo: t("filters.dateTo"),
           allDirections: t("filters.allDirections"),
           allSentiments: t("filters.allSentiments"),
+          allOutcomes: t("filters.allOutcomes"),
+          followUpRequired: t("filters.followUpRequired"),
+          allFollowUp: t("filters.allFollowUp"),
           phonePlaceholder: t("filters.phonePlaceholder"),
         },
         table: {
@@ -246,6 +296,8 @@ export default async function CallsPage({ params, searchParams }: Props) {
           duration: t("table.duration"),
           agent: t("table.agent"),
           sentiment: t("table.sentiment"),
+          outcome: t("table.outcome"),
+          urgency: t("table.urgency"),
           actions: t("table.actions"),
         },
         direction: {
@@ -258,6 +310,26 @@ export default async function CallsPage({ params, searchParams }: Props) {
           neutral: t("sentiment.neutral"),
           negative: t("sentiment.negative"),
           unknown: t("sentiment.unknown"),
+        },
+        outcome: {
+          booked_appointment: t("outcome.booked_appointment"),
+          new_lead: t("outcome.new_lead"),
+          existing_customer: t("outcome.existing_customer"),
+          needs_follow_up: t("outcome.needs_follow_up"),
+          urgent: t("outcome.urgent"),
+          spam: t("outcome.spam"),
+          wrong_number: t("outcome.wrong_number"),
+          price_shopper: t("outcome.price_shopper"),
+          complaint: t("outcome.complaint"),
+          missed_opportunity: t("outcome.missed_opportunity"),
+          other: t("outcome.other"),
+          unknown: t("outcome.unknown"),
+        },
+        urgency: {
+          low: t("urgency.low"),
+          normal: t("urgency.normal"),
+          high: t("urgency.high"),
+          urgent: t("urgency.urgent"),
         },
         pagination: {
           previous: t("pagination.previous"),

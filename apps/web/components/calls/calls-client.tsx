@@ -35,6 +35,9 @@ type CallItem = {
   started_at: string | null;
   duration_seconds: number | null;
   credits_used: number | null;
+  outcome: string | null;
+  urgency: string;
+  follow_up_required: boolean;
   agentName: string | null;
 };
 
@@ -56,16 +59,39 @@ type Filters = {
   dateFrom: string;
   dateTo: string;
   phone: string;
+  outcome: string;
+  followUp: string;
 };
 
 type Labels = {
   title: string;
   empty: { title: string; description: string };
   stats: { totalCalls: string; totalMinutes: string; avgDuration: string; sentiment: string };
-  filters: { dateFrom: string; dateTo: string; allDirections: string; allSentiments: string; phonePlaceholder: string };
-  table: { date: string; direction: string; from: string; duration: string; agent: string; sentiment: string; actions: string };
+  filters: {
+    dateFrom: string;
+    dateTo: string;
+    allDirections: string;
+    allSentiments: string;
+    allOutcomes: string;
+    followUpRequired: string;
+    allFollowUp: string;
+    phonePlaceholder: string;
+  };
+  table: {
+    date: string;
+    direction: string;
+    from: string;
+    duration: string;
+    agent: string;
+    sentiment: string;
+    outcome: string;
+    urgency: string;
+    actions: string;
+  };
   direction: { inbound: string; outbound: string; web: string };
   sentiment: { positive: string; neutral: string; negative: string; unknown: string };
+  outcome: Record<string, string>;
+  urgency: Record<string, string>;
   pagination: { previous: string; next: string; page: string };
 };
 
@@ -103,6 +129,41 @@ const SENTIMENT_VARIANT: Record<string, "default" | "secondary" | "destructive" 
   neutral: "secondary",
   negative: "destructive",
   unknown: "outline",
+};
+
+const OUTCOMES = [
+  "booked_appointment",
+  "new_lead",
+  "existing_customer",
+  "needs_follow_up",
+  "urgent",
+  "spam",
+  "wrong_number",
+  "price_shopper",
+  "complaint",
+  "missed_opportunity",
+  "other",
+] as const;
+
+const OUTCOME_VARIANT: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+  booked_appointment: "default",
+  new_lead: "default",
+  existing_customer: "secondary",
+  needs_follow_up: "secondary",
+  urgent: "destructive",
+  spam: "outline",
+  wrong_number: "outline",
+  price_shopper: "secondary",
+  complaint: "destructive",
+  missed_opportunity: "destructive",
+  other: "outline",
+};
+
+const URGENCY_VARIANT: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+  low: "outline",
+  normal: "secondary",
+  high: "default",
+  urgent: "destructive",
 };
 
 export function CallsClient({
@@ -296,6 +357,43 @@ export function CallsClient({
             }}
           />
         </div>
+
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-muted-foreground">&nbsp;</span>
+          <Select
+            defaultValue={filters.outcome}
+            onValueChange={(v) => updateFilter("outcome", v)}
+          >
+            <SelectTrigger className="w-[190px]">
+              <SelectValue placeholder={labels.filters.allOutcomes} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{labels.filters.allOutcomes}</SelectItem>
+              <SelectItem value="unknown">{labels.outcome.unknown}</SelectItem>
+              {OUTCOMES.map((outcome) => (
+                <SelectItem key={outcome} value={outcome}>
+                  {labels.outcome[outcome]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-muted-foreground">&nbsp;</span>
+          <Select
+            defaultValue={filters.followUp}
+            onValueChange={(v) => updateFilter("followUp", v)}
+          >
+            <SelectTrigger className="w-[170px]">
+              <SelectValue placeholder={labels.filters.allFollowUp} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{labels.filters.allFollowUp}</SelectItem>
+              <SelectItem value="required">{labels.filters.followUpRequired}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Table */}
@@ -314,6 +412,8 @@ export function CallsClient({
                 <TableHead>{labels.table.duration}</TableHead>
                 <TableHead>{labels.table.agent}</TableHead>
                 <TableHead>{labels.table.sentiment}</TableHead>
+                <TableHead>{labels.table.outcome}</TableHead>
+                <TableHead>{labels.table.urgency}</TableHead>
                 <TableHead className="text-right">{labels.table.actions}</TableHead>
               </TableRow>
             </TableHeader>
@@ -339,6 +439,25 @@ export function CallsClient({
                     ) : (
                       <span className="text-muted-foreground text-sm">—</span>
                     )}
+                  </TableCell>
+                  <TableCell>
+                    {call.outcome ? (
+                      <Badge variant={OUTCOME_VARIANT[call.outcome] ?? "outline"}>
+                        {labels.outcome[call.outcome] ?? call.outcome}
+                      </Badge>
+                    ) : (
+                      <span className="text-muted-foreground text-sm">—</span>
+                    )}
+                    {call.follow_up_required && (
+                      <Badge variant="outline" className="ml-1">
+                        {labels.filters.followUpRequired}
+                      </Badge>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={URGENCY_VARIANT[call.urgency] ?? "outline"}>
+                      {labels.urgency[call.urgency] ?? call.urgency}
+                    </Badge>
                   </TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="icon" asChild>

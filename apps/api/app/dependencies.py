@@ -22,13 +22,13 @@ DEV_ORG_ID = "00000000-0000-0000-0000-000000000001"
 
 
 def _local_auth_bypass_enabled() -> bool:
-    local_api = settings.next_public_api_url.startswith(
-        ("http://localhost", "http://127.0.0.1")
-    )
-    return (settings.dev_auth_bypass or settings.disable_auth) and local_api
+    return settings.dev_auth_bypass_enabled()
 
 
 async def _get_or_create_dev_org_id() -> str:
+    if not SUPABASE_URL or not settings.supabase_service_role_key:
+        return DEV_ORG_ID
+
     headers = get_supabase()
     try:
         async with httpx.AsyncClient() as client:
@@ -83,18 +83,30 @@ async def get_current_user_org(
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Missing Bearer token")
 
+    if not SUPABASE_URL or not SUPABASE_ANON_KEY:
+        raise HTTPException(
+            status_code=503,
+            detail="Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.",
+        )
+
     access_token = authorization.removeprefix("Bearer ")
 
     # 1. Validate JWT and get user_id
-    async with httpx.AsyncClient() as client:
-        user_resp = await client.get(
-            f"{SUPABASE_URL}/auth/v1/user",
-            headers={
-                "Authorization": f"Bearer {access_token}",
-                "apikey": SUPABASE_ANON_KEY,
-            },
-            timeout=10.0,
-        )
+    try:
+        async with httpx.AsyncClient() as client:
+            user_resp = await client.get(
+                f"{SUPABASE_URL}/auth/v1/user",
+                headers={
+                    "Authorization": f"Bearer {access_token}",
+                    "apikey": SUPABASE_ANON_KEY,
+                },
+                timeout=10.0,
+            )
+    except httpx.RequestError as exc:
+        raise HTTPException(
+            status_code=503,
+            detail="Could not reach Supabase Auth. Check Supabase URL/network configuration.",
+        ) from exc
 
     if user_resp.status_code != 200:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
@@ -105,20 +117,26 @@ async def get_current_user_org(
         raise HTTPException(status_code=401, detail="Could not resolve user")
 
     # 2. Get org_id from organization_members (uses user JWT so RLS applies)
-    async with httpx.AsyncClient() as client:
-        members_resp = await client.get(
-            f"{SUPABASE_URL}/rest/v1/organization_members",
-            params={
-                "select": "org_id",
-                "user_id": f"eq.{user_id}",
-                "limit": "1",
-            },
-            headers={
-                "Authorization": f"Bearer {access_token}",
-                "apikey": SUPABASE_ANON_KEY,
-            },
-            timeout=10.0,
-        )
+    try:
+        async with httpx.AsyncClient() as client:
+            members_resp = await client.get(
+                f"{SUPABASE_URL}/rest/v1/organization_members",
+                params={
+                    "select": "org_id",
+                    "user_id": f"eq.{user_id}",
+                    "limit": "1",
+                },
+                headers={
+                    "Authorization": f"Bearer {access_token}",
+                    "apikey": SUPABASE_ANON_KEY,
+                },
+                timeout=10.0,
+            )
+    except httpx.RequestError as exc:
+        raise HTTPException(
+            status_code=503,
+            detail="Could not reach Supabase to resolve organization membership.",
+        ) from exc
 
     if members_resp.status_code != 200:
         raise HTTPException(status_code=403, detail="Could not resolve organization")
@@ -140,6 +158,12 @@ def get_supabase() -> dict[str, str]:
     Never use these headers in client-facing endpoints — service role bypasses RLS.
     Safe to use in webhook handlers and background jobs.
     """
+    if not settings.supabase_service_role_key:
+        raise HTTPException(
+            status_code=503,
+            detail="Supabase service role key is not configured for server-side operations.",
+        )
+
     return {
         "apikey": settings.supabase_service_role_key,
         "Authorization": f"Bearer {settings.supabase_service_role_key}",

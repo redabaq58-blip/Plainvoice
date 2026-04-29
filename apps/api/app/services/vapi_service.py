@@ -29,6 +29,10 @@ def has_credentials() -> bool:
     return bool(settings.vapi_private_key.strip())
 
 
+def missing_credentials_message() -> str:
+    return "Vapi credentials are not configured. Set VAPI_PRIVATE_KEY to sync assistants and phone numbers."
+
+
 def _append_prompt_section(lines: list[str], title: str, value: object) -> None:
     if not isinstance(value, str):
         return

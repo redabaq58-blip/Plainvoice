@@ -18,6 +18,13 @@ def credentials_configured() -> bool:
     return bool(settings.twilio_account_sid and settings.twilio_auth_token)
 
 
+def missing_credentials_message() -> str:
+    return (
+        "Twilio credentials are not configured. Set TWILIO_ACCOUNT_SID and "
+        "TWILIO_AUTH_TOKEN before searching or purchasing phone numbers."
+    )
+
+
 def _auth() -> tuple[str, str]:
     return (settings.twilio_account_sid, settings.twilio_auth_token)
 

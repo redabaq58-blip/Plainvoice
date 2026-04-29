@@ -194,10 +194,12 @@ async def create_voice_agent(body: VoiceAgentCreate, org: OrgDep) -> dict:
         except httpx.HTTPStatusError as exc:
             raise HTTPException(
                 status_code=502,
-                detail=f"Vapi API error: {exc.response.status_code}",
+                detail=(
+                    "Vapi assistant sync failed. Check VAPI_PRIVATE_KEY and the assistant configuration."
+                ),
             ) from exc
     else:
-        vapi_sync_warning = "Vapi credentials are not configured; saved locally only."
+        vapi_sync_warning = vapi_service.missing_credentials_message() + " Saved locally only."
 
     # 2. Insert into Supabase
     row = {
@@ -289,10 +291,12 @@ async def update_voice_agent(
             except httpx.HTTPStatusError as exc:
                 raise HTTPException(
                     status_code=502,
-                    detail=f"Vapi API error: {exc.response.status_code}",
+                    detail=(
+                        "Vapi assistant sync failed. Check VAPI_PRIVATE_KEY and the assistant configuration."
+                    ),
                 ) from exc
         else:
-            vapi_sync_warning = "Vapi credentials are not configured; saved locally only."
+            vapi_sync_warning = vapi_service.missing_credentials_message() + " Saved locally only."
 
     # 4. Update in Supabase
     update_headers = {**headers, "Prefer": "return=representation"}

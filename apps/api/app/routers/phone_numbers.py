@@ -167,7 +167,7 @@ async def search_phone_numbers(
     if area_code and not area_code.isdigit():
         raise HTTPException(status_code=400, detail="Area code must contain 3 digits")
     if not twilio_service.credentials_configured():
-        raise HTTPException(status_code=400, detail="Twilio credentials are not configured")
+        raise HTTPException(status_code=400, detail=twilio_service.missing_credentials_message())
 
     try:
         return await twilio_service.search_available_local_numbers(
@@ -177,7 +177,10 @@ async def search_phone_numbers(
     except httpx.HTTPStatusError as exc:
         raise HTTPException(
             status_code=502,
-            detail=f"Twilio search failed: {exc.response.text}",
+            detail=(
+                "Twilio phone-number search failed. Check the Twilio credentials, "
+                "account permissions, and Canadian local-number availability."
+            ),
         ) from exc
 
 
@@ -186,7 +189,7 @@ async def purchase_phone_number(body: PurchasePhoneNumberRequest, org: OrgDep) -
     org_id, access_token = org
     headers = _supabase_headers(access_token)
     if not twilio_service.credentials_configured():
-        raise HTTPException(status_code=400, detail="Twilio credentials are not configured")
+        raise HTTPException(status_code=400, detail=twilio_service.missing_credentials_message())
 
     if body.agent_id:
         await _ensure_agent_in_org(body.agent_id, org_id, headers)
@@ -199,7 +202,10 @@ async def purchase_phone_number(body: PurchasePhoneNumberRequest, org: OrgDep) -
     except httpx.HTTPStatusError as exc:
         raise HTTPException(
             status_code=502,
-            detail=f"Twilio purchase failed: {exc.response.text}",
+            detail=(
+                "Twilio phone-number purchase failed. Confirm the number is still "
+                "available and the Twilio account can buy Canadian local numbers."
+            ),
         ) from exc
 
     phone_number = purchased["phone_number"]
@@ -211,6 +217,8 @@ async def purchase_phone_number(body: PurchasePhoneNumberRequest, org: OrgDep) -
     vapi_phone_number_id: str | None = None
 
     try:
+        if not vapi_service.has_credentials():
+            raise RuntimeError(vapi_service.missing_credentials_message())
         server_url = f"{settings.public_api_url.rstrip('/')}/api/webhooks/vapi"
         vapi_number = await vapi_service.create_twilio_phone_number(
             number=phone_number,

@@ -1,24 +1,30 @@
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { createSupabaseServerClient } from "@/lib/supabase";
 import { Badge } from "@/components/ui/badge";
 import { AgentDetailTabs } from "@/components/agents/agent-detail-tabs";
+import { createContactsSupabaseClient, getCurrentOrgId } from "@/lib/contacts-server";
 import { fromApiResponse } from "@/lib/schemas/voice-agent";
 
 type Props = {
   params: Promise<{ locale: string; agentId: string }>;
+  searchParams?: Promise<{ vapiSync?: string }>;
 };
 
-export default async function AgentDetailPage({ params }: Props) {
+export default async function AgentDetailPage({ params, searchParams }: Props) {
   const { locale, agentId } = await params;
+  const query = searchParams ? await searchParams : {};
   const t = await getTranslations("agents");
-  const supabase = await createSupabaseServerClient();
+  const supabase = await createContactsSupabaseClient();
+  const orgId = await getCurrentOrgId();
+
+  if (!orgId) notFound();
 
   // Fetch agent (RLS ensures org scope)
   const { data: agent } = await supabase
     .from("voice_agents")
     .select("*")
     .eq("id", agentId)
+    .eq("org_id", orgId)
     .single();
 
   if (!agent) notFound();
@@ -28,6 +34,7 @@ export default async function AgentDetailPage({ params }: Props) {
     .from("calls")
     .select("id, duration_seconds, from_number, status, created_at")
     .eq("agent_id", agentId)
+    .eq("org_id", orgId)
     .order("created_at", { ascending: false })
     .limit(10);
 
@@ -70,6 +77,37 @@ export default async function AgentDetailPage({ params }: Props) {
     status: t("form.status"),
     submit: t("form.submit"),
     save: t("form.save"),
+    vapiWarning: t("form.vapiWarning"),
+    knowledge: {
+      title: t("form.knowledge.title"),
+      businessDescription: t("form.knowledge.businessDescription"),
+      businessDescriptionPlaceholder: t("form.knowledge.businessDescriptionPlaceholder"),
+      servicesOffered: t("form.knowledge.servicesOffered"),
+      servicesOfferedPlaceholder: t("form.knowledge.servicesOfferedPlaceholder"),
+      pricingNotes: t("form.knowledge.pricingNotes"),
+      pricingNotesPlaceholder: t("form.knowledge.pricingNotesPlaceholder"),
+      faqs: t("form.knowledge.faqs"),
+      question: t("form.knowledge.question"),
+      questionPlaceholder: t("form.knowledge.questionPlaceholder"),
+      answer: t("form.knowledge.answer"),
+      answerPlaceholder: t("form.knowledge.answerPlaceholder"),
+      addFaq: t("form.knowledge.addFaq"),
+      removeFaq: t("form.knowledge.removeFaq"),
+      policies: t("form.knowledge.policies"),
+      policiesPlaceholder: t("form.knowledge.policiesPlaceholder"),
+      emergencyInstructions: t("form.knowledge.emergencyInstructions"),
+      emergencyInstructionsPlaceholder: t("form.knowledge.emergencyInstructionsPlaceholder"),
+      serviceArea: t("form.knowledge.serviceArea"),
+      serviceAreaPlaceholder: t("form.knowledge.serviceAreaPlaceholder"),
+      tone: t("form.knowledge.tone"),
+      toneLabels: {
+        professional: t("form.knowledge.toneLabels.professional"),
+        friendly: t("form.knowledge.toneLabels.friendly"),
+        luxury: t("form.knowledge.toneLabels.luxury"),
+        direct: t("form.knowledge.toneLabels.direct"),
+      },
+      promptPreview: t("form.knowledge.promptPreview"),
+    },
     verticalLabels: {
       dental: t("vertical.dental"),
       plumbing: t("vertical.plumbing"),
@@ -99,6 +137,12 @@ export default async function AgentDetailPage({ params }: Props) {
 
   return (
     <div className="space-y-6">
+      {query.vapiSync === "skipped" && (
+        <div className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          {t("form.vapiWarning")}
+        </div>
+      )}
+
       <div className="flex items-center gap-3">
         <h1 className="text-2xl font-bold tracking-tight">{agent.name}</h1>
         <Badge variant={STATUS_VARIANT[agent.status] ?? "outline"}>

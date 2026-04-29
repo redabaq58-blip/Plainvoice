@@ -337,7 +337,38 @@
       "maxCallDurationMinutes": "{minutes} minutes",
       "status": "Status",
       "submit": "Create Agent",
-      "save": "Save Changes"
+      "save": "Save Changes",
+      "vapiWarning": "Saved locally, but Vapi sync was skipped because Vapi credentials are not configured.",
+      "knowledge": {
+        "title": "Knowledge Base",
+        "businessDescription": "Business description",
+        "businessDescriptionPlaceholder": "Describe what the business does, who it serves, and what makes it different.",
+        "servicesOffered": "Services offered",
+        "servicesOfferedPlaceholder": "List services, treatments, packages, or common jobs the agent should understand.",
+        "pricingNotes": "Pricing notes",
+        "pricingNotesPlaceholder": "Add price ranges, quote rules, deposits, or what callers should know about pricing.",
+        "faqs": "FAQs",
+        "question": "Question",
+        "questionPlaceholder": "What do callers often ask?",
+        "answer": "Answer",
+        "answerPlaceholder": "How should the agent answer?",
+        "addFaq": "Add FAQ",
+        "removeFaq": "Remove FAQ",
+        "policies": "Policies",
+        "policiesPlaceholder": "Cancellation policy, deposits, warranties, refunds, or intake requirements.",
+        "emergencyInstructions": "Emergency instructions",
+        "emergencyInstructionsPlaceholder": "Explain urgent situations and when the agent should transfer or collect details.",
+        "serviceArea": "Service area / address",
+        "serviceAreaPlaceholder": "Business address, neighborhoods served, travel radius, or remote service details.",
+        "tone": "Tone",
+        "toneLabels": {
+          "professional": "Professional",
+          "friendly": "Friendly",
+          "luxury": "Luxury",
+          "direct": "Direct"
+        },
+        "promptPreview": "Prompt preview"
+      }
     },
     "detail": {
       "overview": "Overview",

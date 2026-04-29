@@ -6,7 +6,7 @@ forward the user's token to Supabase REST so that RLS applies.
 
 from __future__ import annotations
 
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 
 import httpx
 from fastapi import APIRouter, Depends, HTTPException
@@ -40,6 +40,7 @@ class VoiceAgentCreate(BaseModel):
     transfer_phone_number: str | None = None
     max_call_duration_minutes: int = 10
     status: Literal["draft", "active", "paused"] = "draft"
+    knowledge_base: dict[str, Any] | None = None
 
 
 class VoiceAgentUpdate(BaseModel):
@@ -56,6 +57,7 @@ class VoiceAgentUpdate(BaseModel):
     transfer_phone_number: str | None = None
     max_call_duration_minutes: int | None = None
     status: Literal["draft", "active", "paused"] | None = None
+    knowledge_base: dict[str, Any] | None = None
 
 
 class VoiceAgentResponse(BaseModel):
@@ -72,11 +74,12 @@ class VoiceAgentResponse(BaseModel):
     first_message: str | None = None
     transfer_phone_number: str | None = None
     max_call_duration_minutes: int
-    knowledge_base: list | None = None
+    knowledge_base: dict[str, Any] | list | None = None
     created_at: str
     updated_at: str
     total_calls: int = 0
     phone_number: str | None = None
+    vapi_sync_warning: str | None = None
 
 
 # ── Helpers ──────────────────────────────────────────────────
@@ -172,23 +175,29 @@ async def create_voice_agent(body: VoiceAgentCreate, org: OrgDep) -> dict:
     # 1. Build Vapi config and create assistant
     vapi_config = vapi_service.build_vapi_config(
         name=body.name,
+        vertical=body.vertical,
         system_prompt=body.system_prompt,
         first_message=body.first_message,
         voice_provider=body.voice_provider,
         voice_id=body.voice_id,
         language=body.language,
         max_call_duration_minutes=body.max_call_duration_minutes,
+        knowledge_base=body.knowledge_base,
     )
 
-    try:
-        vapi_result = await vapi_service.create_assistant(vapi_config)
-    except httpx.HTTPStatusError as exc:
-        raise HTTPException(
-            status_code=502,
-            detail=f"Vapi API error: {exc.response.status_code}",
-        ) from exc
-
-    vapi_assistant_id = vapi_result.get("id")
+    vapi_assistant_id = None
+    vapi_sync_warning = None
+    if vapi_service.has_credentials():
+        try:
+            vapi_result = await vapi_service.create_assistant(vapi_config)
+            vapi_assistant_id = vapi_result.get("id")
+        except httpx.HTTPStatusError as exc:
+            raise HTTPException(
+                status_code=502,
+                detail=f"Vapi API error: {exc.response.status_code}",
+            ) from exc
+    else:
+        vapi_sync_warning = "Vapi credentials are not configured; saved locally only."
 
     # 2. Insert into Supabase
     row = {
@@ -204,6 +213,7 @@ async def create_voice_agent(body: VoiceAgentCreate, org: OrgDep) -> dict:
         "transfer_phone_number": body.transfer_phone_number,
         "max_call_duration_minutes": body.max_call_duration_minutes,
         "status": body.status,
+        "knowledge_base": body.knowledge_base or {},
     }
 
     headers = {**_supabase_headers(access_token), "Prefer": "return=representation"}
@@ -222,7 +232,12 @@ async def create_voice_agent(body: VoiceAgentCreate, org: OrgDep) -> dict:
     if isinstance(created, list):
         created = created[0]
 
-    return {**created, "total_calls": 0, "phone_number": None}
+    return {
+        **created,
+        "total_calls": 0,
+        "phone_number": None,
+        "vapi_sync_warning": vapi_sync_warning,
+    }
 
 
 @router.patch("/voice-agents/{agent_id}", response_model=VoiceAgentResponse)
@@ -252,26 +267,32 @@ async def update_voice_agent(
     # 2. Merge updates
     updates = body.model_dump(exclude_none=True)
     merged = {**existing, **updates}
+    vapi_sync_warning = None
 
     # 3. Sync to Vapi if assistant exists
     vapi_assistant_id = existing.get("vapi_assistant_id")
     if vapi_assistant_id:
         vapi_config = vapi_service.build_vapi_config(
             name=merged["name"],
+            vertical=merged["vertical"],
             system_prompt=merged.get("system_prompt"),
             first_message=merged.get("first_message"),
             voice_provider=merged["voice_provider"],
             voice_id=merged.get("voice_id"),
             language=merged["language"],
             max_call_duration_minutes=merged["max_call_duration_minutes"],
+            knowledge_base=merged.get("knowledge_base"),
         )
-        try:
-            await vapi_service.update_assistant(vapi_assistant_id, vapi_config)
-        except httpx.HTTPStatusError as exc:
-            raise HTTPException(
-                status_code=502,
-                detail=f"Vapi API error: {exc.response.status_code}",
-            ) from exc
+        if vapi_service.has_credentials():
+            try:
+                await vapi_service.update_assistant(vapi_assistant_id, vapi_config)
+            except httpx.HTTPStatusError as exc:
+                raise HTTPException(
+                    status_code=502,
+                    detail=f"Vapi API error: {exc.response.status_code}",
+                ) from exc
+        else:
+            vapi_sync_warning = "Vapi credentials are not configured; saved locally only."
 
     # 4. Update in Supabase
     update_headers = {**headers, "Prefer": "return=representation"}
@@ -291,7 +312,12 @@ async def update_voice_agent(
     if isinstance(updated, list):
         updated = updated[0]
 
-    return {**updated, "total_calls": 0, "phone_number": None}
+    return {
+        **updated,
+        "total_calls": 0,
+        "phone_number": None,
+        "vapi_sync_warning": vapi_sync_warning,
+    }
 
 
 @router.delete("/voice-agents/{agent_id}")

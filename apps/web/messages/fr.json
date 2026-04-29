@@ -337,7 +337,38 @@
       "maxCallDurationMinutes": "{minutes} minutes",
       "status": "Statut",
       "submit": "Créer l'agent",
-      "save": "Enregistrer"
+      "save": "Enregistrer",
+      "vapiWarning": "Enregistre localement, mais la synchronisation Vapi a ete ignoree car les identifiants Vapi ne sont pas configures.",
+      "knowledge": {
+        "title": "Base de connaissances",
+        "businessDescription": "Description de l'entreprise",
+        "businessDescriptionPlaceholder": "Decrivez l'activite, les clients servis et ce qui differencie l'entreprise.",
+        "servicesOffered": "Services offerts",
+        "servicesOfferedPlaceholder": "Listez les services, forfaits ou demandes courantes que l'agent doit comprendre.",
+        "pricingNotes": "Notes de prix",
+        "pricingNotesPlaceholder": "Ajoutez les fourchettes, regles de soumission, depots ou details de prix.",
+        "faqs": "FAQ",
+        "question": "Question",
+        "questionPlaceholder": "Que demandent souvent les appelants ?",
+        "answer": "Reponse",
+        "answerPlaceholder": "Comment l'agent doit-il repondre ?",
+        "addFaq": "Ajouter une FAQ",
+        "removeFaq": "Supprimer la FAQ",
+        "policies": "Politiques",
+        "policiesPlaceholder": "Annulation, depots, garanties, remboursements ou exigences d'accueil.",
+        "emergencyInstructions": "Instructions d'urgence",
+        "emergencyInstructionsPlaceholder": "Expliquez les situations urgentes et quand transferer ou collecter des details.",
+        "serviceArea": "Zone de service / adresse",
+        "serviceAreaPlaceholder": "Adresse, quartiers servis, rayon de deplacement ou service a distance.",
+        "tone": "Ton",
+        "toneLabels": {
+          "professional": "Professionnel",
+          "friendly": "Amical",
+          "luxury": "Luxe",
+          "direct": "Direct"
+        },
+        "promptPreview": "Apercu du prompt"
+      }
     },
     "detail": {
       "overview": "Aperçu",

@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,12 +19,15 @@ import {
 import { apiFetch } from "@/lib/api";
 import {
   voiceAgentCreateSchema,
+  buildAgentSystemPrompt,
+  defaultKnowledgeBase,
   toApiPayload,
   VERTICALS,
   LANGUAGES,
   VOICE_PROVIDERS,
   STATUSES,
   MAX_DURATIONS,
+  TONES,
   type VoiceAgentCreateInput,
 } from "@/lib/schemas/voice-agent";
 import { getTemplate } from "@/lib/agent-templates";
@@ -46,6 +51,32 @@ type Labels = {
   status: string;
   submit: string;
   save: string;
+  vapiWarning: string;
+  knowledge: {
+    title: string;
+    businessDescription: string;
+    businessDescriptionPlaceholder: string;
+    servicesOffered: string;
+    servicesOfferedPlaceholder: string;
+    pricingNotes: string;
+    pricingNotesPlaceholder: string;
+    faqs: string;
+    question: string;
+    questionPlaceholder: string;
+    answer: string;
+    answerPlaceholder: string;
+    addFaq: string;
+    removeFaq: string;
+    policies: string;
+    policiesPlaceholder: string;
+    emergencyInstructions: string;
+    emergencyInstructionsPlaceholder: string;
+    serviceArea: string;
+    serviceAreaPlaceholder: string;
+    tone: string;
+    toneLabels: Record<string, string>;
+    promptPreview: string;
+  };
   verticalLabels: Record<string, string>;
   languageLabels: Record<string, string>;
   voiceProviderLabels: Record<string, string>;
@@ -89,10 +120,15 @@ export function AgentForm({
       transferPhoneNumber: "",
       maxCallDurationMinutes: 10,
       status: "draft",
+      knowledgeBase: defaultKnowledgeBase,
     },
   });
 
   const currentLanguage = watch("language");
+  const currentValues = watch();
+  const promptPreview = buildAgentSystemPrompt(currentValues);
+  const faqs = currentValues.knowledgeBase.faqs;
+  const [vapiWarning, setVapiWarning] = useState<string | null>(null);
 
   function handleVerticalChange(vertical: string) {
     setValue("vertical", vertical as VoiceAgentCreateInput["vertical"]);
@@ -105,26 +141,49 @@ export function AgentForm({
   }
 
   async function onSubmit(data: VoiceAgentCreateInput) {
+    setVapiWarning(null);
     const payload = toApiPayload(data);
 
     if (mode === "create") {
-      const result = await apiFetch<{ id: string }>("/api/voice-agents", {
+      const result = await apiFetch<{ id: string; vapi_sync_warning?: string | null }>("/api/voice-agents", {
         method: "POST",
         body: JSON.stringify(payload),
       });
+      if (result.vapi_sync_warning) {
+        router.push(`/${locale}/agents/${result.id}?vapiSync=skipped`);
+        return;
+      }
       router.push(`/${locale}/agents/${result.id}`);
     } else {
-      await apiFetch(`/api/voice-agents/${agentId}`, {
+      const result = await apiFetch<{ vapi_sync_warning?: string | null }>(`/api/voice-agents/${agentId}`, {
         method: "PATCH",
         body: JSON.stringify(payload),
       });
+      if (result.vapi_sync_warning) {
+        setVapiWarning(labels.vapiWarning);
+      }
       onSaved?.();
       router.refresh();
     }
   }
 
+  function addFaq() {
+    setValue("knowledgeBase.faqs", [...faqs, { question: "", answer: "" }]);
+  }
+
+  function removeFaq(index: number) {
+    const nextFaqs = faqs.filter((_, faqIndex) => faqIndex !== index);
+    setValue("knowledgeBase.faqs", nextFaqs.length > 0 ? nextFaqs : [{ question: "", answer: "" }]);
+  }
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-2xl">
+      {vapiWarning && (
+        <div className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          {vapiWarning}
+        </div>
+      )}
+
       {/* Name */}
       <div className="space-y-2">
         <Label htmlFor="name">{labels.name}</Label>
@@ -263,6 +322,150 @@ export function AgentForm({
           </SelectContent>
         </Select>
       </div>
+
+      <section className="space-y-4 rounded-md border p-4">
+        <div>
+          <h2 className="text-lg font-semibold">{labels.knowledge.title}</h2>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="businessDescription">
+            {labels.knowledge.businessDescription}
+          </Label>
+          <Textarea
+            id="businessDescription"
+            placeholder={labels.knowledge.businessDescriptionPlaceholder}
+            rows={4}
+            {...register("knowledgeBase.businessDescription")}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="servicesOffered">{labels.knowledge.servicesOffered}</Label>
+          <Textarea
+            id="servicesOffered"
+            placeholder={labels.knowledge.servicesOfferedPlaceholder}
+            rows={4}
+            {...register("knowledgeBase.servicesOffered")}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="pricingNotes">{labels.knowledge.pricingNotes}</Label>
+          <Textarea
+            id="pricingNotes"
+            placeholder={labels.knowledge.pricingNotesPlaceholder}
+            rows={3}
+            {...register("knowledgeBase.pricingNotes")}
+          />
+        </div>
+
+        <div className="space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <Label>{labels.knowledge.faqs}</Label>
+            <Button type="button" variant="outline" size="sm" onClick={addFaq}>
+              <Plus className="mr-2 h-4 w-4" />
+              {labels.knowledge.addFaq}
+            </Button>
+          </div>
+          {faqs.map((_, index) => (
+            <div key={index} className="space-y-2 rounded-md border p-3">
+              <div className="flex items-center justify-between gap-3">
+                <Label htmlFor={`faq-question-${index}`}>
+                  {labels.knowledge.question}
+                </Label>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  onClick={() => removeFaq(index)}
+                  aria-label={labels.knowledge.removeFaq}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+              <Input
+                id={`faq-question-${index}`}
+                placeholder={labels.knowledge.questionPlaceholder}
+                {...register(`knowledgeBase.faqs.${index}.question`)}
+              />
+              <Label htmlFor={`faq-answer-${index}`}>
+                {labels.knowledge.answer}
+              </Label>
+              <Textarea
+                id={`faq-answer-${index}`}
+                placeholder={labels.knowledge.answerPlaceholder}
+                rows={3}
+                {...register(`knowledgeBase.faqs.${index}.answer`)}
+              />
+            </div>
+          ))}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="policies">{labels.knowledge.policies}</Label>
+          <Textarea
+            id="policies"
+            placeholder={labels.knowledge.policiesPlaceholder}
+            rows={3}
+            {...register("knowledgeBase.policies")}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="emergencyInstructions">
+            {labels.knowledge.emergencyInstructions}
+          </Label>
+          <Textarea
+            id="emergencyInstructions"
+            placeholder={labels.knowledge.emergencyInstructionsPlaceholder}
+            rows={3}
+            {...register("knowledgeBase.emergencyInstructions")}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="serviceArea">{labels.knowledge.serviceArea}</Label>
+          <Textarea
+            id="serviceArea"
+            placeholder={labels.knowledge.serviceAreaPlaceholder}
+            rows={3}
+            {...register("knowledgeBase.serviceArea")}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label>{labels.knowledge.tone}</Label>
+          <Select
+            value={watch("knowledgeBase.tone")}
+            onValueChange={(v) =>
+              setValue("knowledgeBase.tone", v as VoiceAgentCreateInput["knowledgeBase"]["tone"])
+            }
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {TONES.map((tone) => (
+                <SelectItem key={tone} value={tone}>
+                  {labels.knowledge.toneLabels[tone] ?? tone}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </section>
+
+      <section className="space-y-2">
+        <Label htmlFor="promptPreview">{labels.knowledge.promptPreview}</Label>
+        <Textarea
+          id="promptPreview"
+          value={promptPreview}
+          readOnly
+          rows={12}
+          className="font-mono text-xs"
+        />
+      </section>
 
       {/* Status */}
       <div className="space-y-2">

@@ -24,24 +24,100 @@ def _map_voice_provider(provider: str) -> str:
     return {"elevenlabs": "11labs"}.get(provider, provider)
 
 
+def has_credentials() -> bool:
+    """Return whether Vapi can be called in this environment."""
+    return bool(settings.vapi_private_key.strip())
+
+
+def _append_prompt_section(lines: list[str], title: str, value: object) -> None:
+    if not isinstance(value, str):
+        return
+    trimmed = value.strip()
+    if trimmed:
+        lines.extend([f"\n## {title}", trimmed])
+
+
+def build_agent_system_prompt(
+    *,
+    name: str,
+    vertical: str,
+    language: str,
+    system_prompt: str | None,
+    knowledge_base: dict | None,
+) -> str:
+    """Build the final system prompt sent to Vapi."""
+    kb = knowledge_base or {}
+    tone = kb.get("tone") if isinstance(kb.get("tone"), str) else "professional"
+    lines = [
+        (system_prompt or "You are a helpful AI receptionist for this business.").strip(),
+        "\n## Agent",
+        f"Name: {name}",
+        f"Language: {language}",
+        f"Industry: {vertical}",
+        f"Tone: {tone}",
+    ]
+
+    _append_prompt_section(lines, "Business Description", kb.get("businessDescription"))
+    _append_prompt_section(lines, "Services Offered", kb.get("servicesOffered"))
+    _append_prompt_section(lines, "Pricing Notes", kb.get("pricingNotes"))
+    _append_prompt_section(lines, "Policies", kb.get("policies"))
+    _append_prompt_section(lines, "Emergency Instructions", kb.get("emergencyInstructions"))
+    _append_prompt_section(lines, "Service Area / Address", kb.get("serviceArea"))
+
+    faqs = kb.get("faqs")
+    if isinstance(faqs, list):
+        faq_lines: list[str] = []
+        for faq in faqs:
+            if not isinstance(faq, dict):
+                continue
+            question = faq.get("question")
+            answer = faq.get("answer")
+            if isinstance(question, str) and question.strip():
+                faq_lines.append(f"Q: {question.strip()}")
+            if isinstance(answer, str) and answer.strip():
+                faq_lines.append(f"A: {answer.strip()}")
+        if faq_lines:
+            lines.append("\n## FAQs")
+            lines.extend(faq_lines)
+
+    lines.extend([
+        "\n## Call Handling",
+        "Answer using only the business information above when possible.",
+        "If the caller asks for something unknown, say you will pass the message to the business.",
+        "Keep responses concise, natural, and suitable for a phone conversation.",
+    ])
+
+    return "\n".join(lines)
+
+
 def build_vapi_config(
     *,
     name: str,
+    vertical: str,
     system_prompt: str | None,
     first_message: str | None,
     voice_provider: str,
     voice_id: str | None,
     language: str,
     max_call_duration_minutes: int,
+    knowledge_base: dict | None,
 ) -> dict:
     """Build the Vapi assistant config payload from agent fields."""
+    final_system_prompt = build_agent_system_prompt(
+        name=name,
+        vertical=vertical,
+        language=language,
+        system_prompt=system_prompt,
+        knowledge_base=knowledge_base,
+    )
+
     return {
         "name": name,
         "model": {
             "provider": "anthropic",
             "model": "claude-sonnet-4-5-20250929",
             "messages": [
-                {"role": "system", "content": system_prompt or ""},
+                {"role": "system", "content": final_system_prompt},
             ],
         },
         "voice": {

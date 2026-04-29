@@ -50,6 +50,50 @@
     "welcome": "Welcome back, {org}",
     "subtitle": "Live operating metrics from calls, contacts, bookings, and SMS follow-up.",
     "unknownAgent": "Unknown agent",
+    "digest": {
+      "title": "Owner digest",
+      "summary": "{range}, PlainVoice handled {calls} calls, captured {leads} new leads, booked {bookings} appointments, sent {sms} SMS follow-ups, and flagged {urgent} urgent calls.",
+      "empty": "No activity yet today. Once calls start coming in, your digest will summarize leads, bookings, follow-ups, and urgent items.",
+      "ranges": {
+        "today": "Today",
+        "last7": "In the last 7 days",
+        "month": "This month"
+      },
+      "rangeButtons": {
+        "today": "Today",
+        "last7": "Last 7 days",
+        "month": "This month"
+      },
+      "metrics": {
+        "callsToday": "Calls today",
+        "callsLast7": "Calls last 7 days",
+        "newLeadsToday": "New leads today",
+        "newLeadsLast7": "New leads last 7 days",
+        "bookedToday": "Booked today",
+        "bookedLast7": "Booked last 7 days",
+        "urgentCalls": "Urgent calls",
+        "followUpRequired": "Follow-up calls",
+        "missedOpportunities": "Missed opportunities",
+        "smsSent": "SMS sent",
+        "smsFailed": "SMS failed",
+        "openTasks": "Open tasks",
+        "overdueTasks": "Overdue tasks",
+        "failedAutomations": "Failed automations"
+      },
+      "attention": {
+        "title": "Needs attention",
+        "empty": "No urgent calls, failed follow-ups, or high-priority tasks need attention right now.",
+        "urgentCall": "Urgent call",
+        "followUpCall": "Follow-up required",
+        "failedSms": "Failed SMS",
+        "failedBooking": "Failed booking attempt",
+        "priorityTask": "High-priority task",
+        "missedOpportunity": "Missed opportunity",
+        "failedAutomation": "Failed automation",
+        "unknownCaller": "Unknown caller",
+        "unknownRecipient": "Unknown recipient"
+      }
+    },
     "metrics": {
       "totalCallsThisMonth": "Calls this month",
       "completedCallsThisMonth": "Completed calls",

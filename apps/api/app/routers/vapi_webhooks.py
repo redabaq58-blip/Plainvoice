@@ -22,7 +22,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from app.config import settings
 from app.dependencies import get_org_from_vapi_call, get_supabase
-from app.services import calcom_service, sms_service, vapi_service
+from app.services import automation_events, calcom_service, sms_service, vapi_service
 
 logger = logging.getLogger(__name__)
 
@@ -168,6 +168,7 @@ async def _handle_end_of_call_report(
         transcript_json = [entry.model_dump() for entry in artifact.messages]
 
     credits_used = ceil(call.duration_seconds / 60) if call.duration_seconds else 0
+    from_number = call.customer.number if call.customer else None
 
     # Upsert call record
     row_data = {
@@ -176,7 +177,7 @@ async def _handle_end_of_call_report(
         "vapi_call_id": call.id,
         "direction": _map_direction(call.call_type),
         "status": "completed",
-        "from_number": call.customer.number if call.customer else None,
+        "from_number": from_number,
         "to_number": called_number,
         "started_at": call.started_at,
         "ended_at": call.ended_at,
@@ -206,8 +207,45 @@ async def _handle_end_of_call_report(
     upserted_call = upsert_resp.json()
     if isinstance(upserted_call, list):
         upserted_call = upserted_call[0] if upserted_call else {}
+    call_row_id = upserted_call.get("id") if isinstance(upserted_call, dict) else None
     booking_result = upserted_call.get("booking_result") if isinstance(upserted_call, dict) else None
     existing_sms_status = upserted_call.get("sms_status") if isinstance(upserted_call, dict) else {}
+
+    await automation_events.log_automation_event(
+        org_id=org_id,
+        event_type="call_saved",
+        status="success",
+        source="vapi",
+        call_id=call_row_id,
+        agent_id=agent_id,
+        phone_number=from_number,
+        message=f"Call saved from {from_number or 'unknown caller'}.",
+        metadata={"vapi_call_id": call.id, "duration_seconds": call.duration_seconds},
+    )
+    if transcript_json:
+        await automation_events.log_automation_event(
+            org_id=org_id,
+            event_type="transcript_saved",
+            status="success",
+            source="vapi",
+            call_id=call_row_id,
+            agent_id=agent_id,
+            phone_number=from_number,
+            message="Transcript saved for call.",
+            metadata={"vapi_call_id": call.id, "message_count": len(transcript_json)},
+        )
+    if artifact and artifact.summary:
+        await automation_events.log_automation_event(
+            org_id=org_id,
+            event_type="summary_saved",
+            status="success",
+            source="vapi",
+            call_id=call_row_id,
+            agent_id=agent_id,
+            phone_number=from_number,
+            message="AI summary saved for call.",
+            metadata={"vapi_call_id": call.id},
+        )
 
     # Update org voice_minutes_used and credits_balance
     minutes_used = int(call.duration_seconds / 60) if call.duration_seconds else 0
@@ -269,6 +307,8 @@ async def _handle_end_of_call_report(
             organization=sms_organization,
             booking_result=booking_result if isinstance(booking_result, dict) else None,
             existing_sms_status=existing_sms_status if isinstance(existing_sms_status, dict) else {},
+            call_row_id=call_row_id,
+            agent_id=agent_id,
         )
 
 
@@ -459,8 +499,32 @@ async def _send_sms_followups(
     organization: dict,
     booking_result: dict | None,
     existing_sms_status: dict | None,
+    call_row_id: str | None = None,
+    agent_id: str | None = None,
 ) -> None:
     if not organization.get("sms_enabled"):
+        await automation_events.log_automation_event(
+            org_id=organization.get("id"),
+            event_type="sms_attempted",
+            status="skipped",
+            source="twilio",
+            call_id=call_row_id,
+            agent_id=agent_id,
+            phone_number=call.customer.number if call.customer else None,
+            message="SMS follow-up skipped because SMS is disabled.",
+            metadata={"vapi_call_id": call.id},
+        )
+        await automation_events.log_automation_event(
+            org_id=organization.get("id"),
+            event_type="owner_notification_skipped",
+            status="skipped",
+            source="twilio",
+            call_id=call_row_id,
+            agent_id=agent_id,
+            phone_number=organization.get("owner_notification_phone"),
+            message="Owner notification skipped because SMS is disabled.",
+            metadata={"vapi_call_id": call.id},
+        )
         return
 
     headers = get_supabase()
@@ -478,6 +542,17 @@ async def _send_sms_followups(
 
     owner_phone = organization.get("owner_notification_phone")
     if owner_phone:
+        await automation_events.log_automation_event(
+            org_id=organization.get("id"),
+            event_type="sms_attempted",
+            status="info",
+            source="twilio",
+            call_id=call_row_id,
+            agent_id=agent_id,
+            phone_number=owner_phone,
+            message="Owner notification SMS attempted.",
+            metadata={"vapi_call_id": call.id, "recipient": "owner"},
+        )
         is_missed = _is_missed_call(call)
         owner_body = _render_sms_template(
             organization.get("sms_missed_call_template" if is_missed else "sms_followup_template"),
@@ -490,10 +565,56 @@ async def _send_sms_followups(
         )
         owner_result = await sms_service.send_sms(to=owner_phone, sender=sender or "", body=owner_body)
         status["owner_summary"] = owner_result
-        if not owner_result.get("ok"):
+        if owner_result.get("ok"):
+            await automation_events.log_automation_event(
+                org_id=organization.get("id"),
+                event_type="owner_notification_sent",
+                status="success",
+                source="twilio",
+                call_id=call_row_id,
+                agent_id=agent_id,
+                phone_number=owner_phone,
+                message="Owner notification SMS sent.",
+                metadata={"vapi_call_id": call.id, "twilio": owner_result},
+            )
+        else:
             logger.warning("Owner summary SMS skipped/failed: %s", owner_result.get("error"))
+            await automation_events.log_automation_event(
+                org_id=organization.get("id"),
+                event_type="sms_failed",
+                status=owner_result.get("status") or "failed",
+                source="twilio",
+                call_id=call_row_id,
+                agent_id=agent_id,
+                phone_number=owner_phone,
+                message="Owner notification SMS was not sent.",
+                error=owner_result.get("error"),
+                metadata={"vapi_call_id": call.id, "twilio": owner_result},
+            )
+    else:
+        await automation_events.log_automation_event(
+            org_id=organization.get("id"),
+            event_type="owner_notification_skipped",
+            status="skipped",
+            source="twilio",
+            call_id=call_row_id,
+            agent_id=agent_id,
+            message="Owner notification skipped because no owner phone is configured.",
+            metadata={"vapi_call_id": call.id},
+        )
 
     if booking_result and booking_result.get("ok") and customer_phone:
+        await automation_events.log_automation_event(
+            org_id=organization.get("id"),
+            event_type="sms_attempted",
+            status="info",
+            source="twilio",
+            call_id=call_row_id,
+            agent_id=agent_id,
+            phone_number=customer_phone,
+            message="Booking confirmation SMS attempted.",
+            metadata={"vapi_call_id": call.id, "recipient": "customer"},
+        )
         booking_body = _render_sms_template(
             organization.get("sms_booking_confirmation_template"),
             "Your appointment is booked for {booking_start}.",
@@ -505,8 +626,32 @@ async def _send_sms_followups(
             body=booking_body,
         )
         status["booking_confirmation"] = booking_sms
-        if not booking_sms.get("ok"):
+        if booking_sms.get("ok"):
+            await automation_events.log_automation_event(
+                org_id=organization.get("id"),
+                event_type="sms_sent",
+                status="success",
+                source="twilio",
+                call_id=call_row_id,
+                agent_id=agent_id,
+                phone_number=customer_phone,
+                message="Booking confirmation SMS sent.",
+                metadata={"vapi_call_id": call.id, "twilio": booking_sms},
+            )
+        else:
             logger.warning("Booking confirmation SMS skipped/failed: %s", booking_sms.get("error"))
+            await automation_events.log_automation_event(
+                org_id=organization.get("id"),
+                event_type="sms_failed",
+                status=booking_sms.get("status") or "failed",
+                source="twilio",
+                call_id=call_row_id,
+                agent_id=agent_id,
+                phone_number=customer_phone,
+                message="Booking confirmation SMS was not sent.",
+                error=booking_sms.get("error"),
+                metadata={"vapi_call_id": call.id, "twilio": booking_sms},
+            )
 
     if status:
         await _patch_call_sms_status(call.id, status)
@@ -539,6 +684,16 @@ async def _handle_assistant_request(call: VapiCall | None) -> dict:
         return {"assistant": {}}
 
     pn = pn_resp.json()[0]
+    await automation_events.log_automation_event(
+        org_id=pn.get("org_id"),
+        event_type="call_received",
+        status="info",
+        source="vapi",
+        agent_id=pn.get("agent_id"),
+        phone_number=call.customer.number if call.customer else called_number,
+        message=f"Call received from {call.customer.number if call.customer else 'unknown caller'}.",
+        metadata={"vapi_call_id": call.id, "to_number": called_number},
+    )
     agent_id = pn.get("agent_id")
     if not agent_id:
         return {"assistant": {}}
@@ -586,9 +741,28 @@ async def _handle_tool_calls(
                 "ok": False,
                 "message": "I could not identify the organization for this call, so I cannot access appointment booking.",
             }
+            await automation_events.log_automation_event(
+                org_id=org_id,
+                event_type="booking_failed",
+                status="failed",
+                source="calcom",
+                phone_number=call.customer.number if call and call.customer else None,
+                message="Booking tool failed because the organization could not be resolved.",
+                error=result["message"],
+                metadata={"tool": tc.function.name, "vapi_call_id": call.id if call else None},
+            )
         elif tc.function.name == "check_availability":
             result = await calcom_service.check_availability(organization, tc.function.arguments)
         elif tc.function.name == "book_appointment":
+            await automation_events.log_automation_event(
+                org_id=org_id,
+                event_type="booking_attempted",
+                status="info",
+                source="calcom",
+                phone_number=call.customer.number if call and call.customer else None,
+                message="Booking attempted from voice call.",
+                metadata={"tool": tc.function.name, "vapi_call_id": call.id if call else None},
+            )
             result = await calcom_service.create_booking(
                 organization,
                 tc.function.arguments,
@@ -596,8 +770,57 @@ async def _handle_tool_calls(
             )
             if isinstance(result, dict) and result.get("ok") and org_id:
                 await _store_booking_result(call, org_id, result)
+                await automation_events.log_automation_event(
+                    org_id=org_id,
+                    event_type="booking_succeeded",
+                    status="success",
+                    source="calcom",
+                    phone_number=call.customer.number if call and call.customer else None,
+                    message="Booking succeeded.",
+                    metadata={"tool": tc.function.name, "vapi_call_id": call.id if call else None, "result": result},
+                )
+            elif isinstance(result, dict):
+                is_disabled = organization is not None and not organization.get("booking_enabled")
+                await automation_events.log_automation_event(
+                    org_id=org_id,
+                    event_type="booking_failed",
+                    status="skipped" if is_disabled else "failed",
+                    source="calcom",
+                    phone_number=call.customer.number if call and call.customer else None,
+                    message=(
+                        "Booking skipped because booking is disabled."
+                        if is_disabled
+                        else "Booking failed."
+                    ),
+                    error=result.get("message"),
+                    metadata={"tool": tc.function.name, "vapi_call_id": call.id if call else None, "result": result},
+                )
+        elif tc.function.name in {"transfer_call", "transferCall", "human_transfer"}:
+            await automation_events.log_automation_event(
+                org_id=org_id,
+                event_type="human_transfer_requested",
+                status="info",
+                source="vapi",
+                phone_number=call.customer.number if call and call.customer else None,
+                message="Human transfer requested by the voice agent.",
+                metadata={"tool": tc.function.name, "vapi_call_id": call.id if call else None},
+            )
+            result = {
+                "ok": False,
+                "message": "Human transfer is not available yet. Please collect the caller's details for follow-up.",
+            }
+            await automation_events.log_automation_event(
+                org_id=org_id,
+                event_type="human_transfer_unavailable",
+                status="skipped",
+                source="vapi",
+                phone_number=call.customer.number if call and call.customer else None,
+                message="Human transfer unavailable.",
+                error=result["message"],
+                metadata={"tool": tc.function.name, "vapi_call_id": call.id if call else None},
+            )
         else:
-            result = "Fonction non supportée"
+            result = "Fonction non supportee"
         results.append({"toolCallId": tc.id, "result": result})
     return {"results": results}
 

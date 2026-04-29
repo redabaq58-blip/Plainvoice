@@ -34,6 +34,83 @@ export type Database = {
   }
   public: {
     Tables: {
+      automation_events: {
+        Row: {
+          agent_id: string | null
+          call_id: string | null
+          contact_id: string | null
+          created_at: string
+          error: string | null
+          event_type: string
+          id: string
+          message: string
+          metadata: Json
+          org_id: string
+          phone_number: string | null
+          source: string
+          status: string
+        }
+        Insert: {
+          agent_id?: string | null
+          call_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          error?: string | null
+          event_type: string
+          id?: string
+          message: string
+          metadata?: Json
+          org_id: string
+          phone_number?: string | null
+          source: string
+          status: string
+        }
+        Update: {
+          agent_id?: string | null
+          call_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          error?: string | null
+          event_type?: string
+          id?: string
+          message?: string
+          metadata?: Json
+          org_id?: string
+          phone_number?: string | null
+          source?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_events_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "voice_agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_events_call_id_fkey"
+            columns: ["call_id"]
+            isOneToOne: false
+            referencedRelation: "calls"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_events_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_events_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      },
       calls: {
         Row: {
           agent_id: string | null

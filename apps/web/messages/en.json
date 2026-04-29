@@ -6,7 +6,8 @@
     "agents": "Agents",
     "calls": "Calls",
     "phoneNumbers": "Phone Numbers",
-    "settings": "Settings"
+    "settings": "Settings",
+    "activity": "Activity"
   },
   "common": {
     "loading": "Loading...",
@@ -151,7 +152,32 @@
       "duration": "Duration",
       "endedReason": "Ended reason",
       "credits": "Credits used",
-      "to": "To"
+      "to": "To",
+      "activity": "Activity timeline",
+      "noActivity": "No activity logged for this call yet."
+    },
+    "activityStatus": {
+      "success": "Success",
+      "failed": "Failed",
+      "skipped": "Skipped",
+      "info": "Info"
+    },
+    "activityType": {
+      "call_received": "Call received",
+      "call_saved": "Call saved",
+      "transcript_saved": "Transcript saved",
+      "summary_saved": "Summary saved",
+      "contact_created": "Contact created",
+      "booking_attempted": "Booking attempted",
+      "booking_succeeded": "Booking succeeded",
+      "booking_failed": "Booking failed",
+      "sms_attempted": "SMS attempted",
+      "sms_sent": "SMS sent",
+      "sms_failed": "SMS failed",
+      "owner_notification_sent": "Owner notification sent",
+      "owner_notification_skipped": "Owner notification skipped",
+      "human_transfer_requested": "Human transfer requested",
+      "human_transfer_unavailable": "Human transfer unavailable"
     }
   },
   "phoneNumbers": {
@@ -581,5 +607,42 @@
     },
     "edit": "Edit",
     "deleteAction": "Delete"
+  },
+  "activity": {
+    "title": "Activity",
+    "subtitle": "A live timeline of calls, bookings, SMS, contacts, and automation outcomes.",
+    "timeline": "Automation timeline",
+    "empty": "No automation events yet.",
+    "openCall": "Open call",
+    "openContact": "Open contact",
+    "status": {
+      "success": "Success",
+      "failed": "Failed",
+      "skipped": "Skipped",
+      "info": "Info"
+    },
+    "source": {
+      "vapi": "Vapi",
+      "calcom": "Cal.com",
+      "twilio": "Twilio",
+      "system": "System"
+    },
+    "eventType": {
+      "call_received": "Call received",
+      "call_saved": "Call saved",
+      "transcript_saved": "Transcript saved",
+      "summary_saved": "Summary saved",
+      "contact_created": "Contact created",
+      "booking_attempted": "Booking attempted",
+      "booking_succeeded": "Booking succeeded",
+      "booking_failed": "Booking failed",
+      "sms_attempted": "SMS attempted",
+      "sms_sent": "SMS sent",
+      "sms_failed": "SMS failed",
+      "owner_notification_sent": "Owner notification sent",
+      "owner_notification_skipped": "Owner notification skipped",
+      "human_transfer_requested": "Human transfer requested",
+      "human_transfer_unavailable": "Human transfer unavailable"
+    }
   }
 }

@@ -1,4 +1,5 @@
 import { notFound, redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { createSupabaseServerClient } from "@/lib/supabase";
 import { createContactsSupabaseClient, getCurrentOrgId } from "@/lib/contacts-server";
@@ -63,6 +64,27 @@ const STATUS_VARIANT: Record<string, "default" | "secondary" | "destructive" | "
   skipped: "secondary",
   info: "outline",
 };
+
+const OUTCOMES = [
+  "booked_appointment",
+  "new_lead",
+  "existing_customer",
+  "needs_follow_up",
+  "urgent",
+  "spam",
+  "wrong_number",
+  "price_shopper",
+  "complaint",
+  "missed_opportunity",
+  "other",
+] as const;
+
+const URGENCIES = ["low", "normal", "high", "urgent"] as const;
+
+function nullableFormValue(formData: FormData, key: string) {
+  const value = String(formData.get(key) ?? "").trim();
+  return value || null;
+}
 
 export default async function CallDetailPage({ params }: Props) {
   const { locale, id } = await params;
@@ -173,6 +195,61 @@ export default async function CallDetailPage({ params }: Props) {
     redirect(`/${locale}/tasks`);
   }
 
+  async function updateCallOutcome(formData: FormData) {
+    "use server";
+
+    const currentOrgId = await getCurrentOrgId();
+    const outcome = nullableFormValue(formData, "outcome");
+    const urgency = nullableFormValue(formData, "urgency") ?? "normal";
+
+    if (
+      !currentOrgId ||
+      (outcome && !OUTCOMES.includes(outcome as (typeof OUTCOMES)[number])) ||
+      !URGENCIES.includes(urgency as (typeof URGENCIES)[number])
+    ) {
+      return;
+    }
+
+    const followUpRequired = formData.get("followUpRequired") === "on";
+    const ownerNotes = nullableFormValue(formData, "ownerNotes");
+    const reviewedAt = new Date().toISOString();
+    const sb = await createContactsSupabaseClient();
+
+    await sb
+      .from("calls")
+      .update({
+        outcome,
+        urgency,
+        follow_up_required: followUpRequired,
+        owner_notes: ownerNotes,
+        reviewed_at: reviewedAt,
+      })
+      .eq("org_id", currentOrgId)
+      .eq("id", resolvedCall.id);
+
+    await sb.from("automation_events").insert({
+      org_id: currentOrgId,
+      event_type: "call_outcome_updated",
+      status: "success",
+      source: "system",
+      call_id: resolvedCall.id,
+      contact_id: contact?.id ?? null,
+      agent_id: resolvedCall.agent_id,
+      phone_number: resolvedCall.from_number,
+      message: `Call outcome updated to ${outcome ?? "unclassified"}.`,
+      metadata: {
+        outcome,
+        urgency,
+        follow_up_required: followUpRequired,
+      },
+    });
+
+    revalidatePath(`/${locale}/calls/${id}`);
+    revalidatePath(`/${locale}/calls`);
+    revalidatePath(`/${locale}/dashboard`);
+    revalidatePath(`/${locale}/inbox`);
+  }
+
   const transcript = Array.isArray(call.transcript)
     ? (call.transcript as TranscriptEntry[])
     : null;
@@ -271,6 +348,77 @@ export default async function CallDetailPage({ params }: Props) {
           ) : (
             <p className="text-sm text-muted-foreground">{t("detail.noSummary")}</p>
           )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm font-medium">{t("outcomeReview.title")}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form action={updateCallOutcome} className="grid gap-4 md:grid-cols-2">
+            <label className="space-y-2 text-sm font-medium">
+              {t("outcomeReview.outcome")}
+              <select
+                name="outcome"
+                defaultValue={call.outcome ?? ""}
+                className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+              >
+                <option value="">{t("outcome.unknown")}</option>
+                {OUTCOMES.map((outcome) => (
+                  <option key={outcome} value={outcome}>
+                    {t(`outcome.${outcome}` as Parameters<typeof t>[0])}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="space-y-2 text-sm font-medium">
+              {t("outcomeReview.urgency")}
+              <select
+                name="urgency"
+                defaultValue={call.urgency ?? "normal"}
+                className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+              >
+                {URGENCIES.map((urgency) => (
+                  <option key={urgency} value={urgency}>
+                    {t(`urgency.${urgency}` as Parameters<typeof t>[0])}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="flex items-center gap-2 text-sm font-medium md:col-span-2">
+              <input
+                type="checkbox"
+                name="followUpRequired"
+                defaultChecked={Boolean(call.follow_up_required)}
+                className="h-4 w-4 rounded border"
+              />
+              {t("outcomeReview.followUpRequired")}
+            </label>
+            <label className="space-y-2 text-sm font-medium md:col-span-2">
+              {t("outcomeReview.ownerNotes")}
+              <textarea
+                name="ownerNotes"
+                defaultValue={call.owner_notes ?? ""}
+                rows={3}
+                className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+              />
+            </label>
+            <div className="flex flex-wrap gap-2 md:col-span-2">
+              <Button type="submit">{t("outcomeReview.save")}</Button>
+              {call.follow_up_required && (
+                <Button type="submit" formAction={createFollowUpTask} variant="outline">
+                  <ClipboardList className="h-4 w-4" />
+                  {t("tasks.createTask")}
+                </Button>
+              )}
+            </div>
+            {call.reviewed_at && (
+              <p className="text-xs text-muted-foreground md:col-span-2">
+                {t("outcomeReview.reviewedAt", { date: formatDateTime(call.reviewed_at) })}
+              </p>
+            )}
+          </form>
         </CardContent>
       </Card>
 

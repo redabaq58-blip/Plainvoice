@@ -338,11 +338,15 @@ export type Database = {
           duration_seconds: number | null
           ended_at: string | null
           ended_reason: string | null
+          follow_up_required: boolean
           from_number: string | null
           id: string
           org_id: string
+          outcome: string | null
+          owner_notes: string | null
           phone_number_id: string | null
           recording_url: string | null
+          reviewed_at: string | null
           sentiment: string | null
           sms_status: Json
           started_at: string | null
@@ -351,6 +355,7 @@ export type Database = {
           to_number: string | null
           transcript: Json | null
           updated_at: string
+          urgency: string
           vapi_call_id: string | null
         }
         Insert: {
@@ -362,11 +367,15 @@ export type Database = {
           duration_seconds?: number | null
           ended_at?: string | null
           ended_reason?: string | null
+          follow_up_required?: boolean
           from_number?: string | null
           id?: string
           org_id: string
+          outcome?: string | null
+          owner_notes?: string | null
           phone_number_id?: string | null
           recording_url?: string | null
+          reviewed_at?: string | null
           sentiment?: string | null
           sms_status?: Json
           started_at?: string | null
@@ -375,6 +384,7 @@ export type Database = {
           to_number?: string | null
           transcript?: Json | null
           updated_at?: string
+          urgency?: string
           vapi_call_id?: string | null
         }
         Update: {
@@ -386,11 +396,15 @@ export type Database = {
           duration_seconds?: number | null
           ended_at?: string | null
           ended_reason?: string | null
+          follow_up_required?: boolean
           from_number?: string | null
           id?: string
           org_id?: string
+          outcome?: string | null
+          owner_notes?: string | null
           phone_number_id?: string | null
           recording_url?: string | null
+          reviewed_at?: string | null
           sentiment?: string | null
           sms_status?: Json
           started_at?: string | null
@@ -399,6 +413,7 @@ export type Database = {
           to_number?: string | null
           transcript?: Json | null
           updated_at?: string
+          urgency?: string
           vapi_call_id?: string | null
         }
         Relationships: [

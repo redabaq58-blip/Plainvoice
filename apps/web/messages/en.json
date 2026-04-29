@@ -59,6 +59,10 @@
       "totalContacts": "Total contacts",
       "newContactsThisMonth": "New contacts",
       "appointmentsBooked": "Appointments booked",
+      "newLeadCalls": "New lead calls",
+      "urgentCalls": "Urgent calls",
+      "followUpRequired": "Follow-up required",
+      "missedOpportunities": "Missed opportunities",
       "smsSentFailed": "SMS sent / failed"
     },
     "recentCalls": {
@@ -101,6 +105,9 @@
       "dateTo": "To",
       "allDirections": "All directions",
       "allSentiments": "All sentiments",
+      "allOutcomes": "All outcomes",
+      "allFollowUp": "All follow-up",
+      "followUpRequired": "Follow-up required",
       "phonePlaceholder": "Search by phone…"
     },
     "table": {
@@ -110,6 +117,8 @@
       "duration": "Duration",
       "agent": "Agent",
       "sentiment": "Sentiment",
+      "outcome": "Outcome",
+      "urgency": "Urgency",
       "actions": "Actions"
     },
     "direction": {
@@ -122,6 +131,26 @@
       "neutral": "Neutral",
       "negative": "Negative",
       "unknown": "Unknown"
+    },
+    "outcome": {
+      "booked_appointment": "Booked appointment",
+      "new_lead": "New lead",
+      "existing_customer": "Existing customer",
+      "needs_follow_up": "Needs follow-up",
+      "urgent": "Urgent / emergency",
+      "spam": "Spam",
+      "wrong_number": "Wrong number",
+      "price_shopper": "Price shopper",
+      "complaint": "Complaint",
+      "missed_opportunity": "Missed opportunity",
+      "other": "Other",
+      "unknown": "Unreviewed"
+    },
+    "urgency": {
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "urgent": "Urgent"
     },
     "status": {
       "queued": "Queued",
@@ -140,6 +169,15 @@
       "createTask": "Create follow-up task",
       "defaultCallTitle": "Follow up with {phone}",
       "unknownCaller": "caller"
+    },
+    "outcomeReview": {
+      "title": "Call outcome",
+      "outcome": "Business result",
+      "urgency": "Urgency",
+      "followUpRequired": "Follow-up required",
+      "ownerNotes": "Owner notes",
+      "save": "Save outcome",
+      "reviewedAt": "Reviewed {date}"
     },
     "smsHistory": {
       "title": "SMS history",
@@ -206,7 +244,8 @@
       "owner_notification_sent": "Owner notification sent",
       "owner_notification_skipped": "Owner notification skipped",
       "human_transfer_requested": "Human transfer requested",
-      "human_transfer_unavailable": "Human transfer unavailable"
+      "human_transfer_unavailable": "Human transfer unavailable",
+      "call_outcome_updated": "Call outcome updated"
     }
   },
   "phoneNumbers": {
@@ -697,7 +736,8 @@
       "owner_notification_sent": "Owner notification sent",
       "owner_notification_skipped": "Owner notification skipped",
       "human_transfer_requested": "Human transfer requested",
-      "human_transfer_unavailable": "Human transfer unavailable"
+      "human_transfer_unavailable": "Human transfer unavailable",
+      "call_outcome_updated": "Call outcome updated"
     }
   },
   "inbox": {
@@ -737,6 +777,7 @@
     },
     "derived": {
       "callNeedsFollowUp": "Call needs follow-up.",
+      "urgentCall": "Urgent call needs attention.",
       "smsFailed": "SMS follow-up failed.",
       "bookingFailed": "Booking automation failed.",
       "newLead": "New contact created."
@@ -775,6 +816,8 @@
       "owner_notification_skipped": "Owner notification skipped",
       "human_transfer_requested": "Human transfer requested",
       "human_transfer_unavailable": "Human transfer unavailable",
+      "call_outcome_updated": "Call outcome updated",
+      "urgent_call": "Urgent call",
       "call_follow_up": "Call follow-up",
       "new_lead": "New lead"
     }

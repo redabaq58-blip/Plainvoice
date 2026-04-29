@@ -84,6 +84,8 @@ def build_agent_system_prompt(
         "\n## Call Handling",
         "Answer using only the business information above when possible.",
         "If the caller asks for something unknown, say you will pass the message to the business.",
+        "When callers ask about appointments, use check_availability before offering times.",
+        "Before booking, collect the caller's name, email, desired time, and phone number when available.",
         "Keep responses concise, natural, and suitable for a phone conversation.",
     ])
 
@@ -131,6 +133,55 @@ def build_vapi_config(
             "provider": "deepgram",
             "language": "fr" if language == "fr" else "en",
         },
+        "server": {
+            "url": f"{settings.public_api_url.rstrip('/')}/api/webhooks/vapi",
+        },
+        "tools": [
+            {
+                "type": "function",
+                "async": False,
+                "function": {
+                    "name": "check_availability",
+                    "description": "Check available appointment slots in the organization's Cal.com calendar.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "start": {
+                                "type": "string",
+                                "description": "Start of the requested range as ISO 8601. If only a date is known, use YYYY-MM-DD.",
+                            },
+                            "end": {
+                                "type": "string",
+                                "description": "End of the requested range as ISO 8601. If only a date is known, use YYYY-MM-DD.",
+                            },
+                        },
+                        "required": ["start", "end"],
+                    },
+                },
+            },
+            {
+                "type": "function",
+                "async": False,
+                "function": {
+                    "name": "book_appointment",
+                    "description": "Book an appointment in the organization's Cal.com calendar.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "start": {
+                                "type": "string",
+                                "description": "Appointment start time as ISO 8601.",
+                            },
+                            "name": {"type": "string", "description": "Attendee name."},
+                            "email": {"type": "string", "description": "Attendee email."},
+                            "phone": {"type": "string", "description": "Attendee phone number."},
+                            "notes": {"type": "string", "description": "Short appointment notes or reason."},
+                        },
+                        "required": ["start", "name", "email"],
+                    },
+                },
+            },
+        ],
         "maxDurationSeconds": max_call_duration_minutes * 60,
     }
 

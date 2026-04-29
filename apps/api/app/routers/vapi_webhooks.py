@@ -22,7 +22,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from app.config import settings
 from app.dependencies import get_org_from_vapi_call, get_supabase
-from app.services import vapi_service
+from app.services import calcom_service, vapi_service
 
 logger = logging.getLogger(__name__)
 
@@ -275,6 +275,58 @@ async def _handle_status_update(call: VapiCall | None) -> None:
         )
 
 
+async def _resolve_org_id_for_call(call: VapiCall | None) -> str | None:
+    if not call:
+        return None
+
+    if call.metadata and call.metadata.org_id:
+        return call.metadata.org_id
+
+    org_id = await get_org_from_vapi_call(call.id)
+    if org_id:
+        return org_id
+
+    called_number = call.phone_number.number if call.phone_number else None
+    if not called_number:
+        return None
+
+    headers = get_supabase()
+    async with httpx.AsyncClient() as client:
+        pn_resp = await client.get(
+            f"{SUPABASE_URL}/rest/v1/phone_numbers",
+            params={
+                "phone_number": f"eq.{called_number}",
+                "select": "org_id",
+                "limit": "1",
+            },
+            headers=headers,
+            timeout=10.0,
+        )
+    if pn_resp.status_code == 200 and pn_resp.json():
+        return pn_resp.json()[0].get("org_id")
+
+    return None
+
+
+async def _get_booking_organization(org_id: str) -> dict | None:
+    headers = get_supabase()
+    async with httpx.AsyncClient() as client:
+        org_resp = await client.get(
+            f"{SUPABASE_URL}/rest/v1/organizations",
+            params={
+                "id": f"eq.{org_id}",
+                "select": "id,timezone,booking_enabled,calcom_api_key,calcom_event_type_id,calcom_username",
+                "limit": "1",
+            },
+            headers=headers,
+            timeout=10.0,
+        )
+    if org_resp.status_code == 200 and org_resp.json():
+        return org_resp.json()[0]
+
+    return None
+
+
 async def _handle_assistant_request(call: VapiCall | None) -> dict:
     """Return the Vapi assistant config for the called phone number."""
     if not call:
@@ -340,9 +392,23 @@ async def _handle_tool_calls(
 ) -> dict:
     """Handle Vapi tool/function calls and return results."""
     results = []
+    org_id = await _resolve_org_id_for_call(call)
+    organization = await _get_booking_organization(org_id) if org_id else None
+
     for tc in tool_call_list or []:
-        if tc.function.name == "check_availability":
-            result = "Demain 10h, Demain 14h, Vendredi 9h"
+        if tc.function.name in {"check_availability", "book_appointment"} and organization is None:
+            result = {
+                "ok": False,
+                "message": "I could not identify the organization for this call, so I cannot access appointment booking.",
+            }
+        elif tc.function.name == "check_availability":
+            result = await calcom_service.check_availability(organization, tc.function.arguments)
+        elif tc.function.name == "book_appointment":
+            result = await calcom_service.create_booking(
+                organization,
+                tc.function.arguments,
+                call.id if call else None,
+            )
         else:
             result = "Fonction non supportée"
         results.append({"toolCallId": tc.id, "result": result})

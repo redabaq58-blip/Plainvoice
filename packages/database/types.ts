@@ -230,6 +230,10 @@ export type Database = {
           business_email: string | null
           business_hours: Json
           business_phone: string | null
+          booking_enabled: boolean
+          calcom_api_key: string | null
+          calcom_event_type_id: string | null
+          calcom_username: string | null
           created_at: string
           credits_balance: number
           default_language: string
@@ -248,6 +252,10 @@ export type Database = {
           business_email?: string | null
           business_hours?: Json
           business_phone?: string | null
+          booking_enabled?: boolean
+          calcom_api_key?: string | null
+          calcom_event_type_id?: string | null
+          calcom_username?: string | null
           created_at?: string
           credits_balance?: number
           default_language?: string
@@ -266,6 +274,10 @@ export type Database = {
           business_email?: string | null
           business_hours?: Json
           business_phone?: string | null
+          booking_enabled?: boolean
+          calcom_api_key?: string | null
+          calcom_event_type_id?: string | null
+          calcom_username?: string | null
           created_at?: string
           credits_balance?: number
           default_language?: string

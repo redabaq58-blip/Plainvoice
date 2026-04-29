@@ -183,6 +183,16 @@
       "defaultVoiceIdPlaceholder": "ID vocal de votre fournisseur",
       "defaultMaxCallDuration": "Duree maximale par defaut"
     },
+    "booking": {
+      "title": "Reservation Cal.com",
+      "enabled": "Permettre aux agents vocaux de verifier les disponibilites et reserver des rendez-vous",
+      "calcomApiKey": "Cle API Cal.com",
+      "calcomApiKeyPlaceholder": "cal_live_...",
+      "calcomEventTypeId": "ID du type d'evenement",
+      "calcomEventTypeIdPlaceholder": "123456",
+      "calcomUsername": "Nom d'utilisateur Cal.com",
+      "calcomUsernamePlaceholder": "votre-nom-cal"
+    },
     "days": {
       "monday": "Lundi",
       "tuesday": "Mardi",

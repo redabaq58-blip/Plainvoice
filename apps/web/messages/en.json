@@ -183,6 +183,16 @@
       "defaultVoiceIdPlaceholder": "Voice ID from your provider",
       "defaultMaxCallDuration": "Default max call duration"
     },
+    "booking": {
+      "title": "Cal.com Booking",
+      "enabled": "Allow voice agents to check availability and book appointments",
+      "calcomApiKey": "Cal.com API key",
+      "calcomApiKeyPlaceholder": "cal_live_...",
+      "calcomEventTypeId": "Event type ID",
+      "calcomEventTypeIdPlaceholder": "123456",
+      "calcomUsername": "Cal.com username",
+      "calcomUsernamePlaceholder": "your-cal-username"
+    },
     "days": {
       "monday": "Monday",
       "tuesday": "Tuesday",

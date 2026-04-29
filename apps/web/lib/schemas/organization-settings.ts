@@ -43,6 +43,10 @@ export const organizationSettingsSchema = z.object({
   defaultVoiceProvider: z.enum(VOICE_PROVIDERS),
   defaultVoiceId: z.string().trim().max(160),
   defaultMaxCallDurationMinutes: z.number().min(5).max(20),
+  bookingEnabled: z.boolean(),
+  calcomApiKey: z.string().trim().max(240),
+  calcomEventTypeId: z.string().trim().max(80),
+  calcomUsername: z.string().trim().max(120),
 });
 
 export type BusinessDay = z.infer<typeof businessDaySchema>;

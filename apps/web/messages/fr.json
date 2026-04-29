@@ -1,6 +1,7 @@
 {
   "nav": {
     "dashboard": "Tableau de bord",
+    "onboarding": "Demarrage",
     "contacts": "Contacts",
     "agents": "Agents",
     "calls": "Appels",
@@ -183,6 +184,105 @@
     "genericError": "Une erreur s'est produite.",
     "refresh": "Actualiser",
     "assignmentSaved": "Assignation enregistrée."
+  },
+  "onboarding": {
+    "title": "Demarrage",
+    "subtitle": "Configurez l'entreprise, le premier agent, le numero, les integrations et le test dans un parcours guide.",
+    "loading": "Chargement du demarrage...",
+    "saving": "Enregistrement...",
+    "saved": "Enregistre.",
+    "saveStep": "Enregistrer l'etape",
+    "next": "Suivant",
+    "back": "Retour",
+    "complete": "Terminer le demarrage",
+    "completed": "termine",
+    "incomplete": "Incomplet",
+    "optional": "Optionnel",
+    "error": "Verifiez les details du demarrage et reessayez.",
+    "steps": {
+      "profile": "Profil d'entreprise",
+      "hours": "Heures d'ouverture",
+      "agent": "Premier agent",
+      "phone": "Numero",
+      "integrations": "Integrations",
+      "test": "Appel test"
+    },
+    "profile": {
+      "title": "Profil d'entreprise",
+      "description": "Definissez les informations utilisees par PlainVoice pour les appels, reservations et suivis.",
+      "businessName": "Nom de l'entreprise",
+      "email": "Courriel",
+      "phone": "Telephone",
+      "website": "Site web",
+      "timezone": "Fuseau horaire"
+    },
+    "hours": {
+      "title": "Heures d'ouverture",
+      "description": "Indiquez quand l'entreprise est ouverte et quand l'agent doit prendre un message.",
+      "open": "Ouvert",
+      "closed": "Ferme",
+      "openTime": "Ouverture",
+      "closeTime": "Fermeture",
+      "days": {
+        "monday": "Lundi",
+        "tuesday": "Mardi",
+        "wednesday": "Mercredi",
+        "thursday": "Jeudi",
+        "friday": "Vendredi",
+        "saturday": "Samedi",
+        "sunday": "Dimanche"
+      }
+    },
+    "agent": {
+      "title": "Configuration du premier agent",
+      "description": "Creez ou personnalisez le premier agent vocal et sa base de connaissances de depart.",
+      "existing": "Personnalisez le premier agent deja present dans cet espace.",
+      "create": "Creez le premier agent pour cet espace.",
+      "name": "Nom de l'agent",
+      "language": "Langue",
+      "firstMessage": "Premier message",
+      "businessDescription": "Description de l'entreprise",
+      "servicesOffered": "Services offerts",
+      "serviceArea": "Zone de service / adresse",
+      "policies": "Politiques",
+      "languageLabels": {
+        "fr": "Francais",
+        "en": "Anglais",
+        "bilingual": "Bilingue"
+      }
+    },
+    "phone": {
+      "title": "Configuration du numero",
+      "description": "Assignez un numero possede au premier agent.",
+      "noNumbers": "Aucun numero n'est encore possede. Achetez un numero avant de l'assigner a l'agent.",
+      "manageNumbers": "Ouvrir les numeros",
+      "assignedTo": "Assigne a",
+      "unassigned": "Non assigne",
+      "active": "Actif",
+      "vapiError": "Erreur Vapi"
+    },
+    "integrations": {
+      "title": "Etat des integrations",
+      "description": "Confirmez que Cal.com et le suivi SMS sont prets.",
+      "calcom": "Reservation Cal.com",
+      "sms": "Suivi SMS",
+      "enabled": "Active",
+      "disabled": "Desactive",
+      "settingsReady": "Les parametres semblent prets.",
+      "settingsMissing": "Les parametres demandent attention.",
+      "openSettings": "Ouvrir les parametres"
+    },
+    "test": {
+      "title": "Checklist d'appel test",
+      "description": "Verifiez l'etat de configuration et ouvrez la page de test de l'agent quand tout est pret.",
+      "profile": "Profil d'entreprise enregistre",
+      "hours": "Heures d'ouverture configurees",
+      "agent": "Premier agent configure",
+      "phone": "Numero assigne",
+      "integrations": "Au moins une integration prete",
+      "testAgent": "Ouvrir le test agent",
+      "openDashboard": "Ouvrir le tableau de bord"
+    }
   },
   "settings": {
     "title": "Parametres",

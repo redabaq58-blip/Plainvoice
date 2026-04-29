@@ -462,7 +462,11 @@
       "trades": "Métiers",
       "restaurant": "Restauration",
       "legal": "Juridique",
-      "general": "Général"
+      "general": "Général",
+      "auto_repair": "Garage automobile",
+      "real_estate": "Immobilier",
+      "home_services": "Services à domicile",
+      "med_spa": "Médecine esthétique"
     },
     "voiceProvider": {
       "elevenlabs": "ElevenLabs",

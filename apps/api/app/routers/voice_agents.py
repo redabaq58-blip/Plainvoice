@@ -31,6 +31,7 @@ class VoiceAgentCreate(BaseModel):
     vertical: Literal[
         "dental", "plumbing", "hvac", "beauty",
         "trades", "restaurant", "legal", "general",
+        "auto_repair", "real_estate", "home_services", "med_spa",
     ] = "general"
     language: Literal["fr", "en", "bilingual"] = "fr"
     voice_provider: Literal["elevenlabs", "azure", "deepgram"] = "elevenlabs"
@@ -48,6 +49,7 @@ class VoiceAgentUpdate(BaseModel):
     vertical: Literal[
         "dental", "plumbing", "hvac", "beauty",
         "trades", "restaurant", "legal", "general",
+        "auto_repair", "real_estate", "home_services", "med_spa",
     ] | None = None
     language: Literal["fr", "en", "bilingual"] | None = None
     voice_provider: Literal["elevenlabs", "azure", "deepgram"] | None = None
@@ -183,6 +185,7 @@ async def create_voice_agent(body: VoiceAgentCreate, org: OrgDep) -> dict:
         language=body.language,
         max_call_duration_minutes=body.max_call_duration_minutes,
         knowledge_base=body.knowledge_base,
+        transfer_phone_number=body.transfer_phone_number,
     )
 
     vapi_assistant_id = None
@@ -284,6 +287,7 @@ async def update_voice_agent(
             language=merged["language"],
             max_call_duration_minutes=merged["max_call_duration_minutes"],
             knowledge_base=merged.get("knowledge_base"),
+            transfer_phone_number=merged.get("transfer_phone_number"),
         )
         if vapi_service.has_credentials():
             try:

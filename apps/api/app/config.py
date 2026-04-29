@@ -22,6 +22,8 @@ class Settings(BaseSettings):
     # Vapi
     vapi_private_key: str = ""
     vapi_webhook_secret: str = ""
+    vapi_model_provider: str = "anthropic"
+    vapi_model_name: str = "claude-sonnet-4-5-20250929"
 
     # Twilio
     twilio_account_sid: str = ""

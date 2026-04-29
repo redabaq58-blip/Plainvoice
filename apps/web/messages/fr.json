@@ -1,6 +1,7 @@
 {
   "nav": {
     "dashboard": "Tableau de bord",
+    "inbox": "Boite de reception",
     "onboarding": "Demarrage",
     "contacts": "Contacts",
     "agents": "Agents",
@@ -643,6 +644,84 @@
       "owner_notification_skipped": "Notification proprietaire ignoree",
       "human_transfer_requested": "Transfert humain demande",
       "human_transfer_unavailable": "Transfert humain indisponible"
+    }
+  },
+  "inbox": {
+    "title": "Boite d'affaires",
+    "subtitle": "Tous les echecs, transferts, appels urgents, nouveaux prospects et suivis qui demandent attention.",
+    "openItems": "elements a traiter",
+    "empty": {
+      "title": "Rien ne demande attention",
+      "description": "Les echecs d'automatisation, appels urgents, demandes de transfert, prospects et suivis apparaitront ici."
+    },
+    "filters": {
+      "all": "Tous",
+      "urgent": "Urgent",
+      "failed": "Echoue",
+      "follow-up": "Suivi",
+      "new-leads": "Prospects",
+      "transfer": "Transfert"
+    },
+    "kind": {
+      "urgent": "Urgent",
+      "failed": "Echoue",
+      "follow-up": "Suivi",
+      "new-leads": "Prospect",
+      "transfer": "Transfert"
+    },
+    "fields": {
+      "type": "Type",
+      "status": "Statut",
+      "source": "Source"
+    },
+    "actions": {
+      "markDone": "Marquer traite",
+      "openCall": "Ouvrir l'appel",
+      "openContact": "Ouvrir le contact",
+      "openActivity": "Ouvrir l'activite"
+    },
+    "derived": {
+      "callNeedsFollowUp": "Appel a suivre.",
+      "smsFailed": "Le suivi SMS a echoue.",
+      "bookingFailed": "La reservation a echoue.",
+      "newLead": "Nouveau contact cree."
+    },
+    "status": {
+      "success": "Reussi",
+      "failed": "Echoue",
+      "skipped": "Ignore",
+      "info": "Info",
+      "new": "Nouveau",
+      "completed": "Termine",
+      "cancelled": "Annule",
+      "queued": "En file",
+      "ringing": "Sonnerie",
+      "in-progress": "En cours"
+    },
+    "source": {
+      "vapi": "Vapi",
+      "calcom": "Cal.com",
+      "twilio": "Twilio",
+      "system": "Systeme"
+    },
+    "type": {
+      "call_received": "Appel recu",
+      "call_saved": "Appel enregistre",
+      "transcript_saved": "Transcription enregistree",
+      "summary_saved": "Resume enregistre",
+      "contact_created": "Contact cree",
+      "booking_attempted": "Reservation tentee",
+      "booking_succeeded": "Reservation reussie",
+      "booking_failed": "Reservation echouee",
+      "sms_attempted": "SMS tente",
+      "sms_sent": "SMS envoye",
+      "sms_failed": "SMS echoue",
+      "owner_notification_sent": "Notification proprietaire envoyee",
+      "owner_notification_skipped": "Notification proprietaire ignoree",
+      "human_transfer_requested": "Transfert humain demande",
+      "human_transfer_unavailable": "Transfert humain indisponible",
+      "call_follow_up": "Suivi d'appel",
+      "new_lead": "Nouveau prospect"
     }
   }
 }

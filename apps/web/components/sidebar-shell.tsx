@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import {
   LayoutDashboard,
+  Inbox,
   ListChecks,
   Activity,
   Contact,
@@ -21,6 +22,7 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/s
 
 type NavLabels = {
   dashboard: string;
+  inbox: string;
   onboarding: string;
   activity: string;
   contacts: string;
@@ -41,6 +43,7 @@ type Props = {
 
 const navItems = (locale: string, labels: NavLabels) => [
   { href: `/${locale}/dashboard`, label: labels.dashboard, icon: LayoutDashboard },
+  { href: `/${locale}/inbox`, label: labels.inbox, icon: Inbox },
   { href: `/${locale}/onboarding`, label: labels.onboarding, icon: ListChecks },
   { href: `/${locale}/activity`, label: labels.activity, icon: Activity },
   { href: `/${locale}/contacts`, label: labels.contacts, icon: Contact },

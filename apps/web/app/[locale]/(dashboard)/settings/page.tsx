@@ -37,6 +37,13 @@ type SettingsOrganization = Pick<
   | "calcom_api_key"
   | "calcom_event_type_id"
   | "calcom_username"
+  | "sms_enabled"
+  | "sms_sender_phone_number_id"
+  | "sms_sender_number"
+  | "owner_notification_phone"
+  | "sms_followup_template"
+  | "sms_booking_confirmation_template"
+  | "sms_missed_call_template"
 >;
 
 function createServiceRoleClient() {
@@ -89,7 +96,7 @@ async function getOrgSettings() {
   const { data: organization, error } = await supabase
     .from("organizations")
     .select(
-      "id, name, business_email, business_phone, website_url, timezone, business_hours, default_language, default_voice_provider, default_voice_id, default_max_call_duration_minutes, booking_enabled, calcom_api_key, calcom_event_type_id, calcom_username",
+      "id, name, business_email, business_phone, website_url, timezone, business_hours, default_language, default_voice_provider, default_voice_id, default_max_call_duration_minutes, booking_enabled, calcom_api_key, calcom_event_type_id, calcom_username, sms_enabled, sms_sender_phone_number_id, sms_sender_number, owner_notification_phone, sms_followup_template, sms_booking_confirmation_template, sms_missed_call_template",
     )
     .eq("id", orgId)
     .single();
@@ -110,6 +117,13 @@ async function getOrgSettings() {
       calcom_api_key: null,
       calcom_event_type_id: null,
       calcom_username: null,
+      sms_enabled: false,
+      sms_sender_phone_number_id: null,
+      sms_sender_number: null,
+      owner_notification_phone: null,
+      sms_followup_template: null,
+      sms_booking_confirmation_template: null,
+      sms_missed_call_template: null,
     } satisfies SettingsOrganization;
   }
 
@@ -133,6 +147,13 @@ function toFormValues(organization: SettingsOrganization): OrganizationSettingsI
     calcomApiKey: organization.calcom_api_key ?? "",
     calcomEventTypeId: organization.calcom_event_type_id ?? "",
     calcomUsername: organization.calcom_username ?? "",
+    smsEnabled: organization.sms_enabled,
+    smsSenderPhoneNumberId: organization.sms_sender_phone_number_id ?? "",
+    smsSenderNumber: organization.sms_sender_number ?? "",
+    ownerNotificationPhone: organization.owner_notification_phone ?? "",
+    smsFollowupTemplate: organization.sms_followup_template ?? "",
+    smsBookingConfirmationTemplate: organization.sms_booking_confirmation_template ?? "",
+    smsMissedCallTemplate: organization.sms_missed_call_template ?? "",
   };
 }
 
@@ -165,6 +186,18 @@ function buildLabels(t: Awaited<ReturnType<typeof getTranslations>>): SettingsLa
     calcomEventTypeIdPlaceholder: t("booking.calcomEventTypeIdPlaceholder"),
     calcomUsername: t("booking.calcomUsername"),
     calcomUsernamePlaceholder: t("booking.calcomUsernamePlaceholder"),
+    smsTitle: t("sms.title"),
+    smsEnabled: t("sms.enabled"),
+    smsSenderNumber: t("sms.senderNumber"),
+    smsSenderNumberPlaceholder: t("sms.senderNumberPlaceholder"),
+    ownerNotificationPhone: t("sms.ownerNotificationPhone"),
+    ownerNotificationPhonePlaceholder: t("sms.ownerNotificationPhonePlaceholder"),
+    smsFollowupTemplate: t("sms.followupTemplate"),
+    smsFollowupTemplatePlaceholder: t("sms.followupTemplatePlaceholder"),
+    smsBookingConfirmationTemplate: t("sms.bookingConfirmationTemplate"),
+    smsBookingConfirmationTemplatePlaceholder: t("sms.bookingConfirmationTemplatePlaceholder"),
+    smsMissedCallTemplate: t("sms.missedCallTemplate"),
+    smsMissedCallTemplatePlaceholder: t("sms.missedCallTemplatePlaceholder"),
     save: t("save"),
     saving: t("saving"),
     saved: t("saved"),
@@ -241,6 +274,15 @@ export default async function SettingsPage({ params }: Props) {
         calcom_api_key: toNullable(parsed.data.calcomApiKey),
         calcom_event_type_id: toNullable(parsed.data.calcomEventTypeId),
         calcom_username: toNullable(parsed.data.calcomUsername),
+        sms_enabled: parsed.data.smsEnabled,
+        sms_sender_phone_number_id: toNullable(parsed.data.smsSenderPhoneNumberId),
+        sms_sender_number: toNullable(parsed.data.smsSenderNumber),
+        owner_notification_phone: toNullable(parsed.data.ownerNotificationPhone),
+        sms_followup_template: toNullable(parsed.data.smsFollowupTemplate),
+        sms_booking_confirmation_template: toNullable(
+          parsed.data.smsBookingConfirmationTemplate,
+        ),
+        sms_missed_call_template: toNullable(parsed.data.smsMissedCallTemplate),
       })
       .eq("id", orgId);
 

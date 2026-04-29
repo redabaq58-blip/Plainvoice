@@ -1,12 +1,13 @@
 "use client";
 
 import { FormEvent, useState, useTransition } from "react";
-import { CalendarCheck, Clock, Save } from "lucide-react";
+import { CalendarCheck, Clock, MessageSquareText, Save } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -52,6 +53,18 @@ export type SettingsLabels = {
   calcomEventTypeIdPlaceholder: string;
   calcomUsername: string;
   calcomUsernamePlaceholder: string;
+  smsTitle: string;
+  smsEnabled: string;
+  smsSenderNumber: string;
+  smsSenderNumberPlaceholder: string;
+  ownerNotificationPhone: string;
+  ownerNotificationPhonePlaceholder: string;
+  smsFollowupTemplate: string;
+  smsFollowupTemplatePlaceholder: string;
+  smsBookingConfirmationTemplate: string;
+  smsBookingConfirmationTemplatePlaceholder: string;
+  smsMissedCallTemplate: string;
+  smsMissedCallTemplatePlaceholder: string;
   save: string;
   saving: string;
   saved: string;
@@ -199,6 +212,111 @@ export function SettingsClient({ initialValues, labels, saveSettings }: Props) {
               value={values.timezone}
               onChange={(event) =>
                 setValues((current) => ({ ...current, timezone: event.target.value }))
+              }
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{labels.smsTitle}</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-4 md:grid-cols-2">
+          <div className="flex items-center gap-3 rounded-md border p-3 md:col-span-2">
+            <MessageSquareText className="h-4 w-4 text-muted-foreground" />
+            <Label htmlFor="sms-enabled" className="flex-1">
+              {labels.smsEnabled}
+            </Label>
+            <input
+              id="sms-enabled"
+              type="checkbox"
+              className="h-4 w-4"
+              checked={values.smsEnabled}
+              onChange={(event) =>
+                setValues((current) => ({
+                  ...current,
+                  smsEnabled: event.target.checked,
+                }))
+              }
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="sms-sender-number">{labels.smsSenderNumber}</Label>
+            <Input
+              id="sms-sender-number"
+              type="tel"
+              value={values.smsSenderNumber}
+              placeholder={labels.smsSenderNumberPlaceholder}
+              onChange={(event) =>
+                setValues((current) => ({
+                  ...current,
+                  smsSenderNumber: event.target.value,
+                }))
+              }
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="owner-notification-phone">{labels.ownerNotificationPhone}</Label>
+            <Input
+              id="owner-notification-phone"
+              type="tel"
+              value={values.ownerNotificationPhone}
+              placeholder={labels.ownerNotificationPhonePlaceholder}
+              onChange={(event) =>
+                setValues((current) => ({
+                  ...current,
+                  ownerNotificationPhone: event.target.value,
+                }))
+              }
+            />
+          </div>
+
+          <div className="space-y-2 md:col-span-2">
+            <Label htmlFor="sms-followup-template">{labels.smsFollowupTemplate}</Label>
+            <Textarea
+              id="sms-followup-template"
+              value={values.smsFollowupTemplate}
+              placeholder={labels.smsFollowupTemplatePlaceholder}
+              onChange={(event) =>
+                setValues((current) => ({
+                  ...current,
+                  smsFollowupTemplate: event.target.value,
+                }))
+              }
+            />
+          </div>
+
+          <div className="space-y-2 md:col-span-2">
+            <Label htmlFor="sms-booking-confirmation-template">
+              {labels.smsBookingConfirmationTemplate}
+            </Label>
+            <Textarea
+              id="sms-booking-confirmation-template"
+              value={values.smsBookingConfirmationTemplate}
+              placeholder={labels.smsBookingConfirmationTemplatePlaceholder}
+              onChange={(event) =>
+                setValues((current) => ({
+                  ...current,
+                  smsBookingConfirmationTemplate: event.target.value,
+                }))
+              }
+            />
+          </div>
+
+          <div className="space-y-2 md:col-span-2">
+            <Label htmlFor="sms-missed-call-template">{labels.smsMissedCallTemplate}</Label>
+            <Textarea
+              id="sms-missed-call-template"
+              value={values.smsMissedCallTemplate}
+              placeholder={labels.smsMissedCallTemplatePlaceholder}
+              onChange={(event) =>
+                setValues((current) => ({
+                  ...current,
+                  smsMissedCallTemplate: event.target.value,
+                }))
               }
             />
           </div>

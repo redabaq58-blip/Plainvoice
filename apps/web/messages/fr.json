@@ -193,6 +193,20 @@
       "calcomUsername": "Nom d'utilisateur Cal.com",
       "calcomUsernamePlaceholder": "votre-nom-cal"
     },
+    "sms": {
+      "title": "Suivi SMS",
+      "enabled": "Envoyer des suivis SMS apres les appels et reservations",
+      "senderNumber": "Numero expediteur",
+      "senderNumberPlaceholder": "+15145550100",
+      "ownerNotificationPhone": "Telephone de notification",
+      "ownerNotificationPhonePlaceholder": "+15145550101",
+      "followupTemplate": "Modele de resume interne",
+      "followupTemplatePlaceholder": "Appel PlainVoice de '{customer_phone}': '{summary}'",
+      "bookingConfirmationTemplate": "Modele de confirmation de reservation",
+      "bookingConfirmationTemplatePlaceholder": "Votre rendez-vous est reserve pour '{booking_start}'.",
+      "missedCallTemplate": "Modele d'appel manque",
+      "missedCallTemplatePlaceholder": "PlainVoice a manque un appel de '{customer_phone}'."
+    },
     "days": {
       "monday": "Lundi",
       "tuesday": "Mardi",

@@ -2,6 +2,7 @@
   "nav": {
     "dashboard": "Tableau de bord",
     "inbox": "Boite de reception",
+    "tasks": "Taches",
     "onboarding": "Demarrage",
     "contacts": "Contacts",
     "agents": "Agents",
@@ -134,6 +135,11 @@
       "previous": "Précédent",
       "next": "Suivant",
       "page": "Page {current} sur {total}"
+    },
+    "tasks": {
+      "createTask": "Creer une tache de suivi",
+      "defaultCallTitle": "Faire un suivi avec {phone}",
+      "unknownCaller": "l'appelant"
     },
     "detail": {
       "summary": "Résumé IA",
@@ -442,7 +448,11 @@
     "actions": {
       "markDoNotCall": "Marquer ne pas appeler",
       "markCallable": "Marquer appelable",
+      "createTask": "Creer une tache de suivi",
       "delete": "Supprimer"
+    },
+    "tasks": {
+      "defaultContactTitle": "Faire un suivi avec {name}"
     },
     "detail": {
       "profile": "Profil du contact",
@@ -676,6 +686,7 @@
     },
     "actions": {
       "markDone": "Marquer traite",
+      "createTask": "Creer une tache",
       "openCall": "Ouvrir l'appel",
       "openContact": "Ouvrir le contact",
       "openActivity": "Ouvrir l'activite"
@@ -722,6 +733,67 @@
       "human_transfer_unavailable": "Transfert humain indisponible",
       "call_follow_up": "Suivi d'appel",
       "new_lead": "Nouveau prospect"
+    }
+  }
+  ,
+  "tasks": {
+    "title": "Taches de suivi",
+    "subtitle": "Actions claires pour le proprietaire depuis les appels, contacts et la boite d'affaires.",
+    "openCount": "taches ouvertes",
+    "createButton": "Creer une tache",
+    "createDescription": "Ajouter un suivi manuel pour le proprietaire.",
+    "searchPlaceholder": "Rechercher titre, description, contact ou telephone...",
+    "filter": "Filtrer",
+    "empty": {
+      "title": "Aucune tache trouvee",
+      "description": "Creez une tache de suivi quand un prospect, appelant ou element de boite demande une action."
+    },
+    "filters": {
+      "open": "Ouvertes",
+      "done": "Terminees",
+      "all": "Toutes",
+      "anyPriority": "Toute priorite"
+    },
+    "status": {
+      "open": "Ouverte",
+      "done": "Terminee"
+    },
+    "priority": {
+      "low": "Faible",
+      "normal": "Normale",
+      "high": "Haute",
+      "urgent": "Urgente"
+    },
+    "fields": {
+      "title": "Titre",
+      "description": "Description",
+      "priority": "Priorite",
+      "dueAt": "Date limite",
+      "contact": "Contact",
+      "call": "Appel",
+      "source": "Source"
+    },
+    "actions": {
+      "save": "Enregistrer",
+      "create": "Creer la tache",
+      "edit": "Modifier",
+      "markDone": "Marquer terminee",
+      "reopen": "Rouvrir",
+      "delete": "Supprimer",
+      "openContact": "Ouvrir le contact",
+      "openCall": "Ouvrir l'appel"
+    },
+    "source": {
+      "manual": "Manuel",
+      "inbox": "Boite",
+      "contact": "Contact",
+      "call": "Appel",
+      "automation_event": "Evenement automatisation"
+    },
+    "fallback": {
+      "untitledContact": "Contact",
+      "untitledCall": "Appel",
+      "noDueDate": "Aucune date"
     }
   }
 }

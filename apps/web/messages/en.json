@@ -2,6 +2,7 @@
   "nav": {
     "dashboard": "Dashboard",
     "inbox": "Inbox",
+    "tasks": "Tasks",
     "onboarding": "Onboarding",
     "contacts": "Contacts",
     "agents": "Agents",
@@ -134,6 +135,11 @@
       "previous": "Previous",
       "next": "Next",
       "page": "Page {current} of {total}"
+    },
+    "tasks": {
+      "createTask": "Create follow-up task",
+      "defaultCallTitle": "Follow up with {phone}",
+      "unknownCaller": "caller"
     },
     "detail": {
       "summary": "AI Summary",
@@ -442,7 +448,11 @@
     "actions": {
       "markDoNotCall": "Mark do-not-call",
       "markCallable": "Mark callable",
+      "createTask": "Create follow-up task",
       "delete": "Delete"
+    },
+    "tasks": {
+      "defaultContactTitle": "Follow up with {name}"
     },
     "detail": {
       "profile": "Contact profile",
@@ -676,6 +686,7 @@
     },
     "actions": {
       "markDone": "Mark done",
+      "createTask": "Create task",
       "openCall": "Open call",
       "openContact": "Open contact",
       "openActivity": "Open activity"
@@ -722,6 +733,67 @@
       "human_transfer_unavailable": "Human transfer unavailable",
       "call_follow_up": "Call follow-up",
       "new_lead": "New lead"
+    }
+  }
+  ,
+  "tasks": {
+    "title": "Follow-up Tasks",
+    "subtitle": "Clear owner actions from calls, contacts, and inbox items.",
+    "openCount": "open tasks",
+    "createButton": "Create task",
+    "createDescription": "Add a manual follow-up for the owner.",
+    "searchPlaceholder": "Search title, description, contact, or phone...",
+    "filter": "Filter",
+    "empty": {
+      "title": "No tasks found",
+      "description": "Create a follow-up task when a lead, caller, or inbox item needs action."
+    },
+    "filters": {
+      "open": "Open",
+      "done": "Done",
+      "all": "All",
+      "anyPriority": "Any priority"
+    },
+    "status": {
+      "open": "Open",
+      "done": "Done"
+    },
+    "priority": {
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "urgent": "Urgent"
+    },
+    "fields": {
+      "title": "Title",
+      "description": "Description",
+      "priority": "Priority",
+      "dueAt": "Due date",
+      "contact": "Contact",
+      "call": "Call",
+      "source": "Source"
+    },
+    "actions": {
+      "save": "Save task",
+      "create": "Create task",
+      "edit": "Edit",
+      "markDone": "Mark done",
+      "reopen": "Reopen",
+      "delete": "Delete",
+      "openContact": "Open contact",
+      "openCall": "Open call"
+    },
+    "source": {
+      "manual": "Manual",
+      "inbox": "Inbox",
+      "contact": "Contact",
+      "call": "Call",
+      "automation_event": "Automation event"
+    },
+    "fallback": {
+      "untitledContact": "Contact",
+      "untitledCall": "Call",
+      "noDueDate": "No due date"
     }
   }
 }

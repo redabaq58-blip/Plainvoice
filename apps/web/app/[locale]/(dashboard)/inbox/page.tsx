@@ -6,6 +6,7 @@ import type { Database } from "@repo/database";
 import {
   AlertTriangle,
   Check,
+  ClipboardList,
   CircleAlert,
   PhoneForwarded,
   PhoneMissed,
@@ -231,6 +232,32 @@ export default async function InboxPage({ params, searchParams }: Props) {
       { onConflict: "org_id,item_key" },
     );
     revalidatePath(`/${locale}/inbox`);
+  }
+
+  async function createTaskFromItem(formData: FormData) {
+    "use server";
+
+    const title = String(formData.get("title") ?? "").trim();
+    const currentOrgId = await getCurrentOrgId();
+
+    if (!currentOrgId || !title) {
+      return;
+    }
+
+    const sb = await createContactsSupabaseClient();
+    await sb.from("follow_up_tasks").insert({
+      org_id: currentOrgId,
+      title,
+      description: String(formData.get("description") ?? "").trim() || null,
+      priority: String(formData.get("priority") ?? "normal"),
+      contact_id: String(formData.get("contactId") ?? "").trim() || null,
+      call_id: String(formData.get("callId") ?? "").trim() || null,
+      source: "inbox",
+      source_event_id: String(formData.get("sourceEventId") ?? "").trim() || null,
+    });
+
+    revalidatePath(`/${locale}/tasks`);
+    redirect(`/${locale}/tasks`);
   }
 
   const supabase = await createContactsSupabaseClient();
@@ -499,6 +526,22 @@ export default async function InboxPage({ params, searchParams }: Props) {
                         </Link>
                       </Button>
                     )}
+                    <form action={createTaskFromItem}>
+                      <input type="hidden" name="title" value={item.message} />
+                      <input type="hidden" name="description" value={item.error ?? ""} />
+                      <input
+                        type="hidden"
+                        name="priority"
+                        value={item.kind === "urgent" ? "urgent" : item.kind === "failed" ? "high" : "normal"}
+                      />
+                      <input type="hidden" name="contactId" value={item.contactId ?? ""} />
+                      <input type="hidden" name="callId" value={item.callId ?? ""} />
+                      <input type="hidden" name="sourceEventId" value={item.itemType === "automation_event" ? item.id : ""} />
+                      <Button type="submit" variant="outline" size="sm">
+                        <ClipboardList className="h-4 w-4" />
+                        {t("actions.createTask")}
+                      </Button>
+                    </form>
                     <form action={markReviewed}>
                       <input type="hidden" name="itemKey" value={item.key} />
                       <input type="hidden" name="itemType" value={item.itemType} />

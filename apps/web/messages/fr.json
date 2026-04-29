@@ -50,6 +50,50 @@
     "welcome": "Bon retour, {org}",
     "subtitle": "Indicateurs reels des appels, contacts, reservations et suivis SMS.",
     "unknownAgent": "Agent inconnu",
+    "digest": {
+      "title": "Resume proprietaire",
+      "summary": "{range}, PlainVoice a traite {calls} appels, capture {leads} nouveaux prospects, reserve {bookings} rendez-vous, envoye {sms} suivis SMS et signale {urgent} appels urgents.",
+      "empty": "Aucune activite aujourd'hui. Quand les appels commenceront, votre resume affichera les prospects, reservations, suivis et elements urgents.",
+      "ranges": {
+        "today": "Aujourd'hui",
+        "last7": "Sur les 7 derniers jours",
+        "month": "Ce mois-ci"
+      },
+      "rangeButtons": {
+        "today": "Aujourd'hui",
+        "last7": "7 derniers jours",
+        "month": "Ce mois-ci"
+      },
+      "metrics": {
+        "callsToday": "Appels aujourd'hui",
+        "callsLast7": "Appels 7 derniers jours",
+        "newLeadsToday": "Prospects aujourd'hui",
+        "newLeadsLast7": "Prospects 7 derniers jours",
+        "bookedToday": "Reservations aujourd'hui",
+        "bookedLast7": "Reservations 7 derniers jours",
+        "urgentCalls": "Appels urgents",
+        "followUpRequired": "Appels a suivre",
+        "missedOpportunities": "Occasions manquees",
+        "smsSent": "SMS envoyes",
+        "smsFailed": "SMS echoues",
+        "openTasks": "Taches ouvertes",
+        "overdueTasks": "Taches en retard",
+        "failedAutomations": "Automatisations echouees"
+      },
+      "attention": {
+        "title": "A surveiller",
+        "empty": "Aucun appel urgent, suivi echoue ou tache prioritaire ne demande votre attention pour le moment.",
+        "urgentCall": "Appel urgent",
+        "followUpCall": "Suivi requis",
+        "failedSms": "SMS echoue",
+        "failedBooking": "Reservation echouee",
+        "priorityTask": "Tache prioritaire",
+        "missedOpportunity": "Occasion manquee",
+        "failedAutomation": "Automatisation echouee",
+        "unknownCaller": "Appelant inconnu",
+        "unknownRecipient": "Destinataire inconnu"
+      }
+    },
     "metrics": {
       "totalCallsThisMonth": "Appels ce mois-ci",
       "completedCallsThisMonth": "Appels termines",

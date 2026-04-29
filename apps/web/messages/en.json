@@ -44,10 +44,41 @@
   },
   "dashboard": {
     "welcome": "Welcome back, {org}",
-    "totalCalls": "Total Calls",
-    "activeAgents": "Active Agents",
-    "creditsRemaining": "Credits Remaining",
-    "thisMonthMinutes": "This Month's Minutes"
+    "subtitle": "Live operating metrics from calls, contacts, bookings, and SMS follow-up.",
+    "unknownAgent": "Unknown agent",
+    "metrics": {
+      "totalCallsThisMonth": "Calls this month",
+      "completedCallsThisMonth": "Completed calls",
+      "missedFailedCalls": "Missed / failed calls",
+      "totalMinutesThisMonth": "Minutes this month",
+      "activeAgents": "Active agents",
+      "totalContacts": "Total contacts",
+      "newContactsThisMonth": "New contacts",
+      "appointmentsBooked": "Appointments booked",
+      "smsSentFailed": "SMS sent / failed"
+    },
+    "recentCalls": {
+      "title": "Recent calls",
+      "empty": "No calls yet.",
+      "caller": "Caller",
+      "status": "Status",
+      "agent": "Agent",
+      "when": "When"
+    },
+    "recentContacts": {
+      "title": "Recent contacts",
+      "empty": "No contacts yet.",
+      "name": "Name",
+      "phone": "Phone",
+      "company": "Company",
+      "created": "Created"
+    },
+    "topAgents": {
+      "title": "Top agents this month",
+      "empty": "No agent call activity this month.",
+      "agent": "Agent",
+      "calls": "Calls"
+    }
   },
   "calls": {
     "title": "Calls",

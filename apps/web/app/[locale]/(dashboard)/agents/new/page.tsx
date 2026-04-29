@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { AgentForm } from "@/components/agents/agent-form";
+import { createContactsSupabaseClient, getCurrentOrgId } from "@/lib/contacts-server";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -8,6 +9,15 @@ type Props = {
 export default async function NewAgentPage({ params }: Props) {
   const { locale } = await params;
   const t = await getTranslations("agents");
+  const supabase = await createContactsSupabaseClient();
+  const orgId = await getCurrentOrgId();
+  const { data: organization } = orgId
+    ? await supabase
+        .from("organizations")
+        .select("handoff_enabled, handoff_phone_number, urgent_handoff_enabled, handoff_fallback_message")
+        .eq("id", orgId)
+        .single()
+    : { data: null };
 
   return (
     <div className="space-y-6">
@@ -17,6 +27,12 @@ export default async function NewAgentPage({ params }: Props) {
       <AgentForm
         locale={locale}
         mode="create"
+        handoffSettings={{
+          enabled: Boolean(organization?.handoff_enabled),
+          phoneNumber: organization?.handoff_phone_number ?? null,
+          urgentEnabled: organization?.urgent_handoff_enabled ?? true,
+          fallbackMessage: organization?.handoff_fallback_message ?? null,
+        }}
         labels={{
           name: t("form.name"),
           namePlaceholder: t("form.namePlaceholder"),

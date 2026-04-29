@@ -54,6 +54,10 @@ export const organizationSettingsSchema = z.object({
   smsFollowupTemplate: z.string().trim().max(500),
   smsBookingConfirmationTemplate: z.string().trim().max(500),
   smsMissedCallTemplate: z.string().trim().max(500),
+  handoffEnabled: z.boolean(),
+  handoffPhoneNumber: z.string().trim().max(40),
+  urgentHandoffEnabled: z.boolean(),
+  handoffFallbackMessage: z.string().trim().max(500),
 });
 
 export type BusinessDay = z.infer<typeof businessDaySchema>;

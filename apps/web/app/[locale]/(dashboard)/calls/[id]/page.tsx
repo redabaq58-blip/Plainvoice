@@ -422,6 +422,33 @@ export default async function CallDetailPage({ params }: Props) {
         </CardContent>
       </Card>
 
+      {call.handoff_requested && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium">{t("handoff.title")}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant={call.handoff_status === "unavailable" ? "secondary" : "default"}>
+                {t(`handoff.status.${call.handoff_status ?? "requested"}` as Parameters<typeof t>[0])}
+              </Badge>
+              <span className="text-sm text-muted-foreground">{t("handoff.requested")}</span>
+            </div>
+            {call.handoff_notes && (
+              <p className="text-sm leading-relaxed">{call.handoff_notes}</p>
+            )}
+            <div className="flex flex-wrap gap-2">
+              <Button asChild variant="outline" size="sm">
+                <Link href={`/${locale}/tasks`}>{t("handoff.openTasks")}</Link>
+              </Button>
+              <Button asChild variant="outline" size="sm">
+                <Link href={`/${locale}/activity`}>{t("handoff.openActivity")}</Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Contact section */}
       <Card>
         <CardHeader>

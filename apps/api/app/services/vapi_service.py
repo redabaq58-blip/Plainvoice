@@ -86,10 +86,20 @@ def build_agent_system_prompt(
     system_prompt: str | None,
     knowledge_base: dict | None,
     transfer_phone_number: str | None = None,
+    handoff_settings: dict | None = None,
 ) -> str:
     """Build the final system prompt sent to Vapi."""
     kb = knowledge_base or {}
+    handoff = handoff_settings or {}
     tone = kb.get("tone") if isinstance(kb.get("tone"), str) else "professional"
+    handoff_phone = handoff.get("phone_number") if isinstance(handoff.get("phone_number"), str) else None
+    handoff_enabled = bool(handoff.get("enabled") and handoff_phone and handoff_phone.strip())
+    urgent_handoff_enabled = bool(handoff.get("urgent_enabled", True))
+    fallback_message = (
+        handoff.get("fallback_message")
+        if isinstance(handoff.get("fallback_message"), str) and handoff.get("fallback_message").strip()
+        else "I cannot connect you live right now, but I will take a detailed message and make sure the team follows up."
+    )
     lines = [
         (system_prompt or "You are a calm, helpful phone receptionist for this business.").strip(),
         "\n## Agent",
@@ -121,6 +131,28 @@ def build_agent_system_prompt(
             "\n## No Transfer Available",
             "If the caller asks to speak to a human, tell them you cannot transfer right now "
             "and offer to take a detailed message so the team can follow up with them.",
+        ])
+
+    if handoff_enabled:
+        lines.extend([
+            "\n## Human Handoff",
+            "If the caller asks for a person, says they need a human, is upset, or you cannot safely help, acknowledge it calmly.",
+            "Do not claim a live transfer has happened. Live transfer is not safely enabled in this configuration.",
+            'Say: "Let me get this to someone who can help." Then use request_human_handoff.',
+            f"Handoff phone number configured for the business: {handoff_phone.strip()}",
+            (
+                "For urgent escalation, use request_human_handoff and mark the request urgent."
+                if urgent_handoff_enabled
+                else "For urgent or emergency situations, follow the emergency instructions and take a detailed message for the team."
+            ),
+        ])
+    else:
+        lines.extend([
+            "\n## Human Handoff Unavailable",
+            "If the caller asks for a person, do not claim you can transfer them.",
+            fallback_message,
+            "Collect the caller's name, phone number, reason for calling, urgency, and the best time to follow up.",
+            "Mark follow-up required so the team can respond.",
         ])
 
     _append_prompt_section(lines, "Business Description", kb.get("businessDescription"))
@@ -188,6 +220,7 @@ def build_vapi_config(
     max_call_duration_minutes: int,
     knowledge_base: dict | None,
     transfer_phone_number: str | None = None,
+    handoff_settings: dict | None = None,
 ) -> dict:
     """Build the Vapi assistant config payload from agent fields."""
     final_system_prompt = build_agent_system_prompt(
@@ -197,6 +230,7 @@ def build_vapi_config(
         system_prompt=system_prompt,
         knowledge_base=knowledge_base,
         transfer_phone_number=transfer_phone_number,
+        handoff_settings=handoff_settings,
     )
 
     return {
@@ -249,6 +283,33 @@ def build_vapi_config(
                                 "notes": {"type": "string", "description": "Short appointment notes or reason."},
                             },
                             "required": ["start", "name", "email"],
+                        },
+                    },
+                },
+                {
+                    "type": "function",
+                    "async": False,
+                    "function": {
+                        "name": "request_human_handoff",
+                        "description": "Record that the caller needs a human follow-up or escalation.",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "reason": {
+                                    "type": "string",
+                                    "description": "Why the caller needs a person.",
+                                },
+                                "urgency": {
+                                    "type": "string",
+                                    "enum": ["normal", "high", "urgent"],
+                                    "description": "How urgent the handoff is.",
+                                },
+                                "notes": {
+                                    "type": "string",
+                                    "description": "Caller details and follow-up notes.",
+                                },
+                            },
+                            "required": ["reason"],
                         },
                     },
                 },

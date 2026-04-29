@@ -223,6 +223,18 @@
       "save": "Save outcome",
       "reviewedAt": "Reviewed {date}"
     },
+    "handoff": {
+      "title": "Human handoff",
+      "requested": "Handoff requested",
+      "openTasks": "Open related tasks",
+      "openActivity": "Open activity",
+      "status": {
+        "requested": "Requested",
+        "completed": "Completed",
+        "failed": "Failed",
+        "unavailable": "Transfer unavailable"
+      }
+    },
     "smsHistory": {
       "title": "SMS history",
       "empty": "No SMS messages recorded for this call.",
@@ -475,6 +487,16 @@
       "bookingConfirmationTemplatePlaceholder": "Your appointment is booked for '{booking_start}'.",
       "missedCallTemplate": "Missed call template",
       "missedCallTemplatePlaceholder": "PlainVoice missed a call from '{customer_phone}'."
+    },
+    "handoff": {
+      "title": "Human Handoff",
+      "description": "If enabled with a phone number, PlainVoice records human handoff requests, alerts the owner when SMS notifications are configured, and creates a follow-up task. If disabled or missing a number, the agent takes a detailed message and does not claim it can transfer.",
+      "enabled": "Enable human handoff",
+      "phoneNumber": "Handoff phone number",
+      "phoneNumberPlaceholder": "+15145550102",
+      "urgentEnabled": "Treat urgent requests as urgent handoffs",
+      "fallbackMessage": "Fallback message",
+      "fallbackMessagePlaceholder": "I cannot connect you live right now, but I will take a detailed message and make sure the team follows up."
     },
     "days": {
       "monday": "Monday",

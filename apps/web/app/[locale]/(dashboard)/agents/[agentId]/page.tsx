@@ -38,6 +38,12 @@ export default async function AgentDetailPage({ params, searchParams }: Props) {
     .order("created_at", { ascending: false })
     .limit(10);
 
+  const { data: organization } = await supabase
+    .from("organizations")
+    .select("handoff_enabled, handoff_phone_number, urgent_handoff_enabled, handoff_fallback_message")
+    .eq("id", orgId)
+    .single();
+
   const recentCalls = calls ?? [];
   const totalCalls = recentCalls.length;
   const avgDuration =
@@ -180,6 +186,12 @@ export default async function AgentDetailPage({ params, searchParams }: Props) {
           ended: t("test.ended"),
         }}
         formLabels={formLabels}
+        handoffSettings={{
+          enabled: Boolean(organization?.handoff_enabled),
+          phoneNumber: organization?.handoff_phone_number ?? null,
+          urgentEnabled: organization?.urgent_handoff_enabled ?? true,
+          fallbackMessage: organization?.handoff_fallback_message ?? null,
+        }}
       />
     </div>
   );

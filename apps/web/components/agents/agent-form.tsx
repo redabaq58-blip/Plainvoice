@@ -29,6 +29,7 @@ import {
   MAX_DURATIONS,
   TONES,
   type VoiceAgentCreateInput,
+  type HandoffSettings,
 } from "@/lib/schemas/voice-agent";
 import {
   getTemplate,
@@ -118,6 +119,7 @@ type AgentFormProps = {
   mode: "create" | "edit";
   agentId?: string;
   defaultValues?: VoiceAgentCreateInput;
+  handoffSettings?: HandoffSettings;
   onSaved?: () => void;
 };
 
@@ -127,6 +129,7 @@ export function AgentForm({
   mode,
   agentId,
   defaultValues,
+  handoffSettings,
   onSaved,
 }: AgentFormProps) {
   const router = useRouter();
@@ -161,7 +164,7 @@ export function AgentForm({
 
   const currentLanguage = watch("language");
   const currentValues = watch();
-  const promptPreview = buildAgentSystemPrompt(currentValues);
+  const promptPreview = buildAgentSystemPrompt(currentValues, handoffSettings);
   const faqs = currentValues.knowledgeBase.faqs;
   const [vapiWarning, setVapiWarning] = useState<string | null>(null);
   const [selectedPackId, setSelectedPackId] = useState<DemoPackId | "">("");

@@ -1,7 +1,24 @@
 import { createBrowserClient } from "@repo/database";
 import { isAuthBypassed } from "@/lib/auth-bypass";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+function getApiUrl() {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (!apiUrl) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("Missing NEXT_PUBLIC_API_URL in production.");
+    }
+    return "http://localhost:8000";
+  }
+  if (
+    process.env.NODE_ENV === "production" &&
+    (apiUrl.startsWith("http://localhost") || apiUrl.startsWith("http://127.0.0.1"))
+  ) {
+    throw new Error("NEXT_PUBLIC_API_URL must not point to localhost in production.");
+  }
+  return apiUrl;
+}
+
+const API_URL = getApiUrl();
 
 /** Read the Supabase access token from the auth cookie (fallback for fresh client instances). */
 function getTokenFromCookie(): string | null {

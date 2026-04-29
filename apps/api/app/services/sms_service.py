@@ -44,9 +44,9 @@ def normalize_phone_number(value: str | None) -> str | None:
 
 def validate_sms_request(*, to: str | None, body: str | None, sender: str | None) -> str | None:
     if not twilio_service.credentials_configured():
-        return "Twilio credentials are not configured."
+        return twilio_service.missing_credentials_message()
     if not normalize_phone_number(sender):
-        return "SMS sender number is missing or invalid."
+        return "SMS sender number is missing or invalid. Configure a valid sender in Organization Settings."
     if not normalize_phone_number(to):
         return "SMS recipient number is missing or invalid."
     if not body or not body.strip():

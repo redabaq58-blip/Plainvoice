@@ -1,159 +1,211 @@
-# Turborepo starter
+# PlainVoice
 
-This Turborepo starter is maintained by the Turborepo core team.
+PlainVoice is a bilingual voice-agent dashboard for small businesses. It combines Supabase-backed organization data, a Next.js web app, a FastAPI backend, Vapi voice assistants, Twilio phone numbers/SMS, and Cal.com booking workflows.
 
-## Using this example
+Billing is intentionally frozen. Do not add Stripe, checkout, subscriptions, pricing UI, or payment logic until billing is explicitly reopened.
 
-Run the following command:
+## Stack
 
-```sh
-npx create-turbo@latest
-```
+- Web: Next.js 16, React 19, TypeScript, next-intl, Tailwind CSS
+- API: FastAPI, Pydantic settings, httpx
+- Database/auth: Supabase local development and Supabase Auth/RLS
+- Voice: Vapi assistants and web call widget
+- Phone/SMS: Twilio phone-number search, purchase, assignment, and SMS follow-up
+- Booking: Cal.com v2 availability and booking
+- Tooling: pnpm, Turborepo, ESLint, TypeScript
 
-## What's inside?
+## Required Tools
 
-This Turborepo includes the following packages/apps:
+- Node.js 22 recommended, Node 18 minimum per `package.json`
+- pnpm 10.33.0 via Corepack
+- Python 3.11+
+- Supabase CLI
+- Git
 
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+Enable pnpm through Corepack:
 
 ```sh
-cd my-turborepo
-turbo build
+corepack enable
+pnpm install
 ```
 
-Without global `turbo`, use your package manager:
+## Environment
+
+Copy the root example and fill in values:
 
 ```sh
-cd my-turborepo
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+cp .env.example .env
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+The API reads `.env` from its working directory. For local development, keep the root `.env` and copy or mirror the needed values into `apps/api/.env` if you run the API from `apps/api`.
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+Required for core app:
+
+- `NODE_ENV`: `development` locally, `production` in deployed environments.
+- `NEXT_PUBLIC_SUPABASE_URL`: Supabase project URL.
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Supabase anon key used by web/API RLS calls.
+- `SUPABASE_SERVICE_ROLE_KEY`: Server-only key for webhooks, local dev bypass fallback, and server-side setup.
+- `DATABASE_URL`: Postgres connection string when needed by tooling.
+- `PUBLIC_API_URL`: Public backend URL used by Vapi webhooks. Local default is `http://localhost:8000`.
+- `NEXT_PUBLIC_API_URL`: Frontend-to-API URL. Local default is `http://localhost:8000`.
+- `NEXT_PUBLIC_SITE_URL`: Web app URL for auth redirects. Local default is `http://localhost:3000`.
+
+Required for voice/phone/SMS:
+
+- `NEXT_PUBLIC_VAPI_PUBLIC_KEY`: Public Vapi key for the browser call widget.
+- `VAPI_PRIVATE_KEY`: Server-side Vapi API key for assistant and phone-number sync.
+- `VAPI_WEBHOOK_SECRET`: Reserved for webhook verification when enabled.
+- `TWILIO_ACCOUNT_SID`: Twilio account SID.
+- `TWILIO_AUTH_TOKEN`: Twilio auth token.
+- `TWILIO_PHONE_NUMBER`: Fallback SMS sender in E.164 format, for example `+15145550123`.
+
+Configured inside Organization Settings:
+
+- Cal.com API key
+- Cal.com event type ID
+- Cal.com username
+- SMS enabled/disabled
+- SMS sender phone number or explicit sender number
+- Owner notification phone
+- SMS follow-up templates
+
+## Local Supabase
+
+Start Supabase:
 
 ```sh
-turbo build --filter=docs
+supabase start
 ```
 
-Without global `turbo`:
+Reset the local database and apply seed data:
 
 ```sh
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+supabase db reset
 ```
 
-### Develop
+The seed creates the PlainVoice demo organization and demo agent used by local dev auth bypass:
 
-To develop all apps and packages, run the following command:
+- Demo org ID: `00000000-0000-0000-0000-000000000001`
+- Demo org slug: `plainvoice-demo`
+- Demo agent ID: `00000000-0000-0000-0000-000000000101`
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+Migrations are ordered under `supabase/migrations`. Do not rewrite historical migrations unless a production-blocking issue requires it.
+
+## Running Locally
+
+Run the full workspace dev command:
 
 ```sh
-cd my-turborepo
-turbo dev
+pnpm dev
 ```
 
-Without global `turbo`, use your package manager:
+Or run apps separately:
 
 ```sh
-cd my-turborepo
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
+pnpm --filter web dev
+pnpm --filter api dev
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+Expected local URLs:
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+- Web: `http://localhost:3000`
+- API: `http://localhost:8000`
+- API health: `http://localhost:8000/health`
+
+## Dev Auth Bypass
+
+The local bypass is for seeded development data only. It must never be enabled in production.
+
+To use it locally:
+
+```env
+NODE_ENV=development
+DEV_AUTH_BYPASS=true
+NEXT_PUBLIC_DEV_AUTH_BYPASS=true
+PUBLIC_API_URL=http://localhost:8000
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
+
+Safety rules enforced by code:
+
+- API bypass only works when `NODE_ENV !== "production"`.
+- API bypass only works when `DEV_AUTH_BYPASS=true`.
+- API bypass only works when both API URLs point to localhost or `127.0.0.1`.
+- Web bypass only works when `NODE_ENV !== "production"` and `NEXT_PUBLIC_DEV_AUTH_BYPASS=true`.
+- `DISABLE_AUTH` is not accepted as an API bypass switch.
+
+## Features Currently In Main
+
+- Phone-number purchase and agent assignment
+- Organization Settings
+- Settings persistence
+- Contacts CRM
+- Agent Builder and Knowledge Base
+- Cal.com booking integration
+- SMS follow-up
+- Dashboard Analytics
+- Onboarding Flow
+- PlainVoice CI with typecheck and lint
+
+## Testing Checklist
+
+Run these before opening or merging hardening/product PRs:
 
 ```sh
-turbo dev --filter=web
+pnpm check-types
+pnpm lint
+python -m compileall apps/api/app
 ```
 
-Without global `turbo`:
+Manual browser smoke paths:
 
-```sh
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
+- `/fr/dashboard`
+- `/fr/onboarding`
+- `/fr/settings`
+- `/fr/agents`
+- `/fr/phone-numbers`
+- `/fr/contacts`
+- `/fr/calls`
 
-### Remote Caching
+## CI
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+GitHub Actions lives in `.github/workflows/webpack.yml`. It currently:
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+- checks out the repo
+- enables Corepack
+- installs pnpm dependencies with `pnpm install --frozen-lockfile`
+- runs `pnpm check-types`
+- runs `pnpm lint`
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+Keep CI simple until deployment is finalized.
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+## Deployment Notes
 
-```sh
-cd my-turborepo
-turbo login
-```
+Before production deployment:
 
-Without global `turbo`, use your package manager:
+- Set `NODE_ENV=production`.
+- Keep `DEV_AUTH_BYPASS=false` and `NEXT_PUBLIC_DEV_AUTH_BYPASS=false`.
+- Use production Supabase URL/keys and never expose the service role key to the browser.
+- Set `PUBLIC_API_URL` to the deployed FastAPI URL reachable by Vapi webhooks.
+- Set `NEXT_PUBLIC_API_URL` to the frontend-accessible API URL.
+- Configure CORS for the deployed web origin.
+- Configure Vapi, Twilio, and organization-level Cal.com/SMS settings.
+- Run the testing checklist and smoke the main dashboard routes.
 
-```sh
-cd my-turborepo
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
+Suggested deployment split:
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+- Web: Vercel or equivalent Next.js hosting.
+- API: Railway, Fly.io, Render, or another FastAPI-compatible host.
+- Database/auth: Supabase production project.
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+## Out Of Scope For Now
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+- Billing
+- Stripe
+- Checkout
+- Subscriptions
+- Pricing UI
+- Landing page
+- Campaigns
+- White-label features
+- Analytics expansion

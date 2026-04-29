@@ -72,7 +72,7 @@ def _event_type_id(value: object) -> int | None:
 def _missing_credentials_result() -> dict:
     return {
         "ok": False,
-        "message": "Appointment booking is not configured yet. Please ask the business to connect Cal.com in Settings.",
+        "message": "Appointment booking is not configured yet. Add a Cal.com API key and event type ID in Organization Settings.",
     }
 
 
@@ -93,7 +93,7 @@ def validate_booking_settings(organization: dict) -> dict | None:
     if _event_type_id(organization.get("calcom_event_type_id")) is None:
         return {
             "ok": False,
-            "message": "The Cal.com event type ID is invalid. Please update Cal.com Settings.",
+            "message": "The Cal.com event type ID is invalid. Use the numeric event type ID from Cal.com Settings.",
         }
 
     return None

@@ -5,6 +5,8 @@ Wraps all Vapi HTTP calls using httpx.AsyncClient.
 
 from __future__ import annotations
 
+from typing import Any
+
 import httpx
 
 from app.config import settings
@@ -39,6 +41,13 @@ def _append_prompt_section(lines: list[str], title: str, value: object) -> None:
     trimmed = value.strip()
     if trimmed:
         lines.extend([f"\n## {title}", trimmed])
+
+
+def _normalize_knowledge_base(value: Any) -> dict[str, Any]:
+    """Accept legacy empty-list knowledge bases from older seeded data."""
+    if isinstance(value, dict):
+        return value
+    return {}
 
 
 def _language_instruction(language: str) -> str:
@@ -84,12 +93,12 @@ def build_agent_system_prompt(
     vertical: str,
     language: str,
     system_prompt: str | None,
-    knowledge_base: dict | None,
+    knowledge_base: Any,
     transfer_phone_number: str | None = None,
     handoff_settings: dict | None = None,
 ) -> str:
     """Build the final system prompt sent to Vapi."""
-    kb = knowledge_base or {}
+    kb = _normalize_knowledge_base(knowledge_base)
     handoff = handoff_settings or {}
     tone = kb.get("tone") if isinstance(kb.get("tone"), str) else "professional"
     handoff_phone = handoff.get("phone_number") if isinstance(handoff.get("phone_number"), str) else None
@@ -218,7 +227,7 @@ def build_vapi_config(
     voice_id: str | None,
     language: str,
     max_call_duration_minutes: int,
-    knowledge_base: dict | None,
+    knowledge_base: Any,
     transfer_phone_number: str | None = None,
     handoff_settings: dict | None = None,
 ) -> dict:

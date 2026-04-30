@@ -38,6 +38,7 @@ type CallItem = {
   outcome: string | null;
   urgency: string;
   follow_up_required: boolean;
+  quality_rating: string;
   agentName: string | null;
 };
 
@@ -61,6 +62,7 @@ type Filters = {
   phone: string;
   outcome: string;
   followUp: string;
+  quality: string;
 };
 
 type Labels = {
@@ -86,12 +88,14 @@ type Labels = {
     sentiment: string;
     outcome: string;
     urgency: string;
+    quality: string;
     actions: string;
   };
   direction: { inbound: string; outbound: string; web: string };
   sentiment: { positive: string; neutral: string; negative: string; unknown: string };
   outcome: Record<string, string>;
   urgency: Record<string, string>;
+  quality: Record<string, string>;
   pagination: { previous: string; next: string; page: string };
 };
 
@@ -113,9 +117,15 @@ function formatDuration(seconds: number | null): string {
   return m > 0 ? `${m}m ${s}s` : `${s}s`;
 }
 
-function formatDate(iso: string | null): string {
+function formatDate(iso: string | null, locale: string): string {
   if (!iso) return "—";
-  return new Date(iso).toLocaleString();
+  return new Intl.DateTimeFormat(locale, {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(iso));
 }
 
 const DIRECTION_VARIANT: Record<string, "default" | "secondary" | "outline"> = {
@@ -163,6 +173,13 @@ const URGENCY_VARIANT: Record<string, "default" | "secondary" | "destructive" | 
   low: "outline",
   normal: "secondary",
   urgent: "destructive",
+};
+
+const QUALITY_VARIANT: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+  good: "default",
+  okay: "secondary",
+  bad: "destructive",
+  unreviewed: "outline",
 };
 
 export function CallsClient({
@@ -393,6 +410,25 @@ export function CallsClient({
             </SelectContent>
           </Select>
         </div>
+
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-muted-foreground">&nbsp;</span>
+          <Select
+            defaultValue={filters.quality}
+            onValueChange={(v) => updateFilter("quality", v)}
+          >
+            <SelectTrigger className="w-[170px]">
+              <SelectValue placeholder={labels.table.quality} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{labels.table.quality}</SelectItem>
+              <SelectItem value="unreviewed">{labels.quality.unreviewed}</SelectItem>
+              <SelectItem value="good">{labels.quality.good}</SelectItem>
+              <SelectItem value="okay">{labels.quality.okay}</SelectItem>
+              <SelectItem value="bad">{labels.quality.bad}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Table */}
@@ -413,13 +449,14 @@ export function CallsClient({
                 <TableHead>{labels.table.sentiment}</TableHead>
                 <TableHead>{labels.table.outcome}</TableHead>
                 <TableHead>{labels.table.urgency}</TableHead>
+                <TableHead>{labels.table.quality}</TableHead>
                 <TableHead className="text-right">{labels.table.actions}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {calls.map((call) => (
                 <TableRow key={call.id}>
-                  <TableCell className="text-sm">{formatDate(call.started_at)}</TableCell>
+                  <TableCell className="text-sm">{formatDate(call.started_at, locale)}</TableCell>
                   <TableCell>
                     <Badge variant={DIRECTION_VARIANT[call.direction] ?? "outline"}>
                       {labels.direction[call.direction as keyof typeof labels.direction] ?? call.direction}
@@ -456,6 +493,11 @@ export function CallsClient({
                   <TableCell>
                     <Badge variant={URGENCY_VARIANT[call.urgency] ?? "outline"}>
                       {labels.urgency[call.urgency] ?? call.urgency}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={QUALITY_VARIANT[call.quality_rating] ?? "outline"}>
+                      {labels.quality[call.quality_rating] ?? call.quality_rating}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">

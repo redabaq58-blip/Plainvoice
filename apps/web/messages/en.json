@@ -180,6 +180,8 @@
         "bookedLast7": "Booked last 7 days",
         "urgentCalls": "Urgent calls",
         "followUpRequired": "Follow-up calls",
+        "callsNeedingReview": "Needs review",
+        "flaggedQuality": "Flagged quality",
         "missedOpportunities": "Missed opportunities",
         "smsSent": "SMS sent",
         "smsFailed": "SMS failed",
@@ -196,6 +198,7 @@
         "failedBooking": "Failed booking attempt",
         "priorityTask": "High-priority task",
         "missedOpportunity": "Missed opportunity",
+        "flaggedQuality": "Flagged call quality",
         "failedAutomation": "Failed automation",
         "unknownCaller": "Unknown caller",
         "unknownRecipient": "Unknown recipient"
@@ -213,6 +216,8 @@
       "newLeadCalls": "New lead calls",
       "urgentCalls": "Urgent calls",
       "followUpRequired": "Follow-up required",
+      "callsNeedingReview": "Calls needing review",
+      "flaggedQuality": "Bad quality calls",
       "missedOpportunities": "Missed opportunities",
       "smsSentFailed": "SMS sent / failed"
     },
@@ -270,6 +275,7 @@
       "sentiment": "Sentiment",
       "outcome": "Outcome",
       "urgency": "Urgency",
+      "quality": "Quality",
       "actions": "Actions"
     },
     "direction": {
@@ -310,6 +316,24 @@
       "normal": "Normal",
       "urgent": "Urgent"
     },
+    "quality": {
+      "good": "Good",
+      "okay": "Okay",
+      "bad": "Bad",
+      "unreviewed": "Unreviewed"
+    },
+    "qualityIssues": {
+      "misunderstood_caller": "Misunderstood caller",
+      "wrong_answer": "Wrong answer",
+      "hallucination": "Made something up",
+      "too_robotic": "Too robotic",
+      "poor_transcription": "Poor transcription",
+      "booking_failed": "Booking failed",
+      "transfer_failed": "Transfer failed",
+      "sms_issue": "SMS issue",
+      "caller_frustrated": "Caller frustrated",
+      "needs_follow_up": "Needs follow-up"
+    },
     "status": {
       "queued": "Queued",
       "ringing": "Ringing",
@@ -341,6 +365,15 @@
       "ownerNotes": "Owner notes",
       "save": "Save outcome",
       "reviewedAt": "Reviewed {date}"
+    },
+    "qualityReview": {
+      "title": "Call quality review",
+      "rating": "Quality rating",
+      "current": "Current status",
+      "issueCategories": "Issue categories",
+      "notes": "Review notes",
+      "save": "Save quality review",
+      "reviewedAt": "Quality reviewed {date}"
     },
     "handoff": {
       "title": "Human handoff",
@@ -1021,6 +1054,7 @@
     "derived": {
       "callNeedsFollowUp": "Call needs follow-up.",
       "urgentCall": "Urgent call needs attention.",
+      "qualityBad": "Bad call quality needs review.",
       "smsFailed": "SMS follow-up failed.",
       "bookingFailed": "Booking automation failed.",
       "newLead": "New contact created."
@@ -1061,6 +1095,7 @@
       "human_transfer_unavailable": "Human transfer unavailable",
       "call_outcome_updated": "Call outcome updated",
       "workflow_recipe_executed": "Workflow recipe executed",
+      "quality_bad": "Bad call quality",
       "urgent_call": "Urgent call",
       "call_follow_up": "Call follow-up",
       "new_lead": "New lead"

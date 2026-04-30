@@ -349,7 +349,12 @@ export type Database = {
           outcome: string | null
           owner_notes: string | null
           phone_number_id: string | null
+          issue_categories: string[]
+          quality_rating: string
+          quality_reviewed_at: string | null
+          quality_reviewed_by: string | null
           recording_url: string | null
+          review_notes: string | null
           reviewed_at: string | null
           sentiment: string | null
           sms_status: Json
@@ -382,7 +387,12 @@ export type Database = {
           outcome?: string | null
           owner_notes?: string | null
           phone_number_id?: string | null
+          issue_categories?: string[]
+          quality_rating?: string
+          quality_reviewed_at?: string | null
+          quality_reviewed_by?: string | null
           recording_url?: string | null
+          review_notes?: string | null
           reviewed_at?: string | null
           sentiment?: string | null
           sms_status?: Json
@@ -415,7 +425,12 @@ export type Database = {
           outcome?: string | null
           owner_notes?: string | null
           phone_number_id?: string | null
+          issue_categories?: string[]
+          quality_rating?: string
+          quality_reviewed_at?: string | null
+          quality_reviewed_by?: string | null
           recording_url?: string | null
+          review_notes?: string | null
           reviewed_at?: string | null
           sentiment?: string | null
           sms_status?: Json

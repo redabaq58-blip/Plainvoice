@@ -180,6 +180,8 @@
         "bookedLast7": "Reservations 7 derniers jours",
         "urgentCalls": "Appels urgents",
         "followUpRequired": "Appels a suivre",
+        "callsNeedingReview": "A reviser",
+        "flaggedQuality": "Qualite signalee",
         "missedOpportunities": "Occasions manquees",
         "smsSent": "SMS envoyes",
         "smsFailed": "SMS echoues",
@@ -196,6 +198,7 @@
         "failedBooking": "Reservation echouee",
         "priorityTask": "Tache prioritaire",
         "missedOpportunity": "Occasion manquee",
+        "flaggedQuality": "Qualite d'appel signalee",
         "failedAutomation": "Automatisation echouee",
         "unknownCaller": "Appelant inconnu",
         "unknownRecipient": "Destinataire inconnu"
@@ -213,6 +216,8 @@
       "newLeadCalls": "Appels nouveaux prospects",
       "urgentCalls": "Appels urgents",
       "followUpRequired": "Suivi requis",
+      "callsNeedingReview": "Appels a reviser",
+      "flaggedQuality": "Appels de mauvaise qualite",
       "missedOpportunities": "Occasions manquees",
       "smsSentFailed": "SMS envoyes / echoues"
     },
@@ -270,6 +275,7 @@
       "sentiment": "Sentiment",
       "outcome": "Resultat",
       "urgency": "Urgence",
+      "quality": "Qualite",
       "actions": "Actions"
     },
     "direction": {
@@ -310,6 +316,24 @@
       "normal": "Normale",
       "urgent": "Urgente"
     },
+    "quality": {
+      "good": "Bon",
+      "okay": "Correct",
+      "bad": "Mauvais",
+      "unreviewed": "Non revise"
+    },
+    "qualityIssues": {
+      "misunderstood_caller": "Appelant mal compris",
+      "wrong_answer": "Mauvaise reponse",
+      "hallucination": "Information inventee",
+      "too_robotic": "Trop robotique",
+      "poor_transcription": "Mauvaise transcription",
+      "booking_failed": "Reservation echouee",
+      "transfer_failed": "Transfert echoue",
+      "sms_issue": "Probleme SMS",
+      "caller_frustrated": "Appelant frustre",
+      "needs_follow_up": "Suivi requis"
+    },
     "status": {
       "queued": "En file",
       "ringing": "Sonnerie",
@@ -341,6 +365,15 @@
       "ownerNotes": "Notes proprietaire",
       "save": "Enregistrer le resultat",
       "reviewedAt": "Revise {date}"
+    },
+    "qualityReview": {
+      "title": "Revision qualite de l'appel",
+      "rating": "Cote de qualite",
+      "current": "Statut actuel",
+      "issueCategories": "Categories de probleme",
+      "notes": "Notes de revision",
+      "save": "Enregistrer la revision qualite",
+      "reviewedAt": "Qualite revisee {date}"
     },
     "handoff": {
       "title": "Transfert humain",
@@ -1021,6 +1054,7 @@
     "derived": {
       "callNeedsFollowUp": "Appel a suivre.",
       "urgentCall": "Appel urgent a traiter.",
+      "qualityBad": "Mauvaise qualite d'appel a reviser.",
       "smsFailed": "Le suivi SMS a echoue.",
       "bookingFailed": "La reservation a echoue.",
       "newLead": "Nouveau contact cree."
@@ -1061,6 +1095,7 @@
       "human_transfer_unavailable": "Transfert humain indisponible",
       "call_outcome_updated": "Resultat d'appel mis a jour",
       "workflow_recipe_executed": "Recette d'automatisation executee",
+      "quality_bad": "Mauvaise qualite d'appel",
       "urgent_call": "Appel urgent",
       "call_follow_up": "Suivi d'appel",
       "new_lead": "Nouveau prospect"

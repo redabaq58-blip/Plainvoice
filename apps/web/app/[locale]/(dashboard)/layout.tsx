@@ -44,6 +44,7 @@ export default async function DashboardLayout({ children, params }: Props) {
         inbox: t("nav.inbox"),
         tasks: t("nav.tasks"),
         onboarding: t("nav.onboarding"),
+        implementation: t("nav.implementation"),
         activity: t("nav.activity"),
         contacts: t("nav.contacts"),
         agents: t("nav.agents"),

@@ -15,7 +15,8 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: "PlainVoice",
-  description: "AI Voice Agent SaaS for Quebec small businesses",
+  description:
+    "AI front desk and follow-up engine for small and medium businesses.",
 };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {

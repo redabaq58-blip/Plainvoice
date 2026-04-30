@@ -17,7 +17,16 @@ Use separate staging domains, keys, phone numbers, and calendars. Staging must n
 
 Recommended: Vercel for `apps/web`.
 
-Set the project root to `apps/web` if the host supports monorepo project roots. The build should install from the repository root with pnpm and run the web build through the workspace. If the host cannot infer workspace dependencies, use the root as the project directory and configure the build command for the web app.
+Use these Vercel settings for the fastest public demo:
+
+- GitHub repo: `redabaq58-blip/Plainvoice`
+- Framework: Next.js
+- Root directory: `apps/web`
+- Install command: `pnpm install`
+- Build command: `cd ../.. && pnpm turbo build --filter=web`
+- Output directory: `.next`
+
+The public landing/product-tour routes are `/`, `/fr`, and `/en`. They do not require signup.
 
 Required staging web values:
 
@@ -33,7 +42,13 @@ Do not set `NEXT_PUBLIC_API_URL` or `NEXT_PUBLIC_SITE_URL` to localhost in stagi
 
 ## API Hosting
 
-Recommended: Railway, Render, Fly.io, or another host that can run FastAPI with Python 3.11+.
+Recommended: Railway for today, or another host that can run FastAPI with Python 3.11+.
+
+Railway start command:
+
+```sh
+cd apps/api && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+```
 
 The API must expose:
 

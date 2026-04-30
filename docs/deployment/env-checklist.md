@@ -56,3 +56,42 @@ These values are stored per organization in the app and should be configured fro
 - Both dev auth bypass flags are `false`.
 - Supabase Auth redirect URLs include the staging web origin.
 - Provider dashboards use staging API/web URLs, not localhost.
+
+## Vercel Web Env
+
+Use these for the web project:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+NEXT_PUBLIC_API_URL=
+NEXT_PUBLIC_SITE_URL=
+NEXT_PUBLIC_VAPI_PUBLIC_KEY=
+NEXT_PUBLIC_DEV_AUTH_BYPASS=false
+NODE_ENV=production
+```
+
+Do not add service-role or provider secrets to the Vercel web project.
+
+## Railway API Env
+
+Use these for the API project:
+
+```env
+NODE_ENV=production
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+PUBLIC_API_URL=
+NEXT_PUBLIC_API_URL=
+NEXT_PUBLIC_SITE_URL=
+VAPI_PRIVATE_KEY=
+VAPI_WEBHOOK_SECRET=
+TWILIO_ACCOUNT_SID=
+TWILIO_AUTH_TOKEN=
+TWILIO_PHONE_NUMBER=
+VAPI_MODEL_PROVIDER=
+VAPI_MODEL_NAME=
+DEV_AUTH_BYPASS=false
+NEXT_PUBLIC_DEV_AUTH_BYPASS=false
+```

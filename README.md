@@ -1,37 +1,65 @@
 # PlainVoice
 
-PlainVoice is a bilingual voice-agent dashboard for small businesses. It combines Supabase-backed organization data, a Next.js web app, a FastAPI backend, Vapi voice assistants, Twilio phone numbers/SMS, and Cal.com booking workflows.
+PlainVoice is an AI front desk and follow-up engine for small and medium businesses.
 
-Billing is intentionally frozen. Do not add Stripe, checkout, subscriptions, pricing UI, or payment logic until billing is explicitly reopened.
+It gives a business a 24/7 receptionist, lead capture assistant, booking coordinator, and follow-up system. PlainVoice answers calls, captures leads, books appointments when calendar setup is connected, sends SMS follow-ups, creates contacts and follow-up tasks, and shows the owner exactly what happened.
+
+Billing is frozen. Do not add Stripe, checkout, subscriptions, pricing logic, payment logic, campaigns, white-label, mass texting, or unrelated product features until billing is explicitly reopened.
+
+## Current Product
+
+PlainVoice currently includes:
+
+- Public landing/product-tour page with no signup required
+- Phone-number purchase and assignment
+- Settings
+- Contacts CRM
+- Calls and call detail
+- Call Outcomes
+- SMS follow-up
+- SMS History
+- Automation Logs
+- Business Inbox
+- Follow-up Tasks
+- Owner Digest
+- Human Handoff
+- Workflow Recipes
+- Client Solution Builder
+- Call Quality Review
+- Voice Quality Consolidation
+- Industry Demo Packs
+- Staging Deployment Readiness
+
+PlainVoice is built for Canada, Quebec, and North America, with bilingual English/French workflows where the product needs them.
 
 ## Stack
 
 - Web: Next.js 16, React 19, TypeScript, next-intl, Tailwind CSS
 - API: FastAPI, Pydantic settings, httpx
-- Database/auth: Supabase local development and Supabase Auth/RLS
-- Voice: Vapi assistants and web call widget
+- Database/auth: Supabase, migrations, Supabase Auth/RLS
+- Voice: Vapi assistants and browser call widget
 - Phone/SMS: Twilio phone-number search, purchase, assignment, and SMS follow-up
-- Booking: Cal.com v2 availability and booking
+- Booking: Cal.com availability and booking
 - Tooling: pnpm, Turborepo, ESLint, TypeScript
 
-## Required Tools
+## Local Setup
 
-- Node.js 22 recommended, Node 18 minimum per `package.json`
-- pnpm 10.33.0 via Corepack
+Install required tools:
+
+- Node.js 22 recommended, Node 18 minimum
+- pnpm 10.33.0 through Corepack
 - Python 3.11+
 - Supabase CLI
 - Git
 
-Enable pnpm through Corepack:
+Install dependencies:
 
 ```sh
 corepack enable
 pnpm install
 ```
 
-## Environment
-
-Copy the root example and fill in values:
+Copy environment values:
 
 ```sh
 cp .env.example .env
@@ -39,117 +67,72 @@ cp .env.example .env
 
 The API reads `.env` from its working directory. For local development, keep the root `.env` and copy or mirror the needed values into `apps/api/.env` if you run the API from `apps/api`.
 
-Required for core app:
-
-- `NODE_ENV`: `development` locally, `production` in deployed environments.
-- `NEXT_PUBLIC_SUPABASE_URL`: Supabase project URL.
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Supabase anon key used by web/API RLS calls.
-- `SUPABASE_SERVICE_ROLE_KEY`: Server-only key for webhooks, local dev bypass fallback, and server-side setup.
-- `DATABASE_URL`: Postgres connection string when needed by tooling.
-- `PUBLIC_API_URL`: Public backend URL used by Vapi webhooks. Local default is `http://localhost:8000`.
-- `NEXT_PUBLIC_API_URL`: Frontend-to-API URL. Local default is `http://localhost:8000`.
-- `NEXT_PUBLIC_SITE_URL`: Web app URL for auth redirects. Local default is `http://localhost:3000`.
-
-Required for voice/phone/SMS:
-
-- `NEXT_PUBLIC_VAPI_PUBLIC_KEY`: Public Vapi key for the browser call widget.
-- `VAPI_PRIVATE_KEY`: Server-side Vapi API key for assistant and phone-number sync.
-- `VAPI_WEBHOOK_SECRET`: Reserved for webhook verification when enabled.
-- `TWILIO_ACCOUNT_SID`: Twilio account SID.
-- `TWILIO_AUTH_TOKEN`: Twilio auth token.
-- `TWILIO_PHONE_NUMBER`: Fallback SMS sender in E.164 format, for example `+15145550123`.
-
-Configured inside Organization Settings:
-
-- Cal.com API key
-- Cal.com event type ID
-- Cal.com username
-- SMS enabled/disabled
-- SMS sender phone number or explicit sender number
-- Owner notification phone
-- SMS follow-up templates
-
-## Local Supabase
-
-Start Supabase:
+Start Supabase locally:
 
 ```sh
 supabase start
-```
-
-Reset the local database and apply seed data:
-
-```sh
 supabase db reset
 ```
 
-The seed creates the PlainVoice demo organization and demo agent used by local dev auth bypass:
-
-- Demo org ID: `00000000-0000-0000-0000-000000000001`
-- Demo org slug: `plainvoice-demo`
-- Demo agent ID: `00000000-0000-0000-0000-000000000101`
-
-Migrations are ordered under `supabase/migrations`. Do not rewrite historical migrations unless a production-blocking issue requires it.
-
-## Running Locally
-
-Run the full workspace dev command:
+Run the app:
 
 ```sh
 pnpm dev
 ```
 
-Or run apps separately:
-
-```sh
-pnpm --filter web dev
-pnpm --filter api dev
-```
-
-Expected local URLs:
+Local URLs:
 
 - Web: `http://localhost:3000`
 - API: `http://localhost:8000`
 - API health: `http://localhost:8000/health`
 
-## Dev Auth Bypass
+## Required Environment Variables
 
-The local bypass is for seeded development data only. It must never be enabled in production.
+Core:
 
-To use it locally:
+- `NODE_ENV`
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `DATABASE_URL`
+- `PUBLIC_API_URL`
+- `NEXT_PUBLIC_API_URL`
+- `NEXT_PUBLIC_SITE_URL`
+- `DEV_AUTH_BYPASS`
+- `NEXT_PUBLIC_DEV_AUTH_BYPASS`
 
-```env
-NODE_ENV=development
-DEV_AUTH_BYPASS=true
-NEXT_PUBLIC_DEV_AUTH_BYPASS=true
-PUBLIC_API_URL=http://localhost:8000
-NEXT_PUBLIC_API_URL=http://localhost:8000
-```
+Voice, phone, and SMS:
 
-Safety rules enforced by code:
+- `NEXT_PUBLIC_VAPI_PUBLIC_KEY`
+- `VAPI_PRIVATE_KEY`
+- `VAPI_WEBHOOK_SECRET`
+- `VAPI_MODEL_PROVIDER`
+- `VAPI_MODEL_NAME`
+- `TWILIO_ACCOUNT_SID`
+- `TWILIO_AUTH_TOKEN`
+- `TWILIO_PHONE_NUMBER`
 
-- API bypass only works when `NODE_ENV !== "production"`.
-- API bypass only works when `DEV_AUTH_BYPASS=true`.
-- API bypass only works when both API URLs point to localhost or `127.0.0.1`.
-- Web bypass only works when `NODE_ENV !== "production"` and `NEXT_PUBLIC_DEV_AUTH_BYPASS=true`.
-- `DISABLE_AUTH` is not accepted as an API bypass switch.
+Configured per organization inside the app:
 
-## Features Currently In Main
+- Cal.com API key
+- Cal.com event type ID
+- Cal.com username
+- SMS enabled/disabled
+- SMS sender phone number
+- Owner notification phone
+- SMS follow-up templates
+- Business profile, hours, timezone, and voice settings
 
-- Phone-number purchase and agent assignment
-- Organization Settings
-- Settings persistence
-- Contacts CRM
-- Agent Builder and Knowledge Base
-- Cal.com booking integration
-- SMS follow-up
-- Dashboard Analytics
-- Onboarding Flow
-- PlainVoice CI with typecheck and lint
+Production safety:
 
-## Testing Checklist
+- `NODE_ENV=production`
+- `DEV_AUTH_BYPASS=false`
+- `NEXT_PUBLIC_DEV_AUTH_BYPASS=false`
+- Never expose `SUPABASE_SERVICE_ROLE_KEY`, `DATABASE_URL`, `VAPI_PRIVATE_KEY`, `TWILIO_AUTH_TOKEN`, or Cal.com keys to the browser.
 
-Run these before opening or merging hardening/product PRs:
+## Validation
+
+Run before demo deploys:
 
 ```sh
 pnpm check-types
@@ -159,53 +142,41 @@ python -m compileall apps/api/app
 
 Manual browser smoke paths:
 
+- `/`
+- `/fr`
+- `/en`
 - `/fr/dashboard`
-- `/fr/onboarding`
 - `/fr/settings`
 - `/fr/agents`
-- `/fr/phone-numbers`
-- `/fr/contacts`
+- `/fr/inbox`
+- `/fr/tasks`
 - `/fr/calls`
 
-## CI
+## Deployment
 
-GitHub Actions lives in `.github/workflows/webpack.yml`. It currently:
+Fastest public demo today:
 
-- checks out the repo
-- enables Corepack
-- installs pnpm dependencies with `pnpm install --frozen-lockfile`
-- runs `pnpm check-types`
-- runs `pnpm lint`
+- Deploy only `apps/web` to Vercel.
+- Use the public landing/product-tour page as the demo URL.
+- Do not deploy the API unless a live dashboard/API demo is needed.
 
-Keep CI simple until deployment is finalized.
+Full staging demo:
 
-## Deployment Notes
+- Web: Vercel
+- API: Railway
+- Database/auth: hosted Supabase project
+- Voice/SMS/booking: Vapi, Twilio, and Cal.com staging-safe credentials
 
-Before production deployment:
+Step-by-step deployment docs:
 
-- Set `NODE_ENV=production`.
-- Keep `DEV_AUTH_BYPASS=false` and `NEXT_PUBLIC_DEV_AUTH_BYPASS=false`.
-- Use production Supabase URL/keys and never expose the service role key to the browser.
-- Set `PUBLIC_API_URL` to the deployed FastAPI URL reachable by Vapi webhooks.
-- Set `NEXT_PUBLIC_API_URL` to the frontend-accessible API URL.
-- Configure CORS for the deployed web origin.
-- Configure Vapi, Twilio, and organization-level Cal.com/SMS settings.
-- Run the testing checklist and smoke the main dashboard routes.
+- [Deploy today](docs/DEPLOY_TODAY.md)
+- [Product status](docs/PRODUCT_STATUS.md)
+- [Roadmap](docs/ROADMAP.md)
+- [Staging deployment](docs/deployment/staging.md)
+- [Environment checklist](docs/deployment/env-checklist.md)
+- [Webhook checklist](docs/deployment/webhook-checklist.md)
+- [Manual call QA](tests/manual-call-qa.md)
 
-Suggested deployment split:
+## Current Limits
 
-- Web: Vercel or equivalent Next.js hosting.
-- API: Railway, Fly.io, Render, or another FastAPI-compatible host.
-- Database/auth: Supabase production project.
-
-## Out Of Scope For Now
-
-- Billing
-- Stripe
-- Checkout
-- Subscriptions
-- Pricing UI
-- Landing page
-- Campaigns
-- White-label features
-- Analytics expansion
+The repository is demo-ready, not fully production-validated. Real live call quality, production Twilio number routing, production Vapi webhooks, production Cal.com booking, production SMS delivery, and accent testing still need controlled validation before claiming production readiness.

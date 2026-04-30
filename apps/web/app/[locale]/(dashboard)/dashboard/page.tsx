@@ -49,8 +49,10 @@ type CallRow = {
   ended_reason: string | null;
   from_number: string | null;
   follow_up_required: boolean;
+  issue_categories: string[];
   lead_status: string;
   outcome: string | null;
+  quality_rating: string;
   sms_status: Json;
   started_at: string | null;
   status: string;
@@ -264,14 +266,14 @@ export default async function DashboardPage({ params, searchParams }: Props) {
     supabase
       .from("calls")
       .select(
-        "id, agent_id, booking_result, duration_seconds, ended_reason, follow_up_required, from_number, lead_status, outcome, sms_status, started_at, status, summary, urgency",
+        "id, agent_id, booking_result, duration_seconds, ended_reason, follow_up_required, from_number, issue_categories, lead_status, outcome, quality_rating, sms_status, started_at, status, summary, urgency",
       )
       .eq("org_id", orgId)
       .gte("started_at", monthStart)
       .order("started_at", { ascending: false }),
     supabase
       .from("calls")
-      .select("id, agent_id, booking_result, duration_seconds, ended_reason, follow_up_required, from_number, lead_status, outcome, sms_status, started_at, status, summary, urgency")
+      .select("id, agent_id, booking_result, duration_seconds, ended_reason, follow_up_required, from_number, issue_categories, lead_status, outcome, quality_rating, sms_status, started_at, status, summary, urgency")
       .eq("org_id", orgId)
       .order("started_at", { ascending: false })
       .limit(5),
@@ -295,7 +297,7 @@ export default async function DashboardPage({ params, searchParams }: Props) {
     supabase
       .from("calls")
       .select(
-        "id, agent_id, booking_result, duration_seconds, ended_reason, follow_up_required, from_number, lead_status, outcome, sms_status, started_at, status, summary, urgency",
+        "id, agent_id, booking_result, duration_seconds, ended_reason, follow_up_required, from_number, issue_categories, lead_status, outcome, quality_rating, sms_status, started_at, status, summary, urgency",
       )
       .eq("org_id", orgId)
       .gte("started_at", earliestDigestStart)
@@ -361,6 +363,8 @@ export default async function DashboardPage({ params, searchParams }: Props) {
   const newLeadCalls = monthCalls.filter((call) => call.outcome === "new_lead").length;
   const urgentCalls = monthCalls.filter((call) => call.urgency === "urgent" || call.outcome === "emergency").length;
   const followUpRequiredCalls = monthCalls.filter((call) => call.follow_up_required).length;
+  const callsNeedingReview = monthCalls.filter((call) => call.quality_rating === "unreviewed").length;
+  const flaggedQualityCalls = monthCalls.filter((call) => call.quality_rating === "bad").length;
   const sms = smsCounts(monthCalls);
   const digestBookedToday = todayCalls.filter((call) =>
     call.outcome === "booked_appointment" || isSuccessfulBooking(call.booking_result),
@@ -398,6 +402,8 @@ export default async function DashboardPage({ params, searchParams }: Props) {
     { label: t("digest.metrics.bookedLast7"), value: String(digestBookedLast7), icon: CalendarCheck },
     { label: t("digest.metrics.urgentCalls"), value: String(digestUrgentCalls.length), icon: Siren },
     { label: t("digest.metrics.followUpRequired"), value: String(digestFollowUps.length), icon: PhoneMissed },
+    { label: t("digest.metrics.callsNeedingReview"), value: String(activeCalls.filter((call) => call.quality_rating === "unreviewed").length), icon: ClipboardList },
+    { label: t("digest.metrics.flaggedQuality"), value: String(activeCalls.filter((call) => call.quality_rating === "bad").length), icon: AlertTriangle },
     { label: t("digest.metrics.smsSent"), value: String(digestSmsSent), icon: MessageSquareText },
     { label: t("digest.metrics.smsFailed"), value: String(digestSmsFailedRows.length), icon: MessageSquareWarning },
     { label: t("digest.metrics.openTasks"), value: String(openTasks.length), icon: ClipboardList },
@@ -438,6 +444,16 @@ export default async function DashboardPage({ params, searchParams }: Props) {
       timestamp: call.started_at ?? new Date().toISOString(),
       icon: CalendarCheck,
     })),
+    ...activeCalls
+      .filter((call) => call.quality_rating === "bad")
+      .map((call) => ({
+        key: `quality-${call.id}`,
+        label: t("digest.attention.flaggedQuality"),
+        detail: attentionDetail(call.summary, call.from_number ?? t("digest.attention.unknownCaller")),
+        href: `/${locale}/calls/${call.id}`,
+        timestamp: call.started_at ?? new Date().toISOString(),
+        icon: AlertTriangle,
+      })),
     ...openPriorityTasks.map((task) => ({
       key: `task-${task.id}`,
       label: t("digest.attention.priorityTask"),
@@ -487,6 +503,8 @@ export default async function DashboardPage({ params, searchParams }: Props) {
     { label: t("metrics.newLeadCalls"), value: String(newLeadCalls), icon: UserPlus },
     { label: t("metrics.urgentCalls"), value: String(urgentCalls), icon: Siren },
     { label: t("metrics.followUpRequired"), value: String(followUpRequiredCalls), icon: PhoneMissed },
+    { label: t("metrics.callsNeedingReview"), value: String(callsNeedingReview), icon: ClipboardList },
+    { label: t("metrics.flaggedQuality"), value: String(flaggedQualityCalls), icon: AlertTriangle },
     { label: t("metrics.smsSentFailed"), value: `${sms.sent}/${sms.failed}`, icon: MessageSquareText },
   ] as const;
 

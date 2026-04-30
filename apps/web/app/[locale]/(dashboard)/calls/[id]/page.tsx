@@ -65,6 +65,13 @@ const STATUS_VARIANT: Record<string, "default" | "secondary" | "destructive" | "
   info: "outline",
 };
 
+const QUALITY_VARIANT: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+  good: "default",
+  okay: "secondary",
+  bad: "destructive",
+  unreviewed: "outline",
+};
+
 const OUTCOMES = [
   "booked_appointment",
   "new_lead",
@@ -89,6 +96,19 @@ const LEAD_STATUSES = [
 ] as const;
 
 const URGENCIES = ["low", "normal", "urgent"] as const;
+const QUALITY_RATINGS = ["good", "okay", "bad", "unreviewed"] as const;
+const ISSUE_CATEGORIES = [
+  "misunderstood_caller",
+  "wrong_answer",
+  "hallucination",
+  "too_robotic",
+  "poor_transcription",
+  "booking_failed",
+  "transfer_failed",
+  "sms_issue",
+  "caller_frustrated",
+  "needs_follow_up",
+] as const;
 type WorkflowRecipeId =
   | "new_lead_create_task"
   | "urgent_call_notify_owner"
@@ -406,6 +426,49 @@ export default async function CallDetailPage({ params }: Props) {
     revalidatePath(`/${locale}/activity`);
   }
 
+  async function updateQualityReview(formData: FormData) {
+    "use server";
+
+    const currentOrgId = await getCurrentOrgId();
+    const qualityRating = nullableFormValue(formData, "qualityRating") ?? "unreviewed";
+    const issueCategories = formData
+      .getAll("issueCategories")
+      .map((value) => String(value))
+      .filter((value): value is (typeof ISSUE_CATEGORIES)[number] =>
+        ISSUE_CATEGORIES.includes(value as (typeof ISSUE_CATEGORIES)[number]),
+      );
+
+    if (
+      !currentOrgId ||
+      !QUALITY_RATINGS.includes(qualityRating as (typeof QUALITY_RATINGS)[number])
+    ) {
+      return;
+    }
+
+    const reviewNotes = nullableFormValue(formData, "reviewNotes");
+    const reviewedAt = qualityRating === "unreviewed" ? null : new Date().toISOString();
+    const sb = await createContactsSupabaseClient();
+
+    await sb
+      .from("calls")
+      .update({
+        quality_rating: qualityRating,
+        issue_categories: issueCategories,
+        review_notes: reviewNotes,
+        quality_reviewed_at: reviewedAt,
+        quality_reviewed_by: null,
+        follow_up_required:
+          resolvedCall.follow_up_required || issueCategories.includes("needs_follow_up"),
+      })
+      .eq("org_id", currentOrgId)
+      .eq("id", resolvedCall.id);
+
+    revalidatePath(`/${locale}/calls/${id}`);
+    revalidatePath(`/${locale}/calls`);
+    revalidatePath(`/${locale}/dashboard`);
+    revalidatePath(`/${locale}/inbox`);
+  }
+
   const transcript = Array.isArray(call.transcript)
     ? (call.transcript as TranscriptEntry[])
     : null;
@@ -586,6 +649,72 @@ export default async function CallDetailPage({ params }: Props) {
             {call.reviewed_at && (
               <p className="text-xs text-muted-foreground md:col-span-2">
                 {t("outcomeReview.reviewedAt", { date: formatDateTime(call.reviewed_at) })}
+              </p>
+            )}
+          </form>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm font-medium">{t("qualityReview.title")}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form action={updateQualityReview} className="grid gap-4 md:grid-cols-2">
+            <label className="space-y-2 text-sm font-medium">
+              {t("qualityReview.rating")}
+              <select
+                name="qualityRating"
+                defaultValue={call.quality_rating ?? "unreviewed"}
+                className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+              >
+                {QUALITY_RATINGS.map((rating) => (
+                  <option key={rating} value={rating}>
+                    {t(`quality.${rating}` as Parameters<typeof t>[0])}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className="space-y-2 text-sm font-medium">
+              {t("qualityReview.current")}
+              <div>
+                <Badge variant={QUALITY_VARIANT[call.quality_rating ?? "unreviewed"] ?? "outline"}>
+                  {t(`quality.${call.quality_rating ?? "unreviewed"}` as Parameters<typeof t>[0])}
+                </Badge>
+              </div>
+            </div>
+            <fieldset className="space-y-2 md:col-span-2">
+              <legend className="text-sm font-medium">{t("qualityReview.issueCategories")}</legend>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {ISSUE_CATEGORIES.map((category) => (
+                  <label key={category} className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      name="issueCategories"
+                      value={category}
+                      defaultChecked={(call.issue_categories ?? []).includes(category)}
+                      className="h-4 w-4 rounded border"
+                    />
+                    {t(`qualityIssues.${category}` as Parameters<typeof t>[0])}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <label className="space-y-2 text-sm font-medium md:col-span-2">
+              {t("qualityReview.notes")}
+              <textarea
+                name="reviewNotes"
+                defaultValue={call.review_notes ?? ""}
+                rows={3}
+                className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+              />
+            </label>
+            <div className="flex flex-wrap gap-2 md:col-span-2">
+              <Button type="submit">{t("qualityReview.save")}</Button>
+            </div>
+            {call.quality_reviewed_at && (
+              <p className="text-xs text-muted-foreground md:col-span-2">
+                {t("qualityReview.reviewedAt", { date: formatDateTime(call.quality_reviewed_at) })}
               </p>
             )}
           </form>

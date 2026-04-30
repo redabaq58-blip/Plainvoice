@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
-import { createSupabaseServerClient } from "@/lib/supabase";
-import { isAuthBypassed } from "@/lib/auth-bypass";
+import { redirect } from "next/navigation";
+import { createContactsSupabaseClient, getCurrentOrgId } from "@/lib/contacts-server";
 import { CallsClient } from "@/components/calls/calls-client";
 
 const PAGE_SIZE = 20;
@@ -16,6 +16,7 @@ type Props = {
     phone?: string;
     outcome?: string;
     followUp?: string;
+    quality?: string;
   }>;
 };
 
@@ -32,6 +33,7 @@ type CallRow = {
   outcome: string | null;
   urgency: string;
   follow_up_required: boolean;
+  quality_rating: string;
   agent_id: string | null;
   voice_agents: { name: string } | null;
 };
@@ -44,119 +46,26 @@ function formatDuration(seconds: number | null): string {
 }
 
 export default async function CallsPage({ params, searchParams }: Props) {
-  await params;
+  const { locale } = await params;
   const sp = await searchParams;
 
   const page = Math.max(1, parseInt(sp.page ?? "1", 10));
   const from = (page - 1) * PAGE_SIZE;
 
   const t = await getTranslations("calls");
-  if (isAuthBypassed()) {
-    return (
-      <CallsClient
-        calls={[]}
-        stats={{
-          totalCallsThisMonth: 0,
-          totalMinutesThisMonth: 0,
-          avgDuration: formatDuration(0),
-          sentimentBreakdown: {
-            positive: 0,
-            neutral: 0,
-            negative: 0,
-            unknown: 0,
-          },
-        }}
-        page={page}
-        totalPages={1}
-        totalCount={0}
-        orgId=""
-        filters={{
-          direction: sp.direction ?? "all",
-          sentiment: sp.sentiment ?? "all",
-          dateFrom: sp.dateFrom ?? "",
-          dateTo: sp.dateTo ?? "",
-          phone: sp.phone ?? "",
-          outcome: sp.outcome ?? "all",
-          followUp: sp.followUp ?? "all",
-        }}
-        labels={{
-          title: t("title"),
-          empty: { title: t("empty.title"), description: t("empty.description") },
-          stats: {
-            totalCalls: t("stats.totalCalls"),
-            totalMinutes: t("stats.totalMinutes"),
-            avgDuration: t("stats.avgDuration"),
-            sentiment: t("stats.sentiment"),
-          },
-          filters: {
-            dateFrom: t("filters.dateFrom"),
-            dateTo: t("filters.dateTo"),
-            allDirections: t("filters.allDirections"),
-            allSentiments: t("filters.allSentiments"),
-            allOutcomes: t("filters.allOutcomes"),
-            followUpRequired: t("filters.followUpRequired"),
-            allFollowUp: t("filters.allFollowUp"),
-            phonePlaceholder: t("filters.phonePlaceholder"),
-          },
-          table: {
-            date: t("table.date"),
-            direction: t("table.direction"),
-            from: t("table.from"),
-            duration: t("table.duration"),
-            agent: t("table.agent"),
-            sentiment: t("table.sentiment"),
-            outcome: t("table.outcome"),
-            urgency: t("table.urgency"),
-            actions: t("table.actions"),
-          },
-          direction: {
-            inbound: t("direction.inbound"),
-            outbound: t("direction.outbound"),
-            web: t("direction.web"),
-          },
-          sentiment: {
-            positive: t("sentiment.positive"),
-            neutral: t("sentiment.neutral"),
-            negative: t("sentiment.negative"),
-            unknown: t("sentiment.unknown"),
-          },
-          outcome: {
-            booked_appointment: t("outcome.booked_appointment"),
-            new_lead: t("outcome.new_lead"),
-            existing_customer: t("outcome.existing_customer"),
-            needs_follow_up: t("outcome.needs_follow_up"),
-            emergency: t("outcome.emergency"),
-            quote_request: t("outcome.quote_request"),
-            price_question: t("outcome.price_question"),
-            complaint: t("outcome.complaint"),
-            spam: t("outcome.spam"),
-            wrong_number: t("outcome.wrong_number"),
-            no_action_needed: t("outcome.no_action_needed"),
-            unknown: t("outcome.unknown"),
-          },
-          urgency: {
-            low: t("urgency.low"),
-            normal: t("urgency.normal"),
-            urgent: t("urgency.urgent"),
-          },
-          pagination: {
-            previous: t("pagination.previous"),
-            next: t("pagination.next"),
-            page: t("pagination.page", { current: page, total: 1 }),
-          },
-        }}
-      />
-    );
+  const orgId = await getCurrentOrgId();
+  if (!orgId) {
+    redirect(`/${locale}/dashboard`);
   }
-
-  const supabase = await createSupabaseServerClient();
+  const supabase = await createContactsSupabaseClient();
 
   // Build server-side filters
   let query = supabase
     .from("calls")
-    .select("id, direction, status, sentiment, from_number, to_number, started_at, duration_seconds, credits_used, outcome, urgency, follow_up_required, agent_id, voice_agents(name)", {
+    .select("id, direction, status, sentiment, from_number, to_number, started_at, duration_seconds, credits_used, outcome, urgency, follow_up_required, quality_rating, agent_id, voice_agents(name)", {
       count: "exact",
     })
+    .eq("org_id", orgId)
     .order("started_at", { ascending: false });
 
   if (sp.direction && sp.direction !== "all") {
@@ -189,6 +98,9 @@ export default async function CallsPage({ params, searchParams }: Props) {
   if (sp.followUp === "required") {
     query = query.eq("follow_up_required", true);
   }
+  if (sp.quality && sp.quality !== "all") {
+    query = query.eq("quality_rating", sp.quality);
+  }
 
   const { data, count } = await query.range(from, from + PAGE_SIZE - 1);
 
@@ -203,6 +115,7 @@ export default async function CallsPage({ params, searchParams }: Props) {
   const { data: monthCalls } = await supabase
     .from("calls")
     .select("duration_seconds, sentiment")
+    .eq("org_id", orgId)
     .gte("started_at", monthStart);
 
   const monthData = monthCalls ?? [];
@@ -231,14 +144,6 @@ export default async function CallsPage({ params, searchParams }: Props) {
     sentimentBreakdown,
   };
 
-  // Resolve org_id for realtime subscription
-  const { data: member } = await supabase
-    .from("organization_members")
-    .select("org_id")
-    .limit(1)
-    .single();
-  const orgId: string = member?.org_id ?? "";
-
   return (
     <CallsClient
       calls={calls.map((c) => ({
@@ -253,6 +158,7 @@ export default async function CallsPage({ params, searchParams }: Props) {
         outcome: c.outcome,
         urgency: c.urgency,
         follow_up_required: c.follow_up_required,
+        quality_rating: c.quality_rating,
         agentName: c.voice_agents?.name ?? null,
       }))}
       stats={stats}
@@ -268,6 +174,7 @@ export default async function CallsPage({ params, searchParams }: Props) {
         phone: sp.phone ?? "",
         outcome: sp.outcome ?? "all",
         followUp: sp.followUp ?? "all",
+        quality: sp.quality ?? "all",
       }}
       labels={{
         title: t("title"),
@@ -297,6 +204,7 @@ export default async function CallsPage({ params, searchParams }: Props) {
           sentiment: t("table.sentiment"),
           outcome: t("table.outcome"),
           urgency: t("table.urgency"),
+          quality: t("table.quality"),
           actions: t("table.actions"),
         },
         direction: {
@@ -328,6 +236,12 @@ export default async function CallsPage({ params, searchParams }: Props) {
           low: t("urgency.low"),
           normal: t("urgency.normal"),
           urgent: t("urgency.urgent"),
+        },
+        quality: {
+          good: t("quality.good"),
+          okay: t("quality.okay"),
+          bad: t("quality.bad"),
+          unreviewed: t("quality.unreviewed"),
         },
         pagination: {
           previous: t("pagination.previous"),

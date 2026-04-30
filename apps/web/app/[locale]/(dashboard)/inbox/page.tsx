@@ -49,9 +49,12 @@ type CallRow = {
   ended_reason: string | null;
   follow_up_required: boolean;
   from_number: string | null;
+  issue_categories: string[];
   lead_status: string;
   outcome: string | null;
   owner_notes: string | null;
+  quality_rating: string;
+  review_notes: string | null;
   sentiment: string | null;
   sms_status: Json;
   started_at: string | null;
@@ -178,7 +181,8 @@ function needsFollowUp(call: CallRow) {
     reason.includes("no-answer") ||
     reason.includes("missed") ||
     call.duration_seconds === 0 ||
-    call.sentiment === "negative"
+    call.sentiment === "negative" ||
+    call.issue_categories.includes("needs_follow_up")
   );
 }
 
@@ -282,7 +286,7 @@ export default async function InboxPage({ params, searchParams }: Props) {
       .limit(150),
     supabase
       .from("calls")
-      .select("id, booking_result, duration_seconds, ended_reason, follow_up_required, from_number, lead_status, outcome, owner_notes, sentiment, sms_status, started_at, status, summary, urgency, created_at")
+      .select("id, booking_result, duration_seconds, ended_reason, follow_up_required, from_number, issue_categories, lead_status, outcome, owner_notes, quality_rating, review_notes, sentiment, sms_status, started_at, status, summary, urgency, created_at")
       .eq("org_id", orgId)
       .gte("created_at", since)
       .order("created_at", { ascending: false })
@@ -361,6 +365,24 @@ export default async function InboxPage({ params, searchParams }: Props) {
         contactId: null,
         message: call.owner_notes || call.summary || t("derived.callNeedsFollowUp"),
         error: call.ended_reason,
+        timestamp,
+      });
+    }
+
+    if (call.quality_rating === "bad") {
+      items.push({
+        key: `call:${call.id}:quality-bad`,
+        itemType: "call",
+        id: call.id,
+        kind: "failed",
+        typeLabelKey: "quality_bad",
+        status: "failed",
+        source: "system",
+        phone: call.from_number,
+        callId: call.id,
+        contactId: null,
+        message: call.review_notes || call.summary || t("derived.qualityBad"),
+        error: null,
         timestamp,
       });
     }

@@ -181,19 +181,26 @@
       "new_lead": "Nouveau prospect",
       "existing_customer": "Client existant",
       "needs_follow_up": "Suivi requis",
-      "urgent": "Urgent / urgence",
+      "emergency": "Urgence",
+      "quote_request": "Demande de soumission",
+      "price_question": "Question de prix",
+      "complaint": "Plainte",
       "spam": "Spam",
       "wrong_number": "Mauvais numero",
-      "price_shopper": "Compare les prix",
-      "complaint": "Plainte",
-      "missed_opportunity": "Occasion manquee",
-      "other": "Autre",
+      "no_action_needed": "Aucune action requise",
       "unknown": "Non revise"
+    },
+    "leadStatus": {
+      "none": "Aucun",
+      "new": "Nouveau",
+      "qualified": "Qualifie",
+      "unqualified": "Non qualifie",
+      "existing_customer": "Client existant",
+      "needs_follow_up": "Suivi requis"
     },
     "urgency": {
       "low": "Faible",
       "normal": "Normale",
-      "high": "Haute",
       "urgent": "Urgente"
     },
     "status": {
@@ -217,6 +224,7 @@
     "outcomeReview": {
       "title": "Resultat de l'appel",
       "outcome": "Resultat d'affaires",
+      "leadStatus": "Statut du prospect",
       "urgency": "Urgence",
       "followUpRequired": "Suivi requis",
       "ownerNotes": "Notes proprietaire",

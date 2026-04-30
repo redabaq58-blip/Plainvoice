@@ -49,6 +49,7 @@ type CallRow = {
   ended_reason: string | null;
   follow_up_required: boolean;
   from_number: string | null;
+  lead_status: string;
   outcome: string | null;
   owner_notes: string | null;
   sentiment: string | null;
@@ -171,7 +172,7 @@ function needsFollowUp(call: CallRow) {
   return (
     call.follow_up_required ||
     call.outcome === "needs_follow_up" ||
-    call.outcome === "missed_opportunity" ||
+    call.lead_status === "needs_follow_up" ||
     call.status === "failed" ||
     call.status === "cancelled" ||
     reason.includes("no-answer") ||
@@ -281,7 +282,7 @@ export default async function InboxPage({ params, searchParams }: Props) {
       .limit(150),
     supabase
       .from("calls")
-      .select("id, booking_result, duration_seconds, ended_reason, follow_up_required, from_number, outcome, owner_notes, sentiment, sms_status, started_at, status, summary, urgency, created_at")
+      .select("id, booking_result, duration_seconds, ended_reason, follow_up_required, from_number, lead_status, outcome, owner_notes, sentiment, sms_status, started_at, status, summary, urgency, created_at")
       .eq("org_id", orgId)
       .gte("created_at", since)
       .order("created_at", { ascending: false })
@@ -328,7 +329,7 @@ export default async function InboxPage({ params, searchParams }: Props) {
     const timestamp = call.started_at ?? call.created_at;
     const items: InboxItem[] = [];
 
-    if (call.urgency === "urgent" || call.outcome === "urgent") {
+    if (call.urgency === "urgent" || call.outcome === "emergency") {
       items.push({
         key: `call:${call.id}:urgent-outcome`,
         itemType: "call",

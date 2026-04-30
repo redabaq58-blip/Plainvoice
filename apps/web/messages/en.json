@@ -4,6 +4,7 @@
     "inbox": "Inbox",
     "tasks": "Tasks",
     "onboarding": "Onboarding",
+    "implementation": "Implementation",
     "contacts": "Contacts",
     "agents": "Agents",
     "calls": "Calls",
@@ -15,6 +16,112 @@
     "loading": "Loading...",
     "error": "An error occurred",
     "save": "Save"
+  },
+  "implementation": {
+    "title": "Implementation Console",
+    "subtitle": "Validate whether this SMB client is ready for a demo, a real rollout, or more setup work.",
+    "emptyValue": "Not set",
+    "checklistTitle": "Setup readiness",
+    "actionsTitle": "Quick actions",
+    "statuses": {
+      "notReady": "Not ready",
+      "partiallyReady": "Partially ready",
+      "demoReady": "Demo ready",
+      "productionReady": "Production ready"
+    },
+    "score": {
+      "title": "Client readiness",
+      "summary": "{complete} of {total} setup checks complete",
+      "agent": "Primary agent",
+      "phone": "Assigned number",
+      "recipes": "Recipes enabled"
+    },
+    "demoPack": {
+      "title": "Vertical and demo pack",
+      "detected": "Detected from {agent}. Use this pack as the baseline for client-specific setup and QA.",
+      "empty": "No agent exists yet. Start from a vertical demo pack to speed up the first client build.",
+      "vertical": "Vertical: {vertical}",
+      "create": "Create from pack",
+      "edit": "Edit agent",
+      "packs": {
+        "dental_clinic": "Dental clinic",
+        "med_spa": "Med spa",
+        "auto_repair": "Auto repair",
+        "real_estate": "Real estate",
+        "home_services": "Home services",
+        "legal_office": "Legal office",
+        "restaurant": "Restaurant",
+        "hvac_plumbing": "HVAC and plumbing"
+      }
+    },
+    "checklist": {
+      "businessProfile": {
+        "title": "Business profile complete",
+        "description": "Name, timezone, and at least one owner contact field are set."
+      },
+      "businessHours": {
+        "title": "Business hours configured",
+        "description": "The client has usable hours for routing, booking, and expectation setting."
+      },
+      "agentExists": {
+        "title": "Agent exists",
+        "description": "At least one receptionist agent is ready to configure or test."
+      },
+      "agentKnowledge": {
+        "title": "Agent knowledge base",
+        "description": "The agent has prompt, first-message, or knowledge-base content."
+      },
+      "phoneAssigned": {
+        "title": "Phone number assigned",
+        "description": "An active phone number is connected to an agent."
+      },
+      "bookingConfigured": {
+        "title": "Cal.com configured",
+        "description": "Booking is enabled with the Cal.com credentials needed for scheduling."
+      },
+      "smsConfigured": {
+        "title": "SMS follow-up configured",
+        "description": "SMS is enabled with a sender and follow-up template."
+      },
+      "workflowRecipes": {
+        "title": "Workflow recipes configured",
+        "description": "{count} recipe toggles are enabled for follow-up automation."
+      },
+      "contactsExist": {
+        "title": "Contacts exist",
+        "description": "{count} contacts are available for CRM validation."
+      },
+      "qaChecklist": {
+        "title": "Call QA checklist linked",
+        "description": "{count} calls are available to review against the QA checklist."
+      }
+    },
+    "actions": {
+      "settings": {
+        "title": "Go to Settings",
+        "description": "Business, booking, SMS, handoff, and recipes"
+      },
+      "agent": {
+        "title": "Create or edit Agent",
+        "description": "Vertical, knowledge base, and voice behavior"
+      },
+      "phoneNumbers": {
+        "title": "Phone Numbers",
+        "description": "Purchase, import, and assign numbers"
+      },
+      "workflows": {
+        "title": "Workflow Recipes",
+        "description": "Enable common automation paths"
+      },
+      "tasks": {
+        "title": "Follow-up Tasks",
+        "description": "Check owner action items"
+      },
+      "qa": {
+        "title": "Call QA Checklist",
+        "description": "Review test calls and outcomes"
+      }
+    }
   },
   "auth": {
     "login": {

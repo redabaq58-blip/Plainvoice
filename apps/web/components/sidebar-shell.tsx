@@ -8,6 +8,7 @@ import {
   Inbox,
   ClipboardList,
   ListChecks,
+  MonitorCog,
   Activity,
   Contact,
   Bot,
@@ -26,6 +27,7 @@ type NavLabels = {
   inbox: string;
   tasks: string;
   onboarding: string;
+  implementation: string;
   activity: string;
   contacts: string;
   agents: string;
@@ -48,6 +50,7 @@ const navItems = (locale: string, labels: NavLabels) => [
   { href: `/${locale}/inbox`, label: labels.inbox, icon: Inbox },
   { href: `/${locale}/tasks`, label: labels.tasks, icon: ClipboardList },
   { href: `/${locale}/onboarding`, label: labels.onboarding, icon: ListChecks },
+  { href: `/${locale}/implementation`, label: labels.implementation, icon: MonitorCog },
   { href: `/${locale}/activity`, label: labels.activity, icon: Activity },
   { href: `/${locale}/contacts`, label: labels.contacts, icon: Contact },
   { href: `/${locale}/agents`, label: labels.agents, icon: Bot },

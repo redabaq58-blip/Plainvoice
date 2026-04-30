@@ -4,6 +4,7 @@
     "inbox": "Boite de reception",
     "tasks": "Taches",
     "onboarding": "Demarrage",
+    "implementation": "Implementation",
     "contacts": "Contacts",
     "agents": "Agents",
     "calls": "Appels",
@@ -15,6 +16,112 @@
     "loading": "Chargement...",
     "error": "Une erreur s'est produite",
     "save": "Enregistrer"
+  },
+  "implementation": {
+    "title": "Console d'implementation",
+    "subtitle": "Validez si ce client PME est pret pour une demo, un deploiement reel ou plus de configuration.",
+    "emptyValue": "Non configure",
+    "checklistTitle": "Preparation de configuration",
+    "actionsTitle": "Actions rapides",
+    "statuses": {
+      "notReady": "Pas pret",
+      "partiallyReady": "Partiellement pret",
+      "demoReady": "Pret pour demo",
+      "productionReady": "Pret pour production"
+    },
+    "score": {
+      "title": "Preparation client",
+      "summary": "{complete} sur {total} controles de configuration termines",
+      "agent": "Agent principal",
+      "phone": "Numero assigne",
+      "recipes": "Recettes activees"
+    },
+    "demoPack": {
+      "title": "Vertical et pack demo",
+      "detected": "Detecte depuis {agent}. Utilisez ce pack comme base pour la configuration et la QA client.",
+      "empty": "Aucun agent n'existe encore. Commencez avec un pack demo vertical pour accelerer le premier montage client.",
+      "vertical": "Vertical: {vertical}",
+      "create": "Creer depuis un pack",
+      "edit": "Modifier l'agent",
+      "packs": {
+        "dental_clinic": "Clinique dentaire",
+        "med_spa": "Med spa",
+        "auto_repair": "Garage auto",
+        "real_estate": "Immobilier",
+        "home_services": "Services a domicile",
+        "legal_office": "Cabinet juridique",
+        "restaurant": "Restaurant",
+        "hvac_plumbing": "CVAC et plomberie"
+      }
+    },
+    "checklist": {
+      "businessProfile": {
+        "title": "Profil d'entreprise complet",
+        "description": "Le nom, le fuseau horaire et au moins un contact proprietaire sont configures."
+      },
+      "businessHours": {
+        "title": "Heures d'ouverture configurees",
+        "description": "Le client a des heures utilisables pour le routage, la reservation et les attentes."
+      },
+      "agentExists": {
+        "title": "Agent existant",
+        "description": "Au moins un agent receptionniste est pret a configurer ou tester."
+      },
+      "agentKnowledge": {
+        "title": "Base de connaissances agent",
+        "description": "L'agent contient un prompt, un premier message ou une base de connaissances."
+      },
+      "phoneAssigned": {
+        "title": "Numero assigne",
+        "description": "Un numero actif est connecte a un agent."
+      },
+      "bookingConfigured": {
+        "title": "Cal.com configure",
+        "description": "La reservation est activee avec les identifiants Cal.com requis."
+      },
+      "smsConfigured": {
+        "title": "Suivi SMS configure",
+        "description": "Le SMS est active avec un expediteur et un modele de suivi."
+      },
+      "workflowRecipes": {
+        "title": "Recettes de workflow configurees",
+        "description": "{count} recettes sont activees pour l'automatisation du suivi."
+      },
+      "contactsExist": {
+        "title": "Contacts existants",
+        "description": "{count} contacts sont disponibles pour valider le CRM."
+      },
+      "qaChecklist": {
+        "title": "Checklist QA d'appels liee",
+        "description": "{count} appels sont disponibles pour verifier la checklist QA."
+      }
+    },
+    "actions": {
+      "settings": {
+        "title": "Aller aux parametres",
+        "description": "Entreprise, reservation, SMS, transfert et recettes"
+      },
+      "agent": {
+        "title": "Creer ou modifier l'agent",
+        "description": "Vertical, base de connaissances et comportement vocal"
+      },
+      "phoneNumbers": {
+        "title": "Numeros",
+        "description": "Acheter, importer et assigner les numeros"
+      },
+      "workflows": {
+        "title": "Recettes de workflow",
+        "description": "Activer les automatisations courantes"
+      },
+      "tasks": {
+        "title": "Taches de suivi",
+        "description": "Verifier les actions proprietaire"
+      },
+      "qa": {
+        "title": "Checklist QA d'appels",
+        "description": "Reviser les appels de test et resultats"
+      }
+    }
   },
   "auth": {
     "login": {

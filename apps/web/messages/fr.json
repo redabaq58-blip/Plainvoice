@@ -221,6 +221,10 @@
       "defaultCallTitle": "Faire un suivi avec {phone}",
       "unknownCaller": "l'appelant"
     },
+    "workflowTasks": {
+      "quoteRequest": "Preparer une soumission pour {phone}",
+      "complaint": "Reviser la plainte de {phone}"
+    },
     "outcomeReview": {
       "title": "Resultat de l'appel",
       "outcome": "Resultat d'affaires",
@@ -309,7 +313,8 @@
       "owner_notification_skipped": "Notification proprietaire ignoree",
       "human_transfer_requested": "Transfert humain demande",
       "human_transfer_unavailable": "Transfert humain indisponible",
-      "call_outcome_updated": "Resultat d'appel mis a jour"
+      "call_outcome_updated": "Resultat d'appel mis a jour",
+      "workflow_recipe_executed": "Recette d'automatisation executee"
     }
   },
   "phoneNumbers": {
@@ -505,6 +510,62 @@
       "urgentEnabled": "Traiter les demandes urgentes comme transferts urgents",
       "fallbackMessage": "Message de repli",
       "fallbackMessagePlaceholder": "Je ne peux pas vous connecter en direct maintenant, mais je vais prendre un message detaille et l'equipe fera un suivi."
+    },
+    "workflow": {
+      "title": "Recettes d'automatisation",
+      "description": "Activez des automatisations simples de reception sans creer de flux complexe.",
+      "trigger": "Declencheur",
+      "action": "Action",
+      "recipes": {
+        "missed_call_text_back": {
+          "name": "Texto apres appel manque",
+          "description": "Signale les appels manques pour un rappel SMS rapide via le flux SMS existant.",
+          "trigger": "Appel termine comme manque ou sans reponse",
+          "action": "Journaliser la recette et preparer le suivi SMS"
+        },
+        "new_lead_create_task": {
+          "name": "Tache nouveau prospect",
+          "description": "Cree une tache proprietaire quand un appel devient un prospect nouveau ou qualifie.",
+          "trigger": "Resultat d'appel enregistre",
+          "action": "Creer une tache de suivi"
+        },
+        "urgent_call_notify_owner": {
+          "name": "Alerte appel urgent",
+          "description": "Signale les appels urgents au proprietaire avec la surface de notification existante.",
+          "trigger": "Appel urgent ou resultat urgence",
+          "action": "Journaliser la recette de notification"
+        },
+        "booking_failed_create_task": {
+          "name": "Tache reservation echouee",
+          "description": "Cree une tache quand l'automatisation de reservation ne peut pas terminer.",
+          "trigger": "Reservation echouee",
+          "action": "Creer une tache de suivi"
+        },
+        "no_handoff_take_message_create_task": {
+          "name": "Tache transfert indisponible",
+          "description": "Cree une tache quand l'appelant voulait une personne mais le transfert etait indisponible.",
+          "trigger": "Transfert humain indisponible",
+          "action": "Creer une tache de suivi"
+        },
+        "quote_request_create_task": {
+          "name": "Tache demande de soumission",
+          "description": "Cree une tache quand un appel est marque comme demande de soumission.",
+          "trigger": "Resultat d'appel enregistre",
+          "action": "Creer une tache de suivi"
+        },
+        "complaint_create_task": {
+          "name": "Tache plainte",
+          "description": "Cree une tache prioritaire quand un appel est marque comme plainte.",
+          "trigger": "Resultat d'appel enregistre",
+          "action": "Creer une tache de suivi"
+        },
+        "sms_failed_create_inbox_item": {
+          "name": "Alerte SMS echoue",
+          "description": "Garde les echecs SMS visibles dans la boite d'affaires.",
+          "trigger": "SMS echoue",
+          "action": "Journaliser la recette"
+        }
+      }
     },
     "days": {
       "monday": "Lundi",
@@ -811,7 +872,8 @@
       "owner_notification_skipped": "Notification proprietaire ignoree",
       "human_transfer_requested": "Transfert humain demande",
       "human_transfer_unavailable": "Transfert humain indisponible",
-      "call_outcome_updated": "Resultat d'appel mis a jour"
+      "call_outcome_updated": "Resultat d'appel mis a jour",
+      "workflow_recipe_executed": "Recette d'automatisation executee"
     }
   },
   "inbox": {
@@ -891,6 +953,7 @@
       "human_transfer_requested": "Transfert humain demande",
       "human_transfer_unavailable": "Transfert humain indisponible",
       "call_outcome_updated": "Resultat d'appel mis a jour",
+      "workflow_recipe_executed": "Recette d'automatisation executee",
       "urgent_call": "Appel urgent",
       "call_follow_up": "Suivi d'appel",
       "new_lead": "Nouveau prospect"

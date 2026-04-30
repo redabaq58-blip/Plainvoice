@@ -89,10 +89,33 @@ const LEAD_STATUSES = [
 ] as const;
 
 const URGENCIES = ["low", "normal", "urgent"] as const;
+type WorkflowRecipeId =
+  | "new_lead_create_task"
+  | "urgent_call_notify_owner"
+  | "quote_request_create_task"
+  | "complaint_create_task";
 
 function nullableFormValue(formData: FormData, key: string) {
   const value = String(formData.get(key) ?? "").trim();
   return value || null;
+}
+
+function isWorkflowRecipeEnabled(value: unknown, recipeId: WorkflowRecipeId) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return false;
+  }
+  const recipe = (value as Record<string, unknown>)[recipeId];
+  if (recipe && typeof recipe === "object" && "enabled" in recipe) {
+    return Boolean((recipe as { enabled?: unknown }).enabled);
+  }
+  return Boolean(recipe);
+}
+
+function callOutcomeTaskTitle(kind: "quote_request" | "complaint", phone: string | null) {
+  const caller = phone ?? "caller";
+  return kind === "quote_request"
+    ? `Prepare quote request follow-up for ${caller}`
+    : `Review complaint follow-up for ${caller}`;
 }
 
 export default async function CallDetailPage({ params }: Props) {
@@ -275,10 +298,112 @@ export default async function CallDetailPage({ params }: Props) {
       },
     });
 
+    const { data: orgSettings } = await sb
+      .from("organizations")
+      .select("workflow_recipes")
+      .eq("id", currentOrgId)
+      .single();
+    const workflowRecipes = orgSettings?.workflow_recipes;
+    const taskDescription = [
+      resolvedCall.summary,
+      ownerNotes ? `Owner notes: ${ownerNotes}` : null,
+      outcome ? `Outcome: ${outcome}` : null,
+      `Urgency: ${urgency}`,
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    const recipeTasks: Array<{
+      recipeId: WorkflowRecipeId;
+      title: string;
+      priority: "normal" | "high" | "urgent";
+      shouldRun: boolean;
+    }> = [
+      {
+        recipeId: "new_lead_create_task",
+        title: defaultTaskTitle,
+        priority: "normal",
+        shouldRun:
+          outcome === "new_lead" ||
+          leadStatus === "new" ||
+          leadStatus === "qualified",
+      },
+      {
+        recipeId: "quote_request_create_task",
+        title: callOutcomeTaskTitle("quote_request", resolvedCall.from_number),
+        priority: "normal",
+        shouldRun: outcome === "quote_request",
+      },
+      {
+        recipeId: "complaint_create_task",
+        title: callOutcomeTaskTitle("complaint", resolvedCall.from_number),
+        priority: "high",
+        shouldRun: outcome === "complaint",
+      },
+    ];
+
+    for (const recipe of recipeTasks) {
+      if (!recipe.shouldRun || !isWorkflowRecipeEnabled(workflowRecipes, recipe.recipeId)) {
+        continue;
+      }
+      await sb.from("follow_up_tasks").insert({
+        org_id: currentOrgId,
+        title: recipe.title,
+        description: taskDescription || null,
+        call_id: resolvedCall.id,
+        contact_id: contact?.id ?? null,
+        agent_id: resolvedCall.agent_id,
+        priority: recipe.priority,
+        source: "automation_event",
+      });
+      await sb.from("automation_events").insert({
+        org_id: currentOrgId,
+        event_type: "workflow_recipe_executed",
+        status: "success",
+        source: "system",
+        call_id: resolvedCall.id,
+        contact_id: contact?.id ?? null,
+        agent_id: resolvedCall.agent_id,
+        phone_number: resolvedCall.from_number,
+        message: `Workflow recipe ${recipe.recipeId} created a follow-up task.`,
+        metadata: {
+          recipe_id: recipe.recipeId,
+          trigger: "call_outcome_saved",
+          action: "create_follow_up_task",
+          task_created: true,
+        },
+      });
+    }
+
+    if (
+      (urgency === "urgent" || outcome === "emergency") &&
+      isWorkflowRecipeEnabled(workflowRecipes, "urgent_call_notify_owner")
+    ) {
+      await sb.from("automation_events").insert({
+        org_id: currentOrgId,
+        event_type: "workflow_recipe_executed",
+        status: "success",
+        source: "system",
+        call_id: resolvedCall.id,
+        contact_id: contact?.id ?? null,
+        agent_id: resolvedCall.agent_id,
+        phone_number: resolvedCall.from_number,
+        message: "Workflow recipe flagged urgent call for owner attention.",
+        metadata: {
+          recipe_id: "urgent_call_notify_owner",
+          trigger: "call_outcome_saved",
+          action: "notify_owner",
+          task_created: false,
+        },
+      });
+    }
+
     revalidatePath(`/${locale}/calls/${id}`);
     revalidatePath(`/${locale}/calls`);
     revalidatePath(`/${locale}/dashboard`);
     revalidatePath(`/${locale}/inbox`);
+    revalidatePath(`/${locale}/tasks`);
+    revalidatePath(`/${locale}/activity`);
   }
 
   const transcript = Array.isArray(call.transcript)

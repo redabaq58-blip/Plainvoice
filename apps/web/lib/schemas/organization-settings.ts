@@ -13,6 +13,16 @@ export const DAYS = [
 export const LANGUAGES = ["fr", "en", "bilingual"] as const;
 export const VOICE_PROVIDERS = ["elevenlabs", "azure", "deepgram"] as const;
 export const MAX_CALL_DURATIONS = [5, 10, 15, 20] as const;
+export const WORKFLOW_RECIPE_IDS = [
+  "missed_call_text_back",
+  "new_lead_create_task",
+  "urgent_call_notify_owner",
+  "booking_failed_create_task",
+  "no_handoff_take_message_create_task",
+  "quote_request_create_task",
+  "complaint_create_task",
+  "sms_failed_create_inbox_item",
+] as const;
 
 const timeSchema = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
 
@@ -58,6 +68,15 @@ export const organizationSettingsSchema = z.object({
   handoffPhoneNumber: z.string().trim().max(40),
   urgentHandoffEnabled: z.boolean(),
   handoffFallbackMessage: z.string().trim().max(500),
+  workflowRecipes: z.object(
+    WORKFLOW_RECIPE_IDS.reduce(
+      (shape, recipeId) => ({
+        ...shape,
+        [recipeId]: z.boolean(),
+      }),
+      {} as Record<(typeof WORKFLOW_RECIPE_IDS)[number], z.ZodBoolean>,
+    ),
+  ),
 });
 
 export type BusinessDay = z.infer<typeof businessDaySchema>;
@@ -80,12 +99,51 @@ export const defaultBusinessHours: BusinessHours = {
   sunday: { ...defaultBusinessDay, isOpen: false },
 };
 
+export const defaultWorkflowRecipes: OrganizationSettingsInput["workflowRecipes"] =
+  WORKFLOW_RECIPE_IDS.reduce(
+    (recipes, recipeId) => ({
+      ...recipes,
+      [recipeId]: false,
+    }),
+    {} as OrganizationSettingsInput["workflowRecipes"],
+  );
+
 export function normalizeBusinessHours(value: unknown): BusinessHours {
   const parsed = businessHoursSchema.safeParse(value);
   if (parsed.success) {
     return parsed.data;
   }
   return defaultBusinessHours;
+}
+
+export function normalizeWorkflowRecipes(value: unknown): OrganizationSettingsInput["workflowRecipes"] {
+  const raw = value && typeof value === "object" && !Array.isArray(value) ? value : {};
+  return WORKFLOW_RECIPE_IDS.reduce((recipes, recipeId) => {
+    const entry = (raw as Record<string, unknown>)[recipeId];
+    return {
+      ...recipes,
+      [recipeId]:
+        typeof entry === "object" && entry !== null && "enabled" in entry
+          ? Boolean((entry as { enabled?: unknown }).enabled)
+          : Boolean(entry),
+    };
+  }, defaultWorkflowRecipes);
+}
+
+export function toWorkflowRecipesJson(
+  recipes: OrganizationSettingsInput["workflowRecipes"],
+) {
+  const updatedAt = new Date().toISOString();
+  return WORKFLOW_RECIPE_IDS.reduce(
+    (payload, recipeId) => ({
+      ...payload,
+      [recipeId]: {
+        enabled: recipes[recipeId],
+        updated_at: updatedAt,
+      },
+    }),
+    {} as Record<(typeof WORKFLOW_RECIPE_IDS)[number], { enabled: boolean; updated_at: string }>,
+  );
 }
 
 export function toNullable(value: string) {

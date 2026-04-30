@@ -585,6 +585,7 @@ export type Database = {
           urgent_handoff_enabled: boolean
           voice_minutes_used: number
           website_url: string | null
+          workflow_recipes: Json
         }
         Insert: {
           business_email?: string | null
@@ -618,6 +619,7 @@ export type Database = {
           urgent_handoff_enabled?: boolean
           voice_minutes_used?: number
           website_url?: string | null
+          workflow_recipes?: Json
         }
         Update: {
           business_email?: string | null
@@ -651,6 +653,7 @@ export type Database = {
           urgent_handoff_enabled?: boolean
           voice_minutes_used?: number
           website_url?: string | null
+          workflow_recipes?: Json
         }
         Relationships: []
       }

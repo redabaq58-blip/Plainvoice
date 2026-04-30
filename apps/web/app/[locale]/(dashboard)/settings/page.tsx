@@ -8,8 +8,10 @@ import { SettingsClient, type SettingsLabels } from "@/components/settings/setti
 import {
   defaultBusinessHours,
   normalizeBusinessHours,
+  normalizeWorkflowRecipes,
   organizationSettingsSchema,
   toNullable,
+  toWorkflowRecipesJson,
   type OrganizationSettingsInput,
 } from "@/lib/schemas/organization-settings";
 
@@ -48,6 +50,7 @@ type SettingsOrganization = Pick<
   | "handoff_phone_number"
   | "urgent_handoff_enabled"
   | "handoff_fallback_message"
+  | "workflow_recipes"
 >;
 
 function createServiceRoleClient() {
@@ -100,7 +103,7 @@ async function getOrgSettings() {
   const { data: organization, error } = await supabase
     .from("organizations")
     .select(
-      "id, name, business_email, business_phone, website_url, timezone, business_hours, default_language, default_voice_provider, default_voice_id, default_max_call_duration_minutes, booking_enabled, calcom_api_key, calcom_event_type_id, calcom_username, sms_enabled, sms_sender_phone_number_id, sms_sender_number, owner_notification_phone, sms_followup_template, sms_booking_confirmation_template, sms_missed_call_template, handoff_enabled, handoff_phone_number, urgent_handoff_enabled, handoff_fallback_message",
+      "id, name, business_email, business_phone, website_url, timezone, business_hours, default_language, default_voice_provider, default_voice_id, default_max_call_duration_minutes, booking_enabled, calcom_api_key, calcom_event_type_id, calcom_username, sms_enabled, sms_sender_phone_number_id, sms_sender_number, owner_notification_phone, sms_followup_template, sms_booking_confirmation_template, sms_missed_call_template, handoff_enabled, handoff_phone_number, urgent_handoff_enabled, handoff_fallback_message, workflow_recipes",
     )
     .eq("id", orgId)
     .single();
@@ -132,6 +135,7 @@ async function getOrgSettings() {
       handoff_phone_number: null,
       urgent_handoff_enabled: true,
       handoff_fallback_message: null,
+      workflow_recipes: {},
     } satisfies SettingsOrganization;
   }
 
@@ -166,6 +170,7 @@ function toFormValues(organization: SettingsOrganization): OrganizationSettingsI
     handoffPhoneNumber: organization.handoff_phone_number ?? "",
     urgentHandoffEnabled: organization.urgent_handoff_enabled,
     handoffFallbackMessage: organization.handoff_fallback_message ?? "",
+    workflowRecipes: normalizeWorkflowRecipes(organization.workflow_recipes),
   };
 }
 
@@ -218,6 +223,60 @@ function buildLabels(t: Awaited<ReturnType<typeof getTranslations>>): SettingsLa
     urgentHandoffEnabled: t("handoff.urgentEnabled"),
     handoffFallbackMessage: t("handoff.fallbackMessage"),
     handoffFallbackMessagePlaceholder: t("handoff.fallbackMessagePlaceholder"),
+    workflowTitle: t("workflow.title"),
+    workflowDescription: t("workflow.description"),
+    workflowTrigger: t("workflow.trigger"),
+    workflowAction: t("workflow.action"),
+    workflowRecipes: {
+      missed_call_text_back: {
+        name: t("workflow.recipes.missed_call_text_back.name"),
+        description: t("workflow.recipes.missed_call_text_back.description"),
+        trigger: t("workflow.recipes.missed_call_text_back.trigger"),
+        action: t("workflow.recipes.missed_call_text_back.action"),
+      },
+      new_lead_create_task: {
+        name: t("workflow.recipes.new_lead_create_task.name"),
+        description: t("workflow.recipes.new_lead_create_task.description"),
+        trigger: t("workflow.recipes.new_lead_create_task.trigger"),
+        action: t("workflow.recipes.new_lead_create_task.action"),
+      },
+      urgent_call_notify_owner: {
+        name: t("workflow.recipes.urgent_call_notify_owner.name"),
+        description: t("workflow.recipes.urgent_call_notify_owner.description"),
+        trigger: t("workflow.recipes.urgent_call_notify_owner.trigger"),
+        action: t("workflow.recipes.urgent_call_notify_owner.action"),
+      },
+      booking_failed_create_task: {
+        name: t("workflow.recipes.booking_failed_create_task.name"),
+        description: t("workflow.recipes.booking_failed_create_task.description"),
+        trigger: t("workflow.recipes.booking_failed_create_task.trigger"),
+        action: t("workflow.recipes.booking_failed_create_task.action"),
+      },
+      no_handoff_take_message_create_task: {
+        name: t("workflow.recipes.no_handoff_take_message_create_task.name"),
+        description: t("workflow.recipes.no_handoff_take_message_create_task.description"),
+        trigger: t("workflow.recipes.no_handoff_take_message_create_task.trigger"),
+        action: t("workflow.recipes.no_handoff_take_message_create_task.action"),
+      },
+      quote_request_create_task: {
+        name: t("workflow.recipes.quote_request_create_task.name"),
+        description: t("workflow.recipes.quote_request_create_task.description"),
+        trigger: t("workflow.recipes.quote_request_create_task.trigger"),
+        action: t("workflow.recipes.quote_request_create_task.action"),
+      },
+      complaint_create_task: {
+        name: t("workflow.recipes.complaint_create_task.name"),
+        description: t("workflow.recipes.complaint_create_task.description"),
+        trigger: t("workflow.recipes.complaint_create_task.trigger"),
+        action: t("workflow.recipes.complaint_create_task.action"),
+      },
+      sms_failed_create_inbox_item: {
+        name: t("workflow.recipes.sms_failed_create_inbox_item.name"),
+        description: t("workflow.recipes.sms_failed_create_inbox_item.description"),
+        trigger: t("workflow.recipes.sms_failed_create_inbox_item.trigger"),
+        action: t("workflow.recipes.sms_failed_create_inbox_item.action"),
+      },
+    },
     save: t("save"),
     saving: t("saving"),
     saved: t("saved"),
@@ -307,6 +366,9 @@ export default async function SettingsPage({ params }: Props) {
         handoff_phone_number: toNullable(parsed.data.handoffPhoneNumber),
         urgent_handoff_enabled: parsed.data.urgentHandoffEnabled,
         handoff_fallback_message: toNullable(parsed.data.handoffFallbackMessage),
+        workflow_recipes: toWorkflowRecipesJson(
+          parsed.data.workflowRecipes,
+        ) as unknown as OrganizationUpdate["workflow_recipes"],
       })
       .eq("id", orgId);
 

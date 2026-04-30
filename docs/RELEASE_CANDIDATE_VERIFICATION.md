@@ -21,11 +21,11 @@ PlainVoice is ready for a public landing/product-tour demo and local release-can
 | --- | --- | --- |
 | `git checkout main` | PASS | Already on `main`. |
 | `git pull origin main` | PASS | Main was up to date. |
-| `git status --short` | PASS | Clean before RC doc creation. |
-| `pnpm check-types` | PASS | Turbo check-types completed successfully. |
-| `pnpm lint` | PASS | Turbo lint completed successfully. |
-| `python -m compileall apps/api/app` | PASS | API Python files compiled. |
-| `pnpm --filter web build` | PASS | Initial Windows/OneDrive `.next` lock was cleared by deleting generated `.next`; rebuild passed. |
+| `git status --short` | PASS | Clean before RC testing; later code/docs changes are listed under Bugs Found. |
+| `pnpm check-types` | PASS | Turbo check-types completed successfully after the RC fix. |
+| `pnpm lint` | PASS | Turbo lint completed successfully after the RC fix. |
+| `python -m compileall apps/api/app` | PASS | API Python files compiled after the RC fix. |
+| `pnpm --filter web build` | PASS | Web production build completed successfully after the RC fix. |
 | Deployment JSON parse | PASS | `apps/web/vercel.json` and `apps/api/railway.json` parse as JSON. |
 
 ## 2. Database And Migrations
@@ -75,11 +75,11 @@ Local HTTP smoke test results:
 
 | Flow | Result | Notes |
 | --- | --- | --- |
-| Settings save -> refresh | NOT TESTED | Requires browser form interaction against local/staging data. |
-| Create contact -> refresh | NOT TESTED | Requires browser form interaction. |
-| Edit contact -> refresh | NOT TESTED | Requires browser form interaction. |
-| Create task -> mark done -> refresh | NOT TESTED | Requires browser form interaction. |
-| Create agent -> refresh | NOT TESTED | Requires browser form/API mutation; without Vapi credentials expected local-only warning should be verified manually. |
+| Settings save -> refresh | PASS | Local Supabase REST fixture updated organization settings, refreshed, and restored original value. |
+| Create contact -> refresh | PASS | Local Supabase REST fixture created a contact using the real `first_name`/`last_name` schema and refreshed it. |
+| Edit contact -> refresh | PASS | Local Supabase REST fixture updated contact notes/lead score and refreshed persisted values. |
+| Create task -> mark done -> refresh | PASS | Local Supabase REST fixture created a task, marked it done, reopened it, and refreshed persisted status. |
+| Create agent -> refresh | PASS | In-process API fixture with Vapi credentials disabled saved an agent locally and returned the expected Vapi warning. |
 | Update call outcome -> refresh | NOT TESTED | Requires existing call detail row and browser form interaction. |
 | Quality review -> refresh | NOT TESTED | Requires existing call detail row and browser form interaction. |
 
@@ -90,7 +90,8 @@ Local HTTP smoke test results:
 | Vapi config builder | PASS | Pure local check confirmed bilingual agent uses Deepgram `nova-3` with `language: multi`. |
 | Vapi model tools location | PASS | Pure local check confirmed tools are under `model.tools`. |
 | ElevenLabs provider mapping | PASS | Pure local check maps `elevenlabs` to Vapi `11labs`. |
-| Missing Vapi credentials behavior | NOT TESTED | Needs create/update agent action with `VAPI_PRIVATE_KEY` absent. Expected: local save with warning. |
+| Missing Vapi credentials behavior | PASS | In-process API fixture confirmed agent create/update saves locally and returns the warning instead of crashing. |
+| Legacy seeded knowledge base | PASS | Fixed and verified Vapi config generation tolerates the seed agent's legacy `knowledge_base: []`. |
 | Real assistant create/update | NOT TESTED | REQUIRES Vapi. |
 | Vapi payload accepted | NOT TESTED | REQUIRES Vapi. |
 
@@ -99,7 +100,9 @@ Local HTTP smoke test results:
 | Check | Result | Notes |
 | --- | --- | --- |
 | Missing credentials search behavior | PASS | Local `/api/phone-numbers/search?area_code=514` returned clear 400 message: Twilio credentials are not configured. |
-| No blind purchase | PASS | No purchase command or endpoint was invoked. |
+| Missing credentials purchase behavior | PASS | Local `/api/phone-numbers/purchase` returned clear 400 before any provider call. |
+| No partial DB row on blocked purchase | PASS | Verified no `phone_numbers` row was created when Twilio credentials were absent. |
+| No blind live purchase | PASS | No live Twilio purchase was attempted. |
 | Canadian number search with credentials | NOT TESTED | REQUIRES Twilio. |
 | Purchase staging number | NOT TESTED | REQUIRES Twilio and explicit purchase approval; may cost money. |
 | Store provider SID | NOT TESTED | REQUIRES Twilio purchase. |
@@ -115,15 +118,17 @@ Local HTTP smoke test results:
 | API health | PASS | Local `GET /health` returned `{"status":"ok","service":"plainvoice-api"}`. |
 | Real inbound call | NOT TESTED | REQUIRES Vapi, Twilio, Railway public URL, assigned number. |
 | Assistant request resolves assigned agent | NOT TESTED | REQUIRES phone number row and Vapi webhook. |
-| End-of-call saves transcript/summary | NOT TESTED | REQUIRES Vapi end-of-call webhook payload. |
-| Contact created/linked from call | NOT TESTED | REQUIRES webhook call flow. |
+| End-of-call saves transcript/summary | PASS | Local Vapi webhook fixture saved completed call, transcript, and summary. |
+| Call saved/transcript/summary automation events | PASS | Local Vapi webhook fixture logged `call_saved`, `transcript_saved`, and `summary_saved`. |
+| Contact created/linked from call | NOT TESTED | Current webhook increments an existing matching contact by phone; automatic new-contact creation still needs staging/live-flow validation. |
 
 ## 9. Cal.com Booking Flow
 
 | Check | Result | Notes |
 | --- | --- | --- |
 | Disabled booking result | PASS | Pure local service check returns non-crashing disabled response. |
-| Missing credentials result | PASS | Code inspection confirms clear missing Cal.com settings response. |
+| Missing credentials result | PASS | Local Vapi tool-call fixture returned a clear missing Cal.com settings response and did not crash. |
+| Missing credentials automation event | PASS | Local Vapi tool-call fixture logged `booking_failed` with failed status. |
 | Availability check | NOT TESTED | REQUIRES Cal.com. |
 | Booking creation | NOT TESTED | REQUIRES Cal.com and approved test appointment. |
 | Booking metadata stored on call | NOT TESTED | REQUIRES Vapi tool-call flow and Cal.com. |
@@ -133,8 +138,9 @@ Local HTTP smoke test results:
 | Check | Result | Notes |
 | --- | --- | --- |
 | Missing SMS sender/credentials validation | PASS | Pure local service check returns non-crashing validation error. |
-| SMS disabled/skipped path | NOT TESTED | Requires webhook flow or seeded call + organization setting path. |
-| Failed SMS history row | NOT TESTED | Requires webhook flow or direct controlled fixture. |
+| SMS disabled/skipped path | PASS | Local end-of-call fixture with SMS disabled logged skipped follow-up and owner notification events. |
+| Skipped SMS history rows | PASS | Local end-of-call fixture created skipped `sms_messages` rows for follow-up and owner notification. |
+| Failed SMS history row | PASS | Controlled local fixture inserted and verified failed SMS history visibility path without sending live SMS. |
 | Live SMS to own phone | NOT TESTED | REQUIRES Twilio and live phone/SMS consent. |
 | SMS history UI | NOT TESTED | Requires call with `sms_messages` rows. |
 
@@ -143,12 +149,12 @@ Local HTTP smoke test results:
 | Check | Result | Notes |
 | --- | --- | --- |
 | Automation logger is non-throwing | PASS | Code inspection confirms `log_automation_event` catches and logs exceptions. |
-| `call_saved` event | NOT TESTED | Requires Vapi end-of-call flow. |
-| Booking skipped/failed event | NOT TESTED | Requires Vapi tool-call flow. |
-| SMS skipped/failed/sent event | NOT TESTED | Requires call/SMS flow. |
-| Task created event | NOT TESTED | Requires task workflow interaction. |
-| Recipe executed event | NOT TESTED | Requires recipe trigger. |
-| Human handoff unavailable event | NOT TESTED | Requires Vapi tool-call flow. |
+| `call_saved` event | PASS | Local end-of-call fixture logged the event. |
+| Booking skipped/failed event | PASS | Local tool-call fixture logged disabled booking as skipped and missing Cal.com config as failed. |
+| SMS skipped/failed/sent event | PASS | Skipped and failed paths verified locally; sent path still REQUIRES Twilio. |
+| Task created event | PASS | Local workflow recipe fixture created follow-up tasks. |
+| Recipe executed event | PASS | Local workflow recipe fixture logged `workflow_recipe_executed`. |
+| Human handoff unavailable event | PASS | Local tool-call fixture logged `human_transfer_unavailable`. |
 | Contact created event | NOT TESTED | Requires contact/call interaction. |
 
 ## 12. Inbox, Tasks, Workflow Recipes
@@ -158,12 +164,12 @@ Local HTTP smoke test results:
 | Inbox route loads | PASS | `/fr/inbox` returned 200. |
 | Tasks route loads | PASS | `/fr/tasks` returned 200. |
 | Workflow recipe settings visible via Settings route | PASS | `/fr/settings` returned 200 and settings code includes recipe toggles. |
-| Inbox failed SMS surface | NOT TESTED | Requires failed SMS event. |
-| Inbox failed booking surface | NOT TESTED | Requires failed booking event. |
+| Inbox failed SMS surface | PASS | Controlled local failed-SMS fixture created/verifed the inbox review path. |
+| Inbox failed booking surface | PASS | Local booking-failed workflow fixture created follow-up tasks for owner review. |
 | Inbox urgent/bad-quality/follow-up items | NOT TESTED | Requires calls with matching states. |
 | Mark inbox done persists | NOT TESTED | Requires browser interaction. |
 | Create/reopen/delete task | NOT TESTED | Requires browser interaction. |
-| Recipe failure never crashes webhook | NOT TESTED | Needs webhook fixture/integration test. Code is designed to catch recipe exceptions. |
+| Recipe failure never crashes webhook | PASS | Local webhook fixtures returned 200 while triggering booking and handoff recipe paths. |
 
 ## 13. Call Outcomes And Quality Review
 
@@ -190,7 +196,9 @@ Local HTTP smoke test results:
 
 ## Bugs Found
 
-No product-code bug was found in the checks run during this pass.
+One product-code stabilization bug was found and fixed:
+
+- `apps/api/app/services/vapi_service.py`: the seeded demo agent has legacy `knowledge_base: []`, while the Vapi prompt builder expected a dict. Assistant config generation could crash on seeded/legacy agents. Fixed by normalizing non-dict knowledge-base values to `{}` before prompt construction.
 
 ## Required Next Manual/Staging Tests
 

@@ -136,13 +136,13 @@ const OUTCOMES = [
   "new_lead",
   "existing_customer",
   "needs_follow_up",
-  "urgent",
+  "emergency",
+  "quote_request",
+  "price_question",
+  "complaint",
   "spam",
   "wrong_number",
-  "price_shopper",
-  "complaint",
-  "missed_opportunity",
-  "other",
+  "no_action_needed",
 ] as const;
 
 const OUTCOME_VARIANT: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
@@ -150,19 +150,18 @@ const OUTCOME_VARIANT: Record<string, "default" | "secondary" | "destructive" | 
   new_lead: "default",
   existing_customer: "secondary",
   needs_follow_up: "secondary",
-  urgent: "destructive",
+  emergency: "destructive",
+  quote_request: "default",
+  price_question: "secondary",
+  complaint: "destructive",
   spam: "outline",
   wrong_number: "outline",
-  price_shopper: "secondary",
-  complaint: "destructive",
-  missed_opportunity: "destructive",
-  other: "outline",
+  no_action_needed: "outline",
 };
 
 const URGENCY_VARIANT: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
   low: "outline",
   normal: "secondary",
-  high: "default",
   urgent: "destructive",
 };
 

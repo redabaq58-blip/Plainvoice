@@ -344,6 +344,7 @@ export type Database = {
           handoff_requested: boolean
           handoff_status: string | null
           id: string
+          lead_status: string
           org_id: string
           outcome: string | null
           owner_notes: string | null
@@ -376,6 +377,7 @@ export type Database = {
           handoff_requested?: boolean
           handoff_status?: string | null
           id?: string
+          lead_status?: string
           org_id: string
           outcome?: string | null
           owner_notes?: string | null
@@ -408,6 +410,7 @@ export type Database = {
           handoff_requested?: boolean
           handoff_status?: string | null
           id?: string
+          lead_status?: string
           org_id?: string
           outcome?: string | null
           owner_notes?: string | null

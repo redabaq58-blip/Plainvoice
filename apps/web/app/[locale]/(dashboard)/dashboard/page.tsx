@@ -49,6 +49,7 @@ type CallRow = {
   ended_reason: string | null;
   from_number: string | null;
   follow_up_required: boolean;
+  lead_status: string;
   outcome: string | null;
   sms_status: Json;
   started_at: string | null;
@@ -263,14 +264,14 @@ export default async function DashboardPage({ params, searchParams }: Props) {
     supabase
       .from("calls")
       .select(
-        "id, agent_id, booking_result, duration_seconds, ended_reason, follow_up_required, from_number, outcome, sms_status, started_at, status, summary, urgency",
+        "id, agent_id, booking_result, duration_seconds, ended_reason, follow_up_required, from_number, lead_status, outcome, sms_status, started_at, status, summary, urgency",
       )
       .eq("org_id", orgId)
       .gte("started_at", monthStart)
       .order("started_at", { ascending: false }),
     supabase
       .from("calls")
-      .select("id, agent_id, booking_result, duration_seconds, ended_reason, follow_up_required, from_number, outcome, sms_status, started_at, status, summary, urgency")
+      .select("id, agent_id, booking_result, duration_seconds, ended_reason, follow_up_required, from_number, lead_status, outcome, sms_status, started_at, status, summary, urgency")
       .eq("org_id", orgId)
       .order("started_at", { ascending: false })
       .limit(5),
@@ -294,7 +295,7 @@ export default async function DashboardPage({ params, searchParams }: Props) {
     supabase
       .from("calls")
       .select(
-        "id, agent_id, booking_result, duration_seconds, ended_reason, follow_up_required, from_number, outcome, sms_status, started_at, status, summary, urgency",
+        "id, agent_id, booking_result, duration_seconds, ended_reason, follow_up_required, from_number, lead_status, outcome, sms_status, started_at, status, summary, urgency",
       )
       .eq("org_id", orgId)
       .gte("started_at", earliestDigestStart)
@@ -358,9 +359,8 @@ export default async function DashboardPage({ params, searchParams }: Props) {
     call.outcome === "booked_appointment" || isSuccessfulBooking(call.booking_result),
   ).length;
   const newLeadCalls = monthCalls.filter((call) => call.outcome === "new_lead").length;
-  const urgentCalls = monthCalls.filter((call) => call.urgency === "urgent" || call.outcome === "urgent").length;
+  const urgentCalls = monthCalls.filter((call) => call.urgency === "urgent" || call.outcome === "emergency").length;
   const followUpRequiredCalls = monthCalls.filter((call) => call.follow_up_required).length;
-  const missedOpportunityCalls = monthCalls.filter((call) => call.outcome === "missed_opportunity").length;
   const sms = smsCounts(monthCalls);
   const digestBookedToday = todayCalls.filter((call) =>
     call.outcome === "booked_appointment" || isSuccessfulBooking(call.booking_result),
@@ -371,9 +371,13 @@ export default async function DashboardPage({ params, searchParams }: Props) {
   const digestBookedActive = activeCalls.filter((call) =>
     call.outcome === "booked_appointment" || isSuccessfulBooking(call.booking_result),
   ).length;
-  const digestUrgentCalls = activeCalls.filter((call) => call.urgency === "urgent" || call.outcome === "urgent");
-  const digestFollowUps = activeCalls.filter((call) => call.follow_up_required || call.outcome === "needs_follow_up");
-  const digestMissedOpportunities = activeCalls.filter((call) => call.outcome === "missed_opportunity");
+  const digestUrgentCalls = activeCalls.filter((call) => call.urgency === "urgent" || call.outcome === "emergency");
+  const digestFollowUps = activeCalls.filter(
+    (call) =>
+      call.follow_up_required ||
+      call.outcome === "needs_follow_up" ||
+      call.lead_status === "needs_follow_up",
+  );
   const digestFailedBookings = activeCalls.filter((call) => isFailedBooking(call.booking_result));
   const digestSmsSent = activeSms.filter(isSentSms).length;
   const digestSmsFailedRows = activeSms.filter(isFailedSms);
@@ -394,7 +398,6 @@ export default async function DashboardPage({ params, searchParams }: Props) {
     { label: t("digest.metrics.bookedLast7"), value: String(digestBookedLast7), icon: CalendarCheck },
     { label: t("digest.metrics.urgentCalls"), value: String(digestUrgentCalls.length), icon: Siren },
     { label: t("digest.metrics.followUpRequired"), value: String(digestFollowUps.length), icon: PhoneMissed },
-    { label: t("digest.metrics.missedOpportunities"), value: String(digestMissedOpportunities.length), icon: AlertTriangle },
     { label: t("digest.metrics.smsSent"), value: String(digestSmsSent), icon: MessageSquareText },
     { label: t("digest.metrics.smsFailed"), value: String(digestSmsFailedRows.length), icon: MessageSquareWarning },
     { label: t("digest.metrics.openTasks"), value: String(openTasks.length), icon: ClipboardList },
@@ -443,14 +446,6 @@ export default async function DashboardPage({ params, searchParams }: Props) {
       timestamp: task.due_at ?? task.created_at,
       icon: ClipboardList,
     })),
-    ...digestMissedOpportunities.map((call) => ({
-      key: `missed-${call.id}`,
-      label: t("digest.attention.missedOpportunity"),
-      detail: attentionDetail(call.summary, call.from_number ?? t("digest.attention.unknownCaller")),
-      href: `/${locale}/calls/${call.id}`,
-      timestamp: call.started_at ?? new Date().toISOString(),
-      icon: AlertTriangle,
-    })),
     ...failedAutomationEvents.map((event) => ({
       key: `automation-${event.id}`,
       label: t("digest.attention.failedAutomation"),
@@ -492,7 +487,6 @@ export default async function DashboardPage({ params, searchParams }: Props) {
     { label: t("metrics.newLeadCalls"), value: String(newLeadCalls), icon: UserPlus },
     { label: t("metrics.urgentCalls"), value: String(urgentCalls), icon: Siren },
     { label: t("metrics.followUpRequired"), value: String(followUpRequiredCalls), icon: PhoneMissed },
-    { label: t("metrics.missedOpportunities"), value: String(missedOpportunityCalls), icon: PhoneMissed },
     { label: t("metrics.smsSentFailed"), value: `${sms.sent}/${sms.failed}`, icon: MessageSquareText },
   ] as const;
 

@@ -70,16 +70,25 @@ const OUTCOMES = [
   "new_lead",
   "existing_customer",
   "needs_follow_up",
-  "urgent",
+  "emergency",
+  "quote_request",
+  "price_question",
+  "complaint",
   "spam",
   "wrong_number",
-  "price_shopper",
-  "complaint",
-  "missed_opportunity",
-  "other",
+  "no_action_needed",
 ] as const;
 
-const URGENCIES = ["low", "normal", "high", "urgent"] as const;
+const LEAD_STATUSES = [
+  "none",
+  "new",
+  "qualified",
+  "unqualified",
+  "existing_customer",
+  "needs_follow_up",
+] as const;
+
+const URGENCIES = ["low", "normal", "urgent"] as const;
 
 function nullableFormValue(formData: FormData, key: string) {
   const value = String(formData.get(key) ?? "").trim();
@@ -136,6 +145,19 @@ export default async function CallDetailPage({ params }: Props) {
   const defaultTaskTitle = t("tasks.defaultCallTitle", {
     phone: resolvedCall.from_number ?? t("tasks.unknownCaller"),
   });
+  const defaultTaskDescription = [
+    resolvedCall.summary,
+    resolvedCall.outcome
+      ? `${t("outcomeReview.outcome")}: ${t(`outcome.${resolvedCall.outcome}` as Parameters<typeof t>[0])}`
+      : null,
+    resolvedCall.lead_status && resolvedCall.lead_status !== "none"
+      ? `${t("outcomeReview.leadStatus")}: ${t(`leadStatus.${resolvedCall.lead_status}` as Parameters<typeof t>[0])}`
+      : null,
+    `${t("outcomeReview.urgency")}: ${t(`urgency.${resolvedCall.urgency ?? "normal"}` as Parameters<typeof t>[0])}`,
+    resolvedCall.owner_notes ? `${t("outcomeReview.ownerNotes")}: ${resolvedCall.owner_notes}` : null,
+  ]
+    .filter(Boolean)
+    .join("\n");
 
   // Server action: add caller as contact
   async function addContact() {
@@ -184,11 +206,16 @@ export default async function CallDetailPage({ params }: Props) {
     await sb.from("follow_up_tasks").insert({
       org_id: currentOrgId,
       title: defaultTaskTitle,
-      description: resolvedCall.summary,
+      description: defaultTaskDescription || null,
       call_id: resolvedCall.id,
       contact_id: contact?.id ?? null,
       agent_id: resolvedCall.agent_id,
-      priority: resolvedCall.sentiment === "negative" || resolvedCall.status === "failed" ? "high" : "normal",
+      priority:
+        resolvedCall.urgency === "urgent" || resolvedCall.outcome === "emergency"
+          ? "urgent"
+          : resolvedCall.sentiment === "negative" || resolvedCall.status === "failed"
+            ? "high"
+            : "normal",
       source: "call",
     });
 
@@ -200,11 +227,13 @@ export default async function CallDetailPage({ params }: Props) {
 
     const currentOrgId = await getCurrentOrgId();
     const outcome = nullableFormValue(formData, "outcome");
+    const leadStatus = nullableFormValue(formData, "leadStatus") ?? "none";
     const urgency = nullableFormValue(formData, "urgency") ?? "normal";
 
     if (
       !currentOrgId ||
       (outcome && !OUTCOMES.includes(outcome as (typeof OUTCOMES)[number])) ||
+      !LEAD_STATUSES.includes(leadStatus as (typeof LEAD_STATUSES)[number]) ||
       !URGENCIES.includes(urgency as (typeof URGENCIES)[number])
     ) {
       return;
@@ -219,6 +248,7 @@ export default async function CallDetailPage({ params }: Props) {
       .from("calls")
       .update({
         outcome,
+        lead_status: leadStatus,
         urgency,
         follow_up_required: followUpRequired,
         owner_notes: ownerNotes,
@@ -239,6 +269,7 @@ export default async function CallDetailPage({ params }: Props) {
       message: `Call outcome updated to ${outcome ?? "unclassified"}.`,
       metadata: {
         outcome,
+        lead_status: leadStatus,
         urgency,
         follow_up_required: followUpRequired,
       },
@@ -368,6 +399,20 @@ export default async function CallDetailPage({ params }: Props) {
                 {OUTCOMES.map((outcome) => (
                   <option key={outcome} value={outcome}>
                     {t(`outcome.${outcome}` as Parameters<typeof t>[0])}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="space-y-2 text-sm font-medium">
+              {t("outcomeReview.leadStatus")}
+              <select
+                name="leadStatus"
+                defaultValue={call.lead_status ?? "none"}
+                className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+              >
+                {LEAD_STATUSES.map((leadStatus) => (
+                  <option key={leadStatus} value={leadStatus}>
+                    {t(`leadStatus.${leadStatus}` as Parameters<typeof t>[0])}
                   </option>
                 ))}
               </select>

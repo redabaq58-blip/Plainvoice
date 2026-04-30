@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useState, useTransition } from "react";
-import { CalendarCheck, Clock, MessageSquareText, PhoneForwarded, Save } from "lucide-react";
+import { CalendarCheck, Clock, MessageSquareText, PhoneForwarded, Save, Workflow } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,6 +20,7 @@ import {
   LANGUAGES,
   MAX_CALL_DURATIONS,
   VOICE_PROVIDERS,
+  WORKFLOW_RECIPE_IDS,
   organizationSettingsSchema,
   type BusinessHours,
   type OrganizationSettingsInput,
@@ -73,6 +74,19 @@ export type SettingsLabels = {
   urgentHandoffEnabled: string;
   handoffFallbackMessage: string;
   handoffFallbackMessagePlaceholder: string;
+  workflowTitle: string;
+  workflowDescription: string;
+  workflowTrigger: string;
+  workflowAction: string;
+  workflowRecipes: Record<
+    (typeof WORKFLOW_RECIPE_IDS)[number],
+    {
+      name: string;
+      description: string;
+      trigger: string;
+      action: string;
+    }
+  >;
   save: string;
   saving: string;
   saved: string;
@@ -404,6 +418,63 @@ export function SettingsClient({ initialValues, labels, saveSettings }: Props) {
               }
             />
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{labels.workflowTitle}</CardTitle>
+          <p className="text-sm text-muted-foreground">{labels.workflowDescription}</p>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {WORKFLOW_RECIPE_IDS.map((recipeId) => {
+            const recipe = labels.workflowRecipes[recipeId];
+            return (
+              <div
+                key={recipeId}
+                className="grid gap-3 rounded-md border p-3 md:grid-cols-[auto_1fr_auto]"
+              >
+                <div className="flex h-9 w-9 items-center justify-center rounded-md border bg-background">
+                  <Workflow className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <div className="min-w-0 space-y-2">
+                  <div>
+                    <Label htmlFor={`workflow-${recipeId}`} className="font-medium">
+                      {recipe.name}
+                    </Label>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {recipe.description}
+                    </p>
+                  </div>
+                  <dl className="grid gap-2 text-xs text-muted-foreground md:grid-cols-2">
+                    <div>
+                      <dt className="font-medium text-foreground">{labels.workflowTrigger}</dt>
+                      <dd>{recipe.trigger}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-medium text-foreground">{labels.workflowAction}</dt>
+                      <dd>{recipe.action}</dd>
+                    </div>
+                  </dl>
+                </div>
+                <input
+                  id={`workflow-${recipeId}`}
+                  type="checkbox"
+                  className="h-4 w-4 self-start md:self-center"
+                  checked={values.workflowRecipes[recipeId]}
+                  onChange={(event) =>
+                    setValues((current) => ({
+                      ...current,
+                      workflowRecipes: {
+                        ...current.workflowRecipes,
+                        [recipeId]: event.target.checked,
+                      },
+                    }))
+                  }
+                />
+              </div>
+            );
+          })}
         </CardContent>
       </Card>
 

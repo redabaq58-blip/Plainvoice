@@ -221,6 +221,10 @@
       "defaultCallTitle": "Follow up with {phone}",
       "unknownCaller": "caller"
     },
+    "workflowTasks": {
+      "quoteRequest": "Prepare quote for {phone}",
+      "complaint": "Review complaint from {phone}"
+    },
     "outcomeReview": {
       "title": "Call outcome",
       "outcome": "Business result",
@@ -309,7 +313,8 @@
       "owner_notification_skipped": "Owner notification skipped",
       "human_transfer_requested": "Human transfer requested",
       "human_transfer_unavailable": "Human transfer unavailable",
-      "call_outcome_updated": "Call outcome updated"
+      "call_outcome_updated": "Call outcome updated",
+      "workflow_recipe_executed": "Workflow recipe executed"
     }
   },
   "phoneNumbers": {
@@ -505,6 +510,62 @@
       "urgentEnabled": "Treat urgent requests as urgent handoffs",
       "fallbackMessage": "Fallback message",
       "fallbackMessagePlaceholder": "I cannot connect you live right now, but I will take a detailed message and make sure the team follows up."
+    },
+    "workflow": {
+      "title": "Workflow Recipes",
+      "description": "Turn on focused front-office automations without building custom workflows.",
+      "trigger": "Trigger",
+      "action": "Action",
+      "recipes": {
+        "missed_call_text_back": {
+          "name": "Missed call text-back",
+          "description": "Flag missed calls for immediate customer text-back through the existing SMS flow.",
+          "trigger": "Call ended as missed or no-answer",
+          "action": "Log recipe execution and prepare text-back follow-up"
+        },
+        "new_lead_create_task": {
+          "name": "New lead task",
+          "description": "Create an owner task when a call is marked as a new or qualified lead.",
+          "trigger": "Call outcome saved",
+          "action": "Create follow-up task"
+        },
+        "urgent_call_notify_owner": {
+          "name": "Urgent call owner alert",
+          "description": "Flag urgent calls for owner attention using the existing notification surface.",
+          "trigger": "Urgent call or emergency outcome",
+          "action": "Log owner notification recipe"
+        },
+        "booking_failed_create_task": {
+          "name": "Failed booking task",
+          "description": "Create a task when booking automation cannot complete.",
+          "trigger": "Booking failed",
+          "action": "Create follow-up task"
+        },
+        "no_handoff_take_message_create_task": {
+          "name": "Unavailable handoff task",
+          "description": "Create a task when a caller wanted a person but handoff was unavailable.",
+          "trigger": "Human handoff unavailable",
+          "action": "Create follow-up task"
+        },
+        "quote_request_create_task": {
+          "name": "Quote request task",
+          "description": "Create a task when a call is marked as a quote request.",
+          "trigger": "Call outcome saved",
+          "action": "Create follow-up task"
+        },
+        "complaint_create_task": {
+          "name": "Complaint task",
+          "description": "Create a high-priority task when a call is marked as a complaint.",
+          "trigger": "Call outcome saved",
+          "action": "Create follow-up task"
+        },
+        "sms_failed_create_inbox_item": {
+          "name": "SMS failure inbox alert",
+          "description": "Keep SMS delivery failures visible in the Business Inbox.",
+          "trigger": "SMS failed",
+          "action": "Log recipe execution"
+        }
+      }
     },
     "days": {
       "monday": "Monday",
@@ -811,7 +872,8 @@
       "owner_notification_skipped": "Owner notification skipped",
       "human_transfer_requested": "Human transfer requested",
       "human_transfer_unavailable": "Human transfer unavailable",
-      "call_outcome_updated": "Call outcome updated"
+      "call_outcome_updated": "Call outcome updated",
+      "workflow_recipe_executed": "Workflow recipe executed"
     }
   },
   "inbox": {
@@ -891,6 +953,7 @@
       "human_transfer_requested": "Human transfer requested",
       "human_transfer_unavailable": "Human transfer unavailable",
       "call_outcome_updated": "Call outcome updated",
+      "workflow_recipe_executed": "Workflow recipe executed",
       "urgent_call": "Urgent call",
       "call_follow_up": "Call follow-up",
       "new_lead": "New lead"

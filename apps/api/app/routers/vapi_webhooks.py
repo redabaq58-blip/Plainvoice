@@ -22,7 +22,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from app.config import settings
 from app.dependencies import get_org_from_vapi_call, get_supabase
-from app.services import automation_events, calcom_service, sms_service, vapi_service
+from app.services import automation_events, calcom_service, sms_service, vapi_service, workflow_recipes
 
 logger = logging.getLogger(__name__)
 
@@ -245,6 +245,19 @@ async def _handle_end_of_call_report(
             phone_number=from_number,
             message="AI summary saved for call.",
             metadata={"vapi_call_id": call.id},
+        )
+
+    if _is_missed_call(call):
+        await workflow_recipes.execute_recipe(
+            org_id=org_id,
+            recipe_id="missed_call_text_back",
+            trigger="call_ended",
+            action="text_back_follow_up",
+            call_id=call_row_id,
+            agent_id=agent_id,
+            phone_number=from_number,
+            message="Workflow recipe prepared missed call text-back follow-up.",
+            metadata={"vapi_call_id": call.id, "ended_reason": call.ended_reason},
         )
 
     # Update org voice_minutes_used and credits_balance
@@ -605,8 +618,8 @@ async def _upsert_handoff_call(
                 "handoff_status": status,
                 "handoff_notes": notes,
                 "follow_up_required": True,
-                "urgency": "urgent" if status == "requested" else "high",
-                "outcome": "urgent" if status == "requested" else "needs_follow_up",
+                "urgency": "urgent" if status == "requested" else "normal",
+                "outcome": "emergency" if status == "requested" else "needs_follow_up",
             },
             timeout=10.0,
         )
@@ -709,6 +722,18 @@ async def _send_handoff_owner_sms(
         error=None if result.get("ok") else result.get("error"),
         metadata={"vapi_call_id": call.id if call else None, "twilio": result, "handoff": True},
     )
+    if not result.get("ok"):
+        await workflow_recipes.execute_recipe(
+            org_id=organization["id"],
+            recipe_id="sms_failed_create_inbox_item",
+            trigger="sms_failed",
+            action="create_inbox_alert",
+            call_id=call_id,
+            agent_id=agent_id,
+            phone_number=owner_phone,
+            message="Workflow recipe surfaced failed handoff SMS.",
+            metadata={"vapi_call_id": call.id if call else None, "twilio": result, "handoff": True},
+        )
 
 
 async def _handle_handoff_request(call: VapiCall | None, org_id: str | None, arguments: dict) -> dict:
@@ -722,8 +747,8 @@ async def _handle_handoff_request(call: VapiCall | None, org_id: str | None, arg
     organization = await _get_handoff_organization(org_id)
     reason = str(arguments.get("reason") or "Caller requested a person.").strip()
     notes = str(arguments.get("notes") or reason).strip()
-    requested_urgency = str(arguments.get("urgency") or "high").strip()
-    urgency = requested_urgency if requested_urgency in {"normal", "high", "urgent"} else "high"
+    requested_urgency = str(arguments.get("urgency") or "urgent").strip()
+    urgency = requested_urgency if requested_urgency in {"low", "normal", "urgent"} else "urgent"
     phone_number = call.customer.number if call and call.customer else None
     agent_id = None
 
@@ -763,6 +788,17 @@ async def _handle_handoff_request(call: VapiCall | None, org_id: str | None, arg
             phone_number=phone_number,
             message="Human handoff unavailable; follow-up task created.",
             error="Handoff is disabled or no handoff phone number is configured.",
+            metadata={"vapi_call_id": call.id if call else None, "reason": reason, "urgency": urgency},
+        )
+        await workflow_recipes.execute_recipe(
+            org_id=org_id,
+            recipe_id="no_handoff_take_message_create_task",
+            trigger="human_handoff_unavailable",
+            action="create_follow_up_task",
+            call_id=call_id,
+            agent_id=agent_id,
+            phone_number=phone_number,
+            message="Workflow recipe handled unavailable human handoff.",
             metadata={"vapi_call_id": call.id if call else None, "reason": reason, "urgency": urgency},
         )
 
@@ -942,6 +978,17 @@ async def _send_sms_followups(
                 error=owner_result.get("error"),
                 metadata={"vapi_call_id": call.id, "twilio": owner_result},
             )
+            await workflow_recipes.execute_recipe(
+                org_id=organization.get("id"),
+                recipe_id="sms_failed_create_inbox_item",
+                trigger="sms_failed",
+                action="create_inbox_alert",
+                call_id=call_row_id,
+                agent_id=agent_id,
+                phone_number=owner_phone,
+                message="Workflow recipe surfaced failed owner SMS.",
+                metadata={"vapi_call_id": call.id, "twilio": owner_result},
+            )
     else:
         await _record_sms_message(
             org_id=organization.get("id"),
@@ -1026,6 +1073,17 @@ async def _send_sms_followups(
                 phone_number=customer_phone,
                 message="Booking confirmation SMS was not sent.",
                 error=booking_sms.get("error"),
+                metadata={"vapi_call_id": call.id, "twilio": booking_sms},
+            )
+            await workflow_recipes.execute_recipe(
+                org_id=organization.get("id"),
+                recipe_id="sms_failed_create_inbox_item",
+                trigger="sms_failed",
+                action="create_inbox_alert",
+                call_id=call_row_id,
+                agent_id=agent_id,
+                phone_number=customer_phone,
+                message="Workflow recipe surfaced failed booking SMS.",
                 metadata={"vapi_call_id": call.id, "twilio": booking_sms},
             )
 
@@ -1134,6 +1192,18 @@ async def _handle_tool_calls(
                 error=result["message"],
                 metadata={"tool": tc.function.name, "vapi_call_id": call.id if call else None},
             )
+            await workflow_recipes.execute_recipe(
+                org_id=org_id,
+                recipe_id="booking_failed_create_task",
+                trigger="booking_failed",
+                action="create_follow_up_task",
+                phone_number=call.customer.number if call and call.customer else None,
+                message="Workflow recipe created booking failure follow-up.",
+                metadata={"tool": tc.function.name, "vapi_call_id": call.id if call else None},
+                task_title="Review failed booking request",
+                task_description=result["message"],
+                task_priority="high",
+            )
         elif tc.function.name == "check_availability":
             result = await calcom_service.check_availability(organization, tc.function.arguments)
         elif tc.function.name == "book_appointment":
@@ -1177,6 +1247,18 @@ async def _handle_tool_calls(
                     ),
                     error=result.get("message"),
                     metadata={"tool": tc.function.name, "vapi_call_id": call.id if call else None, "result": result},
+                )
+                await workflow_recipes.execute_recipe(
+                    org_id=org_id,
+                    recipe_id="booking_failed_create_task",
+                    trigger="booking_failed",
+                    action="create_follow_up_task",
+                    phone_number=call.customer.number if call and call.customer else None,
+                    message="Workflow recipe created booking failure follow-up.",
+                    metadata={"tool": tc.function.name, "vapi_call_id": call.id if call else None, "result": result},
+                    task_title="Review failed booking request",
+                    task_description=result.get("message"),
+                    task_priority="normal" if is_disabled else "high",
                 )
         elif tc.function.name in {"request_human_handoff", "transfer_call", "transferCall", "human_transfer"}:
             result = await _handle_handoff_request(call, org_id, tc.function.arguments)

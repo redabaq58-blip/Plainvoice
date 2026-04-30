@@ -22,9 +22,11 @@ Use these Vercel settings for the fastest public demo:
 - GitHub repo: `redabaq58-blip/Plainvoice`
 - Framework: Next.js
 - Root directory: `apps/web`
-- Install command: `pnpm install`
+- Install command: `cd ../.. && pnpm install --frozen-lockfile`
 - Build command: `cd ../.. && pnpm turbo build --filter=web`
 - Output directory: `.next`
+
+The repo includes `apps/web/vercel.json` with these deployment settings. Keep the Vercel dashboard settings aligned with that file.
 
 The public landing/product-tour routes are `/`, `/fr`, and `/en`. They do not require signup.
 
@@ -47,8 +49,10 @@ Recommended: Railway for today, or another host that can run FastAPI with Python
 Railway start command:
 
 ```sh
-cd apps/api && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+uvicorn app.main:app --host 0.0.0.0 --port $PORT
 ```
+
+Set Railway service root directory to `/apps/api`. The repo includes `apps/api/railway.json` with the start command, `/health` healthcheck, and restart policy.
 
 The API must expose:
 
@@ -96,6 +100,25 @@ Recommended first staging data:
 - One test agent.
 - One test phone number assigned to that agent after Twilio/Vapi setup.
 - Cal.com and SMS settings configured from Organization Settings, not from global env.
+
+## Supabase CLI Migration Commands
+
+Use a new hosted staging project, not production customer data.
+
+```sh
+supabase login
+supabase link
+supabase migration list
+supabase db push
+```
+
+Only use seed data intentionally:
+
+```sh
+supabase db push --include-seed
+```
+
+Before `supabase db push`, confirm the linked project is the staging project.
 
 ## Vapi Staging Notes
 

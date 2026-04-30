@@ -29,6 +29,20 @@ Deploy:
 
 Use this only if you need the live dashboard/API demo today.
 
+This is the path for "all features work live" staging. It still does not mean production-ready phone infrastructure; it means a controlled staging stack is live and smoke-tested.
+
+## Full Staging Order
+
+Do these in order:
+
+1. Create hosted Supabase staging project.
+2. Apply migrations with Supabase CLI.
+3. Deploy FastAPI backend on Railway.
+4. Deploy Next.js web app on Vercel.
+5. Connect env vars on both hosts.
+6. Configure Vapi, Twilio, Cal.com, and SMS settings.
+7. Run smoke tests from Level 1 through Level 6.
+
 ## Vercel Web Steps
 
 1. Go to Vercel.
@@ -40,7 +54,7 @@ Use this only if you need the live dashboard/API demo today.
 7. Set install command:
 
 ```sh
-pnpm install
+cd ../.. && pnpm install --frozen-lockfile
 ```
 
 8. Set build command:
@@ -58,6 +72,8 @@ cd ../.. && pnpm turbo build --filter=web
 10. Add web environment variables.
 11. Click **Deploy**.
 
+The repo also includes `apps/web/vercel.json` with the same install command, build command, and output directory. Keep the Vercel dashboard values aligned with that file.
+
 ### Vercel Web Env Vars
 
 ```env
@@ -70,7 +86,12 @@ NEXT_PUBLIC_DEV_AUTH_BYPASS=false
 NODE_ENV=production
 ```
 
-For Option A, if the public landing page is the only demo, `NEXT_PUBLIC_API_URL` can be left blank only if Vercel accepts the build and you are not opening API-backed dashboard routes. For dashboard demos, set it to the Railway API URL.
+For Option B, set:
+
+- `NEXT_PUBLIC_API_URL=https://<your-railway-api-domain>`
+- `NEXT_PUBLIC_SITE_URL=https://<your-vercel-web-domain>`
+
+For Option A, if the public landing page is the only demo, `NEXT_PUBLIC_API_URL` can be left blank only if Vercel accepts the build and you are not opening API-backed dashboard routes.
 
 Never put `SUPABASE_SERVICE_ROLE_KEY`, `VAPI_PRIVATE_KEY`, `TWILIO_AUTH_TOKEN`, or Cal.com API keys into Vercel browser-visible variables.
 
@@ -80,19 +101,31 @@ Only do this for Option B.
 
 1. Go to Railway.
 2. Create a new project.
-3. Choose **Deploy from GitHub repo**.
-4. Select `redabaq58-blip/Plainvoice`.
-5. Set the service root/build context to the repository root if Railway needs monorepo access.
-6. Set start command:
+3. Create a service from GitHub repo `redabaq58-blip/Plainvoice`.
+4. Open the service **Settings**.
+5. Set **Root Directory** to:
 
-```sh
-cd apps/api && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+```text
+/apps/api
 ```
 
-7. Add API environment variables.
-8. Deploy.
-9. Generate a public Railway domain.
-10. Visit `https://<railway-api-domain>/health`.
+6. Confirm Railway sees `apps/api/railway.json`.
+7. If Railway does not apply config-as-code, set custom start command manually:
+
+```sh
+uvicorn app.main:app --host 0.0.0.0 --port $PORT
+```
+
+8. Add API environment variables.
+9. Deploy.
+10. Generate a public Railway domain.
+11. Visit `https://<railway-api-domain>/health`.
+
+Expected response:
+
+```json
+{"status":"ok","service":"plainvoice-api"}
+```
 
 ### Railway API Env Vars
 
@@ -125,15 +158,50 @@ Use the Railway public domain for:
 
 Only do this for Option B or a real dashboard demo.
 
-1. Create a new Supabase project for staging.
-2. Copy the project URL and anon key.
-3. Copy the service-role key only into server-side environments.
-4. Link the local repo to the Supabase project with the Supabase CLI.
-5. Review pending migrations before pushing.
-6. Push migrations to the hosted project.
-7. Add the Vercel web URL to Supabase Auth site URL and redirect URLs.
-8. Create a staging owner user and organization.
-9. Smoke test dashboard routes.
+1. Go to Supabase.
+2. Create a new project named `plainvoice-staging`.
+3. Wait for the project to finish provisioning.
+4. Open **Project Settings** -> **API**.
+5. Copy:
+   - Project URL
+   - anon public key
+   - service_role key
+6. Open **Project Settings** -> **Database**.
+7. Copy the connection string if you need `DATABASE_URL` for tools.
+8. On your machine, log in:
+
+```sh
+supabase login
+```
+
+9. Link this repo to the new staging project:
+
+```sh
+supabase link
+```
+
+10. Confirm the selected project is `plainvoice-staging`.
+11. Review pending migrations:
+
+```sh
+supabase migration list
+```
+
+12. Push migrations:
+
+```sh
+supabase db push
+```
+
+13. Optional only if you want demo seed data in staging:
+
+```sh
+supabase db push --include-seed
+```
+
+14. Add the Vercel web URL to Supabase Auth site URL and redirect URLs.
+15. Create a staging owner user and organization.
+16. Smoke test dashboard routes.
 
 Do not guess production commands against a live database. Confirm the target Supabase project before applying migrations.
 
@@ -150,9 +218,11 @@ Dashboard routes after staging auth/data is configured:
 - `/fr/dashboard`
 - `/fr/settings`
 - `/fr/agents`
+- `/fr/contacts`
 - `/fr/inbox`
 - `/fr/tasks`
 - `/fr/calls`
+- `/fr/implementation`
 
 API, if Railway is deployed:
 
@@ -164,6 +234,77 @@ Provider checks, if live call demo is needed:
 - Twilio staging phone number routes to the intended Vapi resource.
 - Cal.com test account is connected in Organization Settings.
 - SMS is enabled only with consenting test recipients.
+
+## Full Staging Smoke Order
+
+### Level 1: Public Web
+
+- `/`
+- `/fr`
+- `/en`
+
+Pass when pages load and CTA email opens a message to `redabaq58@gmail.com`.
+
+### Level 2: API
+
+- `GET https://<railway-api-domain>/health`
+
+Pass when Railway returns:
+
+```json
+{"status":"ok","service":"plainvoice-api"}
+```
+
+### Level 3: Dashboard Routes
+
+- `/fr/dashboard`
+- `/fr/settings`
+- `/fr/agents`
+- `/fr/contacts`
+- `/fr/calls`
+- `/fr/inbox`
+- `/fr/tasks`
+- `/fr/implementation`
+
+Pass when routes load without server errors after staging auth/data is configured.
+
+### Level 4: Database
+
+Test:
+
+- Create or edit a contact.
+- Create a follow-up task.
+- Mark a task done.
+- Update organization settings.
+- Refresh each page.
+
+Pass when refreshed pages keep the new values.
+
+### Level 5: Integrations
+
+Test one at a time:
+
+- Vapi assistant sync.
+- Twilio phone-number search.
+- Cal.com availability check.
+- SMS disabled/skipped path.
+- SMS test to your own consenting number only.
+
+### Level 6: Full Flow
+
+Run one final demo flow:
+
+1. Create an agent from an industry demo pack.
+2. Assign a staging phone number.
+3. Make a test call.
+4. Confirm transcript/summary saves.
+5. Confirm contact is created.
+6. Set call outcome.
+7. Create follow-up task.
+8. Send or intentionally skip SMS.
+9. Confirm automation log.
+10. Confirm inbox item.
+11. Confirm dashboard updates.
 
 ## Today Best Choice
 
